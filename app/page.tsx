@@ -1,30 +1,43 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type {
   Property,
   AgentStatus,
   SwarmEvent,
   SwarmPipelineResult,
 } from "@/lib/types";
+import type { PipelineRun } from "@/lib/swarm";
+import { cn } from "@/lib/utils";
 import { Sidebar } from "@/components/sidebar";
 import { MetricsGrid } from "@/components/metrics-grid";
 import { AgentCard } from "@/components/agent-card";
 import { SwarmActivityFeed } from "@/components/swarm-activity-feed";
 import { PropertyForm } from "@/components/property-form";
 import { SwarmOrchestrator } from "@/components/swarm-orchestrator";
+import { NetworkTopology } from "@/components/network-topology";
+import { PipelineHistory } from "@/components/pipeline-history";
+import { SystemHealth } from "@/components/system-health";
 import { Radio } from "lucide-react";
 import useSWR, { mutate } from "swr";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function CloudCoachDashboard() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const [lastResult, setLastResult] = useState<SwarmPipelineResult | null>(
-    null
-  );
+  const [lastResult, setLastResult] = useState<SwarmPipelineResult | null>(null);
   const [totalRuns, setTotalRuns] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [uptime, setUptime] = useState(0);
+
+  // Uptime counter
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setUptime((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch agent statuses and events via SWR
   const { data: swarmData } = useSWR<{ agents: AgentStatus[] }>(
@@ -39,6 +52,12 @@ export default function CloudCoachDashboard() {
     { refreshInterval: 2000 }
   );
 
+  const { data: historyData } = useSWR<{ history: PipelineRun[] }>(
+    "/api/swarm/history",
+    fetcher,
+    { refreshInterval: 3000 }
+  );
+
   const agents = swarmData?.agents ?? [
     { name: "Valuation Agent" as const, status: "online" as const, lastRun: null, taskCount: 0, health: 100 },
     { name: "Market Agent" as const, status: "online" as const, lastRun: null, taskCount: 0, health: 100 },
@@ -46,6 +65,7 @@ export default function CloudCoachDashboard() {
   ];
 
   const events = eventsData?.events ?? [];
+  const history = historyData?.history ?? [];
 
   const handleRunPipeline = useCallback(
     async (property: Property, region: string) => {
@@ -71,6 +91,7 @@ export default function CloudCoachDashboard() {
         // Refresh SWR caches
         mutate("/api/swarm");
         mutate("/api/swarm/events");
+        mutate("/api/swarm/history");
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Unknown error occurred"
@@ -82,14 +103,25 @@ export default function CloudCoachDashboard() {
     []
   );
 
+  const systemOnline = agents.every((a) => a.status !== "error");
+
   return (
-    <div className="flex min-h-screen">
-      <Sidebar systemOnline={agents.every((a) => a.status !== "error")} />
+    <div className="flex min-h-screen bg-background">
+      <Sidebar
+        systemOnline={systemOnline}
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+      />
 
       {/* Main content area */}
-      <main className="ml-60 flex-1 px-8 py-6">
+      <main
+        className={cn(
+          "flex-1 px-4 py-6 transition-all duration-300 sm:px-6 lg:px-8",
+          sidebarCollapsed ? "lg:ml-16" : "lg:ml-60"
+        )}
+      >
         {/* Header */}
-        <header className="mb-8 flex items-center justify-between">
+        <header className="mb-8 flex items-center justify-between pt-10 lg:pt-0">
           <div className="flex items-center gap-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
               <Radio className="h-5 w-5 text-primary" />
@@ -99,8 +131,7 @@ export default function CloudCoachDashboard() {
                 TerraFusion Cloud Coach
               </h1>
               <p className="font-mono text-[10px] tracking-widest text-muted-foreground">
-                ELITE GOVERNMENT OS / MULTI-AGENT SWARM ORCHESTRATOR / RALPH
-                WIGGUM MODE
+                ELITE GOVERNMENT OS / MULTI-AGENT SWARM / RALPH WIGGUM MODE
               </p>
             </div>
           </div>
@@ -121,26 +152,39 @@ export default function CloudCoachDashboard() {
           />
         </section>
 
-        {/* Agent Status + Activity Feed */}
-        <section className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-5" aria-label="Agent status">
-          <div className="flex flex-col gap-4 lg:col-span-3">
+        {/* Agent Status + Activity Feed + Topology */}
+        <section className="mb-6 grid grid-cols-1 gap-6 xl:grid-cols-12" aria-label="Agent status">
+          {/* Agent Cards */}
+          <div className="flex flex-col gap-4 xl:col-span-4">
             <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
               AGENT SWARM STATUS
             </h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="flex flex-col gap-4">
               {agents.map((agent) => (
                 <AgentCard key={agent.name} agent={agent} />
               ))}
             </div>
           </div>
-          <div className="lg:col-span-2">
+
+          {/* Network Topology */}
+          <div className="xl:col-span-4">
+            <NetworkTopology agents={agents} isRunning={isRunning} />
+          </div>
+
+          {/* Activity Feed + System Health */}
+          <div className="flex flex-col gap-4 xl:col-span-4">
+            <SystemHealth
+              agents={agents}
+              totalRuns={totalRuns}
+              uptime={uptime}
+            />
             <SwarmActivityFeed events={events} />
           </div>
         </section>
 
         {/* Pipeline Orchestrator */}
         <section className="mb-6" aria-label="Swarm pipeline">
-          <div className="mb-4 flex items-center gap-2">
+          <div className="mb-4">
             <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
               SWARM PIPELINE ORCHESTRATOR
             </h2>
@@ -165,12 +209,17 @@ export default function CloudCoachDashboard() {
           <SwarmOrchestrator result={lastResult} isRunning={isRunning} />
         </section>
 
+        {/* Pipeline History */}
+        <section className="mb-6" aria-label="Pipeline history">
+          <PipelineHistory history={history} />
+        </section>
+
         {/* Footer */}
         <footer className="border-t border-border pt-4">
           <p className="font-mono text-[10px] text-muted-foreground/50">
             TerraFusion Valuator Pro Studio v1.0.0 -- Cloud Coach Agent --
             Multi-Agent Swarm Architecture -- Rust Backend + Next.js Control
-            Plane
+            Plane -- Ralph Wiggum Mode Active
           </p>
         </footer>
       </main>

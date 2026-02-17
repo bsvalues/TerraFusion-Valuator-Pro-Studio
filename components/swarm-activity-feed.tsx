@@ -20,7 +20,7 @@ export function SwarmActivityFeed({ events }: SwarmActivityFeedProps) {
           SWARM ACTIVITY LOG
         </h3>
       </div>
-      <div className="h-[360px] overflow-y-auto">
+      <div className="h-[240px] overflow-y-auto">
         {events.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <p className="font-mono text-xs text-muted-foreground">

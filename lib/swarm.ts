@@ -67,6 +67,21 @@ let eventLog: SwarmEvent[] = [
   },
 ];
 
+/** Pipeline run history record */
+export interface PipelineRun {
+  id: string;
+  timestamp: string;
+  propertyId: string;
+  address: string;
+  region: string;
+  estimatedValue: number;
+  riskLevel: string;
+  marketTrend: string;
+  durationMs: number;
+}
+
+let pipelineHistory: PipelineRun[] = [];
+
 let eventCounter = 3;
 
 // ---- Helpers ----
@@ -114,6 +129,10 @@ export function getAgentStatuses(): AgentStatus[] {
 
 export function getEventLog(): SwarmEvent[] {
   return [...eventLog];
+}
+
+export function getPipelineHistory(): PipelineRun[] {
+  return [...pipelineHistory];
 }
 
 /**
@@ -204,18 +223,18 @@ export function runSwarmPipeline(
     throw err;
   }
 
-  // Step 3: Risk Agent
+  // Step 3: Risk Agent (enhanced -- receives market + valuation data for correlation)
   updateAgent("Risk Agent", { status: "processing" });
   addEvent(
     "Risk Agent",
     "TASK_START",
-    `Assessing risk factors for property ${property.id}`,
+    `Assessing risk factors for property ${property.id} (market-correlated)`,
     "info"
   );
 
   let riskAssessment;
   try {
-    riskAssessment = assessRisk(property);
+    riskAssessment = assessRisk(property, marketData, valuation);
     updateAgent("Risk Agent", {
       status: "online",
       lastRun: now,
@@ -225,7 +244,7 @@ export function runSwarmPipeline(
     addEvent(
       "Risk Agent",
       "TASK_COMPLETE",
-      `Risk level: ${riskAssessment.riskLevel} (score: ${riskAssessment.riskScore.toFixed(2)})`,
+      `Risk level: ${riskAssessment.riskLevel} (score: ${riskAssessment.riskScore.toFixed(2)}) -- ${riskAssessment.factors.length} factors analyzed`,
       "success"
     );
   } catch (err) {
@@ -247,6 +266,23 @@ export function runSwarmPipeline(
     `Swarm pipeline completed in ${pipelineDurationMs}ms -- all agents nominal`,
     "success"
   );
+
+  // Record in pipeline history
+  const run: PipelineRun = {
+    id: `run-${Date.now()}`,
+    timestamp: now,
+    propertyId: property.id,
+    address: property.address,
+    region,
+    estimatedValue: valuation.estimatedValue,
+    riskLevel: riskAssessment.riskLevel,
+    marketTrend: marketData.marketTrend,
+    durationMs: pipelineDurationMs,
+  };
+  pipelineHistory.unshift(run);
+  if (pipelineHistory.length > 50) {
+    pipelineHistory = pipelineHistory.slice(0, 50);
+  }
 
   return {
     valuation,

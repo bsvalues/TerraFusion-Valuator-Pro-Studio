@@ -103,15 +103,18 @@ export const AVAILABLE_REGIONS = [
 ];
 
 // ---- Risk Assessor (port of services/risk-assessor/src/lib.rs) -------------
+// Enhanced with market-correlated risk, valuation deviation, and location volatility
 
 /**
- * Assess risk for a property.
- * Mirrors RiskAssessor::assess_risk exactly:
- *   sqft > 5000 => +0.2 risk
- *   bedrooms > 5 => +0.1 risk
- *   risk < 0.3 => Low, < 0.6 => Medium, else High
+ * Assess risk for a property with optional market correlation.
+ * Core logic mirrors RiskAssessor::assess_risk (sqft > 5000 => +0.2, bedrooms > 5 => +0.1),
+ * extended with market-aware risk factors for the Cloud Coach swarm.
  */
-export function assessRisk(property: Property): RiskAssessment {
+export function assessRisk(
+  property: Property,
+  marketData?: MarketData,
+  valuation?: Valuation
+): RiskAssessment {
   const validation = validateProperty(property);
   if (!validation.valid) {
     throw new Error(`Validation failed: ${validation.errors.join(", ")}`);
@@ -120,15 +123,50 @@ export function assessRisk(property: Property): RiskAssessment {
   let riskScore = 0.0;
   const factors: string[] = [];
 
+  // Core Rust-port factors
   if (property.squareFeet > 5000) {
     riskScore += 0.2;
-    factors.push("Large property size");
+    factors.push("Large property size (>5,000 sqft)");
   }
 
   if (property.bedrooms > 5) {
     riskScore += 0.1;
-    factors.push("High bedroom count");
+    factors.push("High bedroom count (>5)");
   }
+
+  // Extended: bathroom-to-bedroom ratio imbalance
+  const bathRatio = property.bathrooms / property.bedrooms;
+  if (bathRatio < 0.5) {
+    riskScore += 0.05;
+    factors.push("Low bath-to-bed ratio (<0.5)");
+  }
+
+  // Extended: market-correlated risk
+  if (marketData) {
+    if (marketData.marketTrend === "Declining") {
+      riskScore += 0.15;
+      factors.push("Declining market trend in region");
+    }
+
+    // Valuation-to-market deviation
+    if (valuation) {
+      const expectedValue = property.squareFeet * marketData.averagePricePerSqft;
+      const deviation = Math.abs(valuation.estimatedValue - expectedValue) / expectedValue;
+      if (deviation > 0.3) {
+        riskScore += 0.1;
+        factors.push(`Valuation deviates ${(deviation * 100).toFixed(0)}% from market avg`);
+      }
+    }
+
+    // Location volatility based on price range
+    if (marketData.medianPrice > 750000) {
+      riskScore += 0.05;
+      factors.push("High-value market volatility exposure");
+    }
+  }
+
+  // Cap risk score at 1.0
+  riskScore = Math.min(riskScore, 1.0);
 
   let riskLevel: RiskLevel;
   if (riskScore < 0.3) {
