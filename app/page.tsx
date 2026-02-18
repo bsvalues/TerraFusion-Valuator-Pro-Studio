@@ -19,8 +19,11 @@ import { NetworkTopology } from "@/components/network-topology";
 import { PipelineHistory } from "@/components/pipeline-history";
 import { SystemHealth } from "@/components/system-health";
 import { CommandTerminal } from "@/components/command-terminal";
+import { LiveTicker } from "@/components/live-ticker";
+import { RegionRadar } from "@/components/region-radar";
 import { generateComparables, type ComparableSale } from "@/lib/engines";
 import { Radio } from "lucide-react";
+import { useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -34,6 +37,8 @@ export default function CloudCoachDashboard() {
   const [uptime, setUptime] = useState(0);
   const [comps, setComps] = useState<ComparableSale[]>([]);
   const [lastProperty, setLastProperty] = useState<Property | null>(null);
+  const [lastRegion, setLastRegion] = useState<string | null>(null);
+  const router = useRouter();
 
   // Uptime counter
   useEffect(() => {

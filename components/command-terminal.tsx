@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Terminal, ChevronRight } from "lucide-react";
 import { getAgentStatuses, getPipelineHistory } from "@/lib/swarm";
+import { analyzeMarket, AVAILABLE_REGIONS } from "@/lib/engines";
 import type { Property } from "@/lib/types";
 
 interface TerminalLine {
@@ -14,20 +15,24 @@ interface TerminalLine {
 
 interface CommandTerminalProps {
   onRunPipeline: (property: Property, region: string) => void;
+  onOpenReport?: () => void;
   isRunning: boolean;
 }
 
 const HELP_TEXT = `Available Commands:
-  status          Show all agent statuses
-  health          Show system health summary
-  history         Show recent pipeline runs
-  regions         List available market regions
-  run <region>    Run pipeline with sample property in <region>
-  clear           Clear terminal output
-  help            Show this help message
-  whoami          Identify the Cloud Coach`;
+  status               Show all agent statuses
+  health               Show system health summary
+  history              Show recent pipeline runs
+  regions              List available market regions
+  run <region>         Run pipeline with sample property in <region>
+  compare <r1> vs <r2> Compare two market regions side-by-side
+  report               Open appraisal report for last pipeline run
+  swarm                Show swarm mesh topology status
+  clear                Clear terminal output
+  help                 Show this help message
+  whoami               Identify the Cloud Coach`;
 
-export function CommandTerminal({ onRunPipeline, isRunning }: CommandTerminalProps) {
+export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: CommandTerminalProps) {
   const [lines, setLines] = useState<TerminalLine[]>([
     {
       id: 0,
@@ -160,6 +165,68 @@ export function CommandTerminal({ onRunPipeline, isRunning }: CommandTerminalPro
           break;
         }
 
+        case "compare": {
+          const rest = parts.slice(1).join(" ");
+          const vsParts = rest.split(/\s+vs\s+/i);
+          if (vsParts.length < 2) {
+            addLine("error", 'Usage: compare <region1> vs <region2>');
+            addLine("error", 'Example: compare downtown vs suburbs');
+            break;
+          }
+
+          const regionMap2: Record<string, string> = {
+            downtown: "Downtown",
+            suburbs: "Suburbs",
+            "urban core": "Urban Core",
+            "rural county": "Rural County",
+            "waterfront district": "Waterfront District",
+            waterfront: "Waterfront District",
+            rural: "Rural County",
+            urban: "Urban Core",
+          };
+
+          const r1 = regionMap2[vsParts[0].trim()] ?? vsParts[0].trim();
+          const r2 = regionMap2[vsParts[1].trim()] ?? vsParts[1].trim();
+
+          try {
+            const m1 = analyzeMarket(r1);
+            const m2 = analyzeMarket(r2);
+            addLine("output", `--- REGION COMPARISON: ${r1} vs ${r2} ---`);
+            addLine("output", `  Metric           ${r1.padEnd(22)} ${r2}`);
+            addLine("output", `  ${"─".repeat(55)}`);
+            addLine("output", `  Median Price      $${m1.medianPrice.toLocaleString().padEnd(20)} $${m2.medianPrice.toLocaleString()}`);
+            addLine("output", `  Avg $/SqFt        $${String(m1.averagePricePerSqft).padEnd(20)} $${m2.averagePricePerSqft}`);
+            addLine("output", `  Market Trend      ${m1.marketTrend.padEnd(22)} ${m2.marketTrend}`);
+            const diff = ((m1.medianPrice - m2.medianPrice) / m2.medianPrice * 100).toFixed(1);
+            addLine("output", `  Price Delta:      ${Number(diff) > 0 ? "+" : ""}${diff}% (${r1} vs ${r2})`);
+          } catch {
+            addLine("error", "Failed to compare regions. Check region names.");
+          }
+          break;
+        }
+
+        case "report":
+          if (onOpenReport) {
+            addLine("system", "Opening appraisal report...");
+            onOpenReport();
+          } else {
+            addLine("error", "No pipeline results available. Run a pipeline first.");
+          }
+          break;
+
+        case "swarm":
+          addLine("output", "--- SWARM MESH TOPOLOGY ---");
+          addLine("output", "                 COACH-0");
+          addLine("output", "                /   |   \\");
+          addLine("output", "    APPRAISER-1  ANALYST-2  SENTINEL-3");
+          addLine("output", "         \\__________|__________/");
+          addLine("output", "           Fully Connected Mesh");
+          addLine("output", "");
+          addLine("output", "  Mode: Ralph Wiggum (Multi-Agent Swarm)");
+          addLine("output", "  Protocol: Event-Driven Sequential Pipeline");
+          addLine("output", "  Mesh status: All links healthy");
+          break;
+
         case "clear":
           setLines([]);
           break;
@@ -185,7 +252,7 @@ export function CommandTerminal({ onRunPipeline, isRunning }: CommandTerminalPro
           );
       }
     },
-    [addLine, isRunning, onRunPipeline]
+    [addLine, isRunning, onRunPipeline, onOpenReport]
   );
 
   function handleSubmit(e: React.FormEvent) {
