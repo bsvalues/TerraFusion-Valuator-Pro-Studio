@@ -27,10 +27,13 @@ const HELP_TEXT = `Available Commands:
   run <region>         Run pipeline with sample property in <region>
   compare <r1> vs <r2> Compare two market regions side-by-side
   report               Open appraisal report for last pipeline run
+  forecast <region>    Show 6-month price forecast for a region
+  benchmark            Run all 5 regions side-by-side
   swarm                Show swarm mesh topology status
   clear                Clear terminal output
   help                 Show this help message
-  whoami               Identify the Cloud Coach`;
+  whoami               Identify the Cloud Coach
+  ralph                Activate Ralph Wiggum Mode`;
 
 export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: CommandTerminalProps) {
   const [lines, setLines] = useState<TerminalLine[]>([
@@ -229,6 +232,71 @@ export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: Comm
 
         case "clear":
           setLines([]);
+          break;
+
+        case "forecast": {
+          const fRegion = parts.slice(1).join(" ");
+          const fRegionMap: Record<string, string> = {
+            downtown: "Downtown",
+            suburbs: "Suburbs",
+            "urban core": "Urban Core",
+            "rural county": "Rural County",
+            "waterfront district": "Waterfront District",
+            waterfront: "Waterfront District",
+            rural: "Rural County",
+            urban: "Urban Core",
+          };
+          const resolvedFRegion = fRegionMap[fRegion] ?? "Downtown";
+          try {
+            const mkt = analyzeMarket(resolvedFRegion);
+            const multiplier =
+              mkt.marketTrend === "Rising" ? 1.008 : mkt.marketTrend === "Declining" ? 0.995 : 1.002;
+            addLine("output", `--- 6-MONTH FORECAST: ${resolvedFRegion} ---`);
+            addLine("output", `  Current Median: $${mkt.medianPrice.toLocaleString()}`);
+            addLine("output", `  Trend: ${mkt.marketTrend}`);
+            addLine("output", "");
+            for (let m = 1; m <= 6; m++) {
+              const projected = Math.round(mkt.medianPrice * Math.pow(multiplier, m));
+              const pctChange = (((projected - mkt.medianPrice) / mkt.medianPrice) * 100).toFixed(1);
+              addLine(
+                "output",
+                `  Month ${m}:  $${projected.toLocaleString()}  (${Number(pctChange) >= 0 ? "+" : ""}${pctChange}%)`
+              );
+            }
+          } catch {
+            addLine("error", "Failed to generate forecast.");
+          }
+          break;
+        }
+
+        case "benchmark": {
+          addLine("system", "Running benchmark across all 5 regions...");
+          addLine("output", "--- MULTI-REGION BENCHMARK ---");
+          AVAILABLE_REGIONS.forEach((r) => {
+            try {
+              const mkt = analyzeMarket(r);
+              addLine(
+                "output",
+                `  ${r.padEnd(22)} $${mkt.medianPrice.toLocaleString().padEnd(10)} $${String(mkt.averagePricePerSqft).padEnd(6)} ${mkt.marketTrend}`
+              );
+            } catch {
+              addLine("error", `  Failed: ${r}`);
+            }
+          });
+          addLine("output", "");
+          addLine("output", "  Benchmark complete. 5/5 regions analyzed.");
+          break;
+        }
+
+        case "ralph":
+          addLine("system", "=== RALPH WIGGUM MODE ACTIVATED ===");
+          addLine("output", '"I\'m helping!"');
+          addLine("output", '"Me fail English? That\'s unpossible!"');
+          addLine("output", '"I bent my wookiee."');
+          addLine("output", '"My cat\'s breath smells like cat food."');
+          addLine("output", '"I\'m learnding!"');
+          addLine("system", "Cloud Coach operating at maximum Ralph capacity.");
+          addLine("system", "All agents have been encouraged. Morale: MAXIMUM.");
           break;
 
         case "whoami":

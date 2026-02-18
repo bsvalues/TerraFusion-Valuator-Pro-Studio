@@ -9,7 +9,8 @@ import { CompGrid } from "./comp-grid";
 import { RiskHeatmap } from "./risk-heatmap";
 import { ValuationSparkline } from "./valuation-sparkline";
 import type { ComparableSale } from "@/lib/engines";
-import { Network, ArrowRight, CheckCircle2, Clock } from "lucide-react";
+import { Network, ArrowRight, CheckCircle2, Clock, FileText } from "lucide-react";
+import Link from "next/link";
 
 interface SwarmOrchestratorProps {
   result: SwarmPipelineResult | null;
@@ -35,9 +36,20 @@ export function SwarmOrchestrator({ result, isRunning, comps, lastProperty }: Sw
             SWARM PIPELINE
           </h4>
           {result && (
-            <span className="ml-auto font-mono text-[10px] text-muted-foreground">
-              Completed in {result.pipelineDurationMs}ms
-            </span>
+            <div className="ml-auto flex items-center gap-4">
+              <span className="font-mono text-[10px] text-muted-foreground">
+                Completed in {result.pipelineDurationMs}ms
+              </span>
+              {lastProperty && (
+                <Link
+                  href={`/report?id=${lastProperty.id}&address=${encodeURIComponent(lastProperty.address)}&sqft=${lastProperty.squareFeet}&beds=${lastProperty.bedrooms}&baths=${lastProperty.bathrooms}`}
+                  className="flex items-center gap-1.5 rounded-md bg-primary/10 px-3 py-1.5 font-mono text-[10px] font-semibold tracking-wider text-primary transition-colors hover:bg-primary/20"
+                >
+                  <FileText className="h-3 w-3" />
+                  VIEW REPORT
+                </Link>
+              )}
+            </div>
           )}
         </div>
 
