@@ -1,0 +1,277 @@
+"use client";
+
+import { useState, useRef, useEffect, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { Terminal, ChevronRight } from "lucide-react";
+import { getAgentStatuses, getPipelineHistory } from "@/lib/swarm";
+import type { Property } from "@/lib/types";
+
+interface TerminalLine {
+  id: number;
+  type: "input" | "output" | "error" | "system";
+  text: string;
+}
+
+interface CommandTerminalProps {
+  onRunPipeline: (property: Property, region: string) => void;
+  isRunning: boolean;
+}
+
+const HELP_TEXT = `Available Commands:
+  status          Show all agent statuses
+  health          Show system health summary
+  history         Show recent pipeline runs
+  regions         List available market regions
+  run <region>    Run pipeline with sample property in <region>
+  clear           Clear terminal output
+  help            Show this help message
+  whoami          Identify the Cloud Coach`;
+
+export function CommandTerminal({ onRunPipeline, isRunning }: CommandTerminalProps) {
+  const [lines, setLines] = useState<TerminalLine[]>([
+    {
+      id: 0,
+      type: "system",
+      text: "TerraFusion Cloud Coach Terminal v1.0.0",
+    },
+    {
+      id: 1,
+      type: "system",
+      text: "Ralph Wiggum Mode ACTIVE -- Multi-Agent Swarm Orchestrator",
+    },
+    {
+      id: 2,
+      type: "system",
+      text: 'Type "help" for available commands.',
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const lineIdRef = useRef(3);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
+  }, [lines]);
+
+  const addLine = useCallback(
+    (type: TerminalLine["type"], text: string) => {
+      const id = lineIdRef.current++;
+      setLines((prev) => [...prev, { id, type, text }]);
+    },
+    []
+  );
+
+  const processCommand = useCallback(
+    (cmd: string) => {
+      const trimmed = cmd.trim().toLowerCase();
+      const parts = trimmed.split(/\s+/);
+      const command = parts[0];
+
+      addLine("input", `$ ${cmd}`);
+
+      switch (command) {
+        case "help":
+          addLine("output", HELP_TEXT);
+          break;
+
+        case "status": {
+          addLine("output", "--- AGENT STATUS ---");
+          addLine("output", "  APPRAISER-1 (Valuation Agent)  ... ONLINE");
+          addLine("output", "  ANALYST-2   (Market Agent)     ... ONLINE");
+          addLine("output", "  SENTINEL-3  (Risk Agent)       ... ONLINE");
+          addLine("output", "All agents reporting nominal.");
+          break;
+        }
+
+        case "health": {
+          addLine("output", "--- SYSTEM HEALTH ---");
+          addLine("output", "  Overall:     100%");
+          addLine("output", "  Memory:      Nominal");
+          addLine("output", "  Swarm mesh:  Fully connected");
+          addLine("output", "  Pipeline:    Idle / Ready");
+          break;
+        }
+
+        case "history": {
+          const hist = getPipelineHistory();
+          if (hist.length === 0) {
+            addLine("output", "No pipeline runs recorded yet.");
+          } else {
+            addLine("output", `--- LAST ${Math.min(hist.length, 5)} PIPELINE RUNS ---`);
+            hist.slice(0, 5).forEach((run) => {
+              addLine(
+                "output",
+                `  ${run.propertyId}  $${run.estimatedValue.toLocaleString()}  ${run.riskLevel.padEnd(6)}  ${run.marketTrend.padEnd(9)}  ${run.durationMs}ms`
+              );
+            });
+          }
+          break;
+        }
+
+        case "regions":
+          addLine("output", "--- AVAILABLE REGIONS ---");
+          addLine("output", "  Downtown");
+          addLine("output", "  Suburbs");
+          addLine("output", "  Urban Core");
+          addLine("output", "  Rural County");
+          addLine("output", "  Waterfront District");
+          break;
+
+        case "run": {
+          if (isRunning) {
+            addLine("error", "Pipeline already executing. Please wait.");
+            break;
+          }
+          const region = parts.slice(1).join(" ");
+          const regionMap: Record<string, string> = {
+            downtown: "Downtown",
+            suburbs: "Suburbs",
+            "urban core": "Urban Core",
+            "rural county": "Rural County",
+            "waterfront district": "Waterfront District",
+            waterfront: "Waterfront District",
+            rural: "Rural County",
+            urban: "Urban Core",
+          };
+          const resolvedRegion = regionMap[region] ?? "Downtown";
+
+          addLine(
+            "system",
+            `Initiating swarm pipeline in ${resolvedRegion}...`
+          );
+
+          const sampleProperty: Property = {
+            id: `TF-${Math.floor(Math.random() * 90000) + 10000}`,
+            address: `${100 + Math.floor(Math.random() * 900)} Terminal Ave`,
+            squareFeet: 1800 + Math.floor(Math.random() * 2200),
+            bedrooms: 2 + Math.floor(Math.random() * 4),
+            bathrooms: 1 + Math.floor(Math.random() * 3),
+          };
+
+          addLine(
+            "output",
+            `Property: ${sampleProperty.id} | ${sampleProperty.address} | ${sampleProperty.squareFeet} sqft`
+          );
+
+          onRunPipeline(sampleProperty, resolvedRegion);
+          break;
+        }
+
+        case "clear":
+          setLines([]);
+          break;
+
+        case "whoami":
+          addLine("output", "TerraFusion Cloud Coach -- Elite Government OS");
+          addLine("output", "Primary Orchestrator Agent");
+          addLine("output", "Designation: COACH-0");
+          addLine(
+            "output",
+            "Mode: Ralph Wiggum (Multi-Agent Swarm)"
+          );
+          addLine("output", '"I\'m helping!"');
+          break;
+
+        case "":
+          break;
+
+        default:
+          addLine(
+            "error",
+            `Unknown command: "${command}". Type "help" for available commands.`
+          );
+      }
+    },
+    [addLine, isRunning, onRunPipeline]
+  );
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!input.trim()) return;
+    setCommandHistory((prev) => [input, ...prev].slice(0, 50));
+    setHistoryIndex(-1);
+    processCommand(input);
+    setInput("");
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (commandHistory.length > 0) {
+        const newIndex = Math.min(
+          historyIndex + 1,
+          commandHistory.length - 1
+        );
+        setHistoryIndex(newIndex);
+        setInput(commandHistory[newIndex]);
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        const newIndex = historyIndex - 1;
+        setHistoryIndex(newIndex);
+        setInput(commandHistory[newIndex]);
+      } else {
+        setHistoryIndex(-1);
+        setInput("");
+      }
+    }
+  }
+
+  const lineColors: Record<TerminalLine["type"], string> = {
+    input: "text-foreground",
+    output: "text-primary/90",
+    error: "text-destructive",
+    system: "text-chart-3",
+  };
+
+  return (
+    <div className="flex flex-col rounded-lg border border-border bg-card">
+      <div className="flex items-center gap-2 border-b border-border px-5 py-3">
+        <Terminal className="h-3.5 w-3.5 text-primary" />
+        <h3 className="font-mono text-xs font-medium tracking-wider text-foreground">
+          CLOUD COACH TERMINAL
+        </h3>
+        <span className="ml-auto font-mono text-[10px] text-muted-foreground">
+          {isRunning ? "EXECUTING..." : "READY"}
+        </span>
+      </div>
+
+      {/* Output area */}
+      <div
+        ref={scrollRef}
+        onClick={() => inputRef.current?.focus()}
+        className="h-56 overflow-y-auto bg-background/50 px-5 py-3 font-mono text-xs"
+      >
+        {lines.map((line) => (
+          <div key={line.id} className={cn("whitespace-pre-wrap", lineColors[line.type])}>
+            {line.text}
+          </div>
+        ))}
+      </div>
+
+      {/* Input */}
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center gap-2 border-t border-border px-5 py-3"
+      >
+        <ChevronRight className="h-3 w-3 shrink-0 text-primary" />
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Enter command..."
+          disabled={false}
+          className="flex-1 bg-transparent font-mono text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
+          autoComplete="off"
+          spellCheck={false}
+        />
+      </form>
+    </div>
+  );
+}

@@ -102,6 +102,104 @@ export const AVAILABLE_REGIONS = [
   "Waterfront District",
 ];
 
+// ---- Comparable Sales Engine (Cloud Coach extension) -----------------------
+
+/** A comparable property sale */
+export interface ComparableSale {
+  id: string;
+  address: string;
+  squareFeet: number;
+  bedrooms: number;
+  bathrooms: number;
+  salePrice: number;
+  saleDate: string;
+  distance: number; // miles from subject
+  adjustedPrice: number;
+  adjustmentFactors: string[];
+}
+
+/**
+ * Generate comparable sales for a subject property in a given region.
+ * Produces 3-5 comps with realistic adjustments based on the subject property
+ * and region market data. This emulates what a certified appraiser would pull
+ * from MLS data, adjusted for differences in GLA, bedroom count, and location.
+ */
+export function generateComparables(
+  property: Property,
+  region: string
+): ComparableSale[] {
+  const market = analyzeMarket(region);
+  const basePrice = property.squareFeet * market.averagePricePerSqft;
+
+  const streetNames = [
+    "Oak Ave", "Elm St", "Pine Rd", "Maple Dr", "Cedar Ln",
+    "Birch Way", "Walnut Ct", "Spruce Blvd",
+  ];
+
+  const comps: ComparableSale[] = [];
+  const seed = property.squareFeet + property.bedrooms * 1000 + property.bathrooms * 100;
+
+  for (let i = 0; i < 5; i++) {
+    const sqftVariance = Math.round((((seed * (i + 7)) % 800) - 400));
+    const compSqft = Math.max(800, property.squareFeet + sqftVariance);
+    const bedVariance = ((seed * (i + 3)) % 3) - 1;
+    const compBeds = Math.max(1, property.bedrooms + bedVariance);
+    const bathVariance = ((seed * (i + 5)) % 3) - 1;
+    const compBaths = Math.max(1, property.bathrooms + bathVariance);
+
+    const factors: string[] = [];
+    let adjustedPrice = compSqft * market.averagePricePerSqft;
+
+    // GLA adjustment
+    const sqftDiff = compSqft - property.squareFeet;
+    if (sqftDiff !== 0) {
+      const adj = sqftDiff * (market.averagePricePerSqft * 0.5);
+      adjustedPrice -= adj;
+      factors.push(`GLA ${sqftDiff > 0 ? "+" : ""}${sqftDiff} sqft: ${sqftDiff > 0 ? "-" : "+"}$${Math.abs(Math.round(adj)).toLocaleString()}`);
+    }
+
+    // Bedroom adjustment
+    const bedDiff = compBeds - property.bedrooms;
+    if (bedDiff !== 0) {
+      const adj = bedDiff * 15000;
+      adjustedPrice -= adj;
+      factors.push(`Bedrooms ${bedDiff > 0 ? "+" : ""}${bedDiff}: ${bedDiff > 0 ? "-" : "+"}$${Math.abs(adj).toLocaleString()}`);
+    }
+
+    // Bathroom adjustment
+    const bathDiff = compBaths - property.bathrooms;
+    if (bathDiff !== 0) {
+      const adj = bathDiff * 10000;
+      adjustedPrice -= adj;
+      factors.push(`Bathrooms ${bathDiff > 0 ? "+" : ""}${bathDiff}: ${bathDiff > 0 ? "-" : "+"}$${Math.abs(adj).toLocaleString()}`);
+    }
+
+    const distance = parseFloat((0.2 + ((seed * (i + 11)) % 50) / 10).toFixed(1));
+    const daysAgo = 30 + ((seed * (i + 13)) % 150);
+    const saleDate = new Date(Date.now() - daysAgo * 86400000)
+      .toISOString()
+      .slice(0, 10);
+
+    const streetNum = 100 + ((seed * (i + 2)) % 900);
+    const street = streetNames[i % streetNames.length];
+
+    comps.push({
+      id: `COMP-${(i + 1).toString().padStart(3, "0")}`,
+      address: `${streetNum} ${street}`,
+      squareFeet: compSqft,
+      bedrooms: compBeds,
+      bathrooms: compBaths,
+      salePrice: Math.round(compSqft * market.averagePricePerSqft),
+      saleDate,
+      distance,
+      adjustedPrice: Math.round(adjustedPrice),
+      adjustmentFactors: factors.length > 0 ? factors : ["No adjustments needed"],
+    });
+  }
+
+  return comps;
+}
+
 // ---- Risk Assessor (port of services/risk-assessor/src/lib.rs) -------------
 // Enhanced with market-correlated risk, valuation deviation, and location volatility
 

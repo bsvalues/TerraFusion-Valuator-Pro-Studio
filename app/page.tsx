@@ -18,6 +18,8 @@ import { SwarmOrchestrator } from "@/components/swarm-orchestrator";
 import { NetworkTopology } from "@/components/network-topology";
 import { PipelineHistory } from "@/components/pipeline-history";
 import { SystemHealth } from "@/components/system-health";
+import { CommandTerminal } from "@/components/command-terminal";
+import { generateComparables, type ComparableSale } from "@/lib/engines";
 import { Radio } from "lucide-react";
 import useSWR, { mutate } from "swr";
 
@@ -30,6 +32,8 @@ export default function CloudCoachDashboard() {
   const [totalRuns, setTotalRuns] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [uptime, setUptime] = useState(0);
+  const [comps, setComps] = useState<ComparableSale[]>([]);
+  const [lastProperty, setLastProperty] = useState<Property | null>(null);
 
   // Uptime counter
   useEffect(() => {
@@ -71,6 +75,7 @@ export default function CloudCoachDashboard() {
     async (property: Property, region: string) => {
       setIsRunning(true);
       setError(null);
+      setLastProperty(property);
 
       try {
         const res = await fetch("/api/swarm", {
@@ -87,6 +92,10 @@ export default function CloudCoachDashboard() {
         const result: SwarmPipelineResult = await res.json();
         setLastResult(result);
         setTotalRuns((prev) => prev + 1);
+
+        // Generate comparable sales for deep analysis
+        const generatedComps = generateComparables(property, region);
+        setComps(generatedComps);
 
         // Refresh SWR caches
         mutate("/api/swarm");
@@ -206,12 +215,30 @@ export default function CloudCoachDashboard() {
           )}
 
           {/* Pipeline results */}
-          <SwarmOrchestrator result={lastResult} isRunning={isRunning} />
+          <SwarmOrchestrator
+            result={lastResult}
+            isRunning={isRunning}
+            comps={comps}
+            lastProperty={lastProperty}
+          />
         </section>
 
         {/* Pipeline History */}
         <section className="mb-6" aria-label="Pipeline history">
           <PipelineHistory history={history} />
+        </section>
+
+        {/* Command Terminal */}
+        <section className="mb-6" aria-label="Cloud Coach terminal">
+          <div className="mb-4">
+            <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
+              CLOUD COACH TERMINAL
+            </h2>
+          </div>
+          <CommandTerminal
+            onRunPipeline={handleRunPipeline}
+            isRunning={isRunning}
+          />
         </section>
 
         {/* Footer */}

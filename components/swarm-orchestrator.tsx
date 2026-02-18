@@ -1,15 +1,21 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { SwarmPipelineResult } from "@/lib/types";
+import type { SwarmPipelineResult, Property } from "@/lib/types";
 import { ValuationResult } from "./valuation-result";
 import { RiskGauge } from "./risk-gauge";
 import { MarketChart } from "./market-chart";
+import { CompGrid } from "./comp-grid";
+import { RiskHeatmap } from "./risk-heatmap";
+import { ValuationSparkline } from "./valuation-sparkline";
+import type { ComparableSale } from "@/lib/engines";
 import { Network, ArrowRight, CheckCircle2, Clock } from "lucide-react";
 
 interface SwarmOrchestratorProps {
   result: SwarmPipelineResult | null;
   isRunning: boolean;
+  comps: ComparableSale[];
+  lastProperty: Property | null;
 }
 
 const pipelineSteps = [
@@ -18,7 +24,7 @@ const pipelineSteps = [
   { label: "RISK", agent: "Risk Agent" },
 ];
 
-export function SwarmOrchestrator({ result, isRunning }: SwarmOrchestratorProps) {
+export function SwarmOrchestrator({ result, isRunning, comps, lastProperty }: SwarmOrchestratorProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* Pipeline visualization */}
@@ -91,6 +97,25 @@ export function SwarmOrchestrator({ result, isRunning }: SwarmOrchestratorProps)
           <MarketChart currentMarket={result.marketData} />
           <RiskGauge assessment={result.riskAssessment} />
         </div>
+      )}
+
+      {/* Deep analysis layer */}
+      {result && comps.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <ValuationSparkline
+            valuation={result.valuation}
+            comps={comps}
+          />
+          <RiskHeatmap assessment={result.riskAssessment} />
+        </div>
+      )}
+
+      {/* Comparable Sales */}
+      {result && comps.length > 0 && (
+        <CompGrid
+          comps={comps}
+          subjectValue={result.valuation.estimatedValue}
+        />
       )}
     </div>
   );
