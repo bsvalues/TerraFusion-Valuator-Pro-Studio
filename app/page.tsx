@@ -21,6 +21,8 @@ import { SystemHealth } from "@/components/system-health";
 import { CommandTerminal } from "@/components/command-terminal";
 import { LiveTicker } from "@/components/live-ticker";
 import { RegionRadar } from "@/components/region-radar";
+import { ComplianceBadge } from "@/components/compliance-badge";
+import { ExportSummary } from "@/components/export-summary";
 import { generateComparables, type ComparableSale } from "@/lib/engines";
 import { Radio } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -81,6 +83,7 @@ export default function CloudCoachDashboard() {
       setIsRunning(true);
       setError(null);
       setLastProperty(property);
+      setLastRegion(region);
 
       try {
         const res = await fetch("/api/swarm", {
@@ -130,10 +133,20 @@ export default function CloudCoachDashboard() {
       {/* Main content area */}
       <main
         className={cn(
-          "flex-1 px-4 py-6 transition-all duration-300 sm:px-6 lg:px-8",
+          "flex-1 transition-all duration-300",
           sidebarCollapsed ? "lg:ml-16" : "lg:ml-60"
         )}
       >
+        {/* Live data ticker */}
+        <LiveTicker
+          agents={agents}
+          lastResult={lastResult}
+          totalRuns={totalRuns}
+          uptime={uptime}
+        />
+
+        {/* Inner content padding */}
+        <div className="px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
         <header className="mb-8 flex items-center justify-between pt-10 lg:pt-0">
           <div className="flex items-center gap-4">
@@ -226,11 +239,33 @@ export default function CloudCoachDashboard() {
             comps={comps}
             lastProperty={lastProperty}
           />
+
+          {/* Export Summary */}
+          {lastResult && lastProperty && lastRegion && (
+            <div className="mt-6">
+              <ExportSummary
+                result={lastResult}
+                property={lastProperty}
+                region={lastRegion}
+                comps={comps}
+              />
+            </div>
+          )}
         </section>
 
         {/* Pipeline History */}
         <section className="mb-6" aria-label="Pipeline history">
           <PipelineHistory history={history} />
+        </section>
+
+        {/* Region analysis */}
+        <section className="mb-6" aria-label="Multi-region analysis">
+          <div className="mb-4">
+            <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
+              MULTI-REGION INTELLIGENCE
+            </h2>
+          </div>
+          <RegionRadar activeRegion={lastRegion} />
         </section>
 
         {/* Command Terminal */}
@@ -242,18 +277,39 @@ export default function CloudCoachDashboard() {
           </div>
           <CommandTerminal
             onRunPipeline={handleRunPipeline}
+            onOpenReport={
+              lastProperty
+                ? () => {
+                    const params = new URLSearchParams({
+                      id: lastProperty.id,
+                      address: lastProperty.address,
+                      sqft: String(lastProperty.squareFeet),
+                      beds: String(lastProperty.bedrooms),
+                      baths: String(lastProperty.bathrooms),
+                      region: lastRegion ?? "Downtown",
+                    });
+                    router.push(`/report?${params.toString()}`);
+                  }
+                : undefined
+            }
             isRunning={isRunning}
           />
         </section>
 
+        {/* Compliance */}
+        <section className="mb-6" aria-label="Regulatory compliance">
+          <ComplianceBadge />
+        </section>
+
         {/* Footer */}
-        <footer className="border-t border-border pt-4">
+        <footer className="border-t border-border pt-4 pb-6">
           <p className="font-mono text-[10px] text-muted-foreground/50">
             TerraFusion Valuator Pro Studio v1.0.0 -- Cloud Coach Agent --
             Multi-Agent Swarm Architecture -- Rust Backend + Next.js Control
             Plane -- Ralph Wiggum Mode Active
           </p>
         </footer>
+        </div>{/* end inner content padding */}
       </main>
     </div>
   );
