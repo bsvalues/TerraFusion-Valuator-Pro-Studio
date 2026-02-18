@@ -22,6 +22,7 @@ import { CommandTerminal } from "@/components/command-terminal";
 import { LiveTicker } from "@/components/live-ticker";
 import { RegionRadar } from "@/components/region-radar";
 import { ComplianceBadge } from "@/components/compliance-badge";
+import { DispatchCenter } from "@/components/dispatch-center";
 import { ExportSummary } from "@/components/export-summary";
 import { generateComparables, type ComparableSale } from "@/lib/engines";
 import { Radio } from "lucide-react";
@@ -311,6 +312,27 @@ export default function CloudCoachDashboard() {
         </footer>
         </div>{/* end inner content padding */}
       </main>
+
+      {/* Dispatch center (Cmd+K) */}
+      <DispatchCenter
+        onRunPipeline={handleRunPipeline}
+        onOpenReport={
+          lastProperty
+            ? () => {
+                const params = new URLSearchParams({
+                  id: lastProperty.id,
+                  address: lastProperty.address,
+                  sqft: String(lastProperty.squareFeet),
+                  beds: String(lastProperty.bedrooms),
+                  baths: String(lastProperty.bathrooms),
+                  region: lastRegion ?? "Downtown",
+                });
+                router.push(`/report?${params.toString()}`);
+              }
+            : undefined
+        }
+        isRunning={isRunning}
+      />
     </div>
   );
 }

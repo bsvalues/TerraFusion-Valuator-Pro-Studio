@@ -12,15 +12,19 @@ import {
   ChevronRight,
   Menu,
   X,
+  Globe,
+  Terminal,
+  BadgeCheck,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, id: "dashboard" },
-  { label: "Agent Swarm", icon: Network, id: "swarm" },
-  { label: "Valuations", icon: DollarSign, id: "valuations" },
-  { label: "Market Analysis", icon: TrendingUp, id: "market" },
-  { label: "Risk Assessment", icon: ShieldAlert, id: "risk" },
+  { label: "Dashboard", icon: LayoutDashboard, id: "dashboard", section: "key-metrics" },
+  { label: "Agent Swarm", icon: Network, id: "swarm", section: "agent-status" },
+  { label: "Pipeline", icon: DollarSign, id: "pipeline", section: "swarm-pipeline" },
+  { label: "Market Intel", icon: TrendingUp, id: "market", section: "multi-region-analysis" },
+  { label: "Terminal", icon: Terminal, id: "terminal", section: "cloud-coach-terminal" },
+  { label: "Compliance", icon: BadgeCheck, id: "compliance", section: "regulatory-compliance" },
 ] as const;
 
 interface SidebarProps {
@@ -31,6 +35,53 @@ interface SidebarProps {
 
 export function Sidebar({ systemOnline, collapsed, onToggle }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("dashboard");
+
+  // Track which section is in view via IntersectionObserver
+  useEffect(() => {
+    const sections = navItems
+      .map((item) => ({
+        id: item.id,
+        el: document.querySelector(`[aria-label="${item.section.replace(/-/g, " ").replace(/\b\w/g, (c) => c)}"]`) ||
+            document.querySelector(`[aria-label="${item.section}"]`),
+      }))
+      .filter((s) => s.el);
+
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the topmost visible section
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (visible.length > 0) {
+          const el = visible[0].target;
+          const match = sections.find((s) => s.el === el);
+          if (match) setActiveSection(match.id);
+        }
+      },
+      { rootMargin: "-10% 0px -60% 0px", threshold: 0.1 }
+    );
+
+    sections.forEach((s) => {
+      if (s.el) observer.observe(s.el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToSection = useCallback((sectionLabel: string) => {
+    // Try matching the aria-label
+    const el =
+      document.querySelector(`[aria-label="${sectionLabel}"]`) ||
+      document.querySelector(`[aria-label="${sectionLabel.replace(/-/g, " ")}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    setMobileOpen(false);
+  }, []);
 
   // Close mobile menu on resize
   useEffect(() => {
@@ -42,6 +93,16 @@ export function Sidebar({ systemOnline, collapsed, onToggle }: SidebarProps) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Map aria-label values for scrolling
+  const ariaLabelMap: Record<string, string> = {
+    dashboard: "Key metrics",
+    swarm: "Agent status",
+    pipeline: "Swarm pipeline",
+    market: "Multi-region analysis",
+    terminal: "Cloud Coach terminal",
+    compliance: "Regulatory compliance",
+  };
 
   return (
     <>
@@ -65,10 +126,8 @@ export function Sidebar({ systemOnline, collapsed, onToggle }: SidebarProps) {
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-border bg-card transition-all duration-300",
-          // Desktop
           "max-lg:translate-x-[-100%]",
           collapsed ? "lg:w-16" : "lg:w-60",
-          // Mobile
           mobileOpen && "max-lg:translate-x-0 max-lg:w-60"
         )}
       >
@@ -87,7 +146,6 @@ export function Sidebar({ systemOnline, collapsed, onToggle }: SidebarProps) {
               </span>
             </div>
           )}
-          {/* Mobile close button */}
           {mobileOpen && (
             <button
               onClick={() => setMobileOpen(false)}
@@ -102,25 +160,53 @@ export function Sidebar({ systemOnline, collapsed, onToggle }: SidebarProps) {
         {/* Nav */}
         <nav className="flex-1 px-2 py-4">
           <ul className="flex flex-col gap-1">
-            {navItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "group flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
-                    item.id === "dashboard" &&
-                      "bg-secondary text-foreground"
-                  )}
-                >
-                  <item.icon className="h-4 w-4 shrink-0" />
-                  {(!collapsed || mobileOpen) && (
-                    <span className="truncate">{item.label}</span>
-                  )}
-                </button>
-              </li>
-            ))}
+            {navItems.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() =>
+                      scrollToSection(ariaLabelMap[item.id] ?? item.section)
+                    }
+                    className={cn(
+                      "group flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors",
+                      isActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    )}
+                  >
+                    <item.icon
+                      className={cn(
+                        "h-4 w-4 shrink-0",
+                        isActive ? "text-primary" : ""
+                      )}
+                    />
+                    {(!collapsed || mobileOpen) && (
+                      <span className="truncate">{item.label}</span>
+                    )}
+                    {isActive && (!collapsed || mobileOpen) && (
+                      <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary animate-pulse-glow" />
+                    )}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </nav>
+
+        {/* Hotkey hint */}
+        {(!collapsed || mobileOpen) && (
+          <div className="border-t border-border px-4 py-3">
+            <div className="flex items-center gap-2">
+              <kbd className="rounded border border-border bg-secondary px-1.5 py-0.5 font-mono text-[8px] text-muted-foreground">
+                Ctrl+K
+              </kbd>
+              <span className="font-mono text-[9px] text-muted-foreground/50">
+                Quick dispatch
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Footer -- system status */}
         <div className="border-t border-border px-4 py-4">
