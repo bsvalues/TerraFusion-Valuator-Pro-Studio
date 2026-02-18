@@ -43,6 +43,28 @@ export default function CloudCoachDashboard() {
   const [lastRegion, setLastRegion] = useState<string | null>(null);
   const router = useRouter();
 
+  // Pipeline completion sound (Web Audio API -- no files needed)
+  const playSuccessSound = useCallback(() => {
+    try {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      // Two-tone ascending chime
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+      osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12); // E5
+      osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.24); // G5
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.5);
+    } catch {
+      // Audio not available -- silent fail
+    }
+  }, []);
+
   // Uptime counter
   useEffect(() => {
     const interval = setInterval(() => {

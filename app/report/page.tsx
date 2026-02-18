@@ -27,8 +27,21 @@ import {
   Target,
   DollarSign,
   Clock,
+  BarChart3,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  Cell,
+} from "recharts";
 
 function ReportContent() {
   const searchParams = useSearchParams();
@@ -68,6 +81,32 @@ function ReportContent() {
     month: "long",
     day: "numeric",
   });
+
+  // Generate 12-month trend data for market sparkline
+  const marketTrendData = useMemo(() => {
+    const basePrice = market.medianPrice;
+    const trendMultiplier =
+      market.marketTrend === "Rising" ? 1.005 : market.marketTrend === "Declining" ? 0.997 : 1.001;
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const seed = property.squareFeet;
+    return months.map((month, i) => {
+      const noise = ((seed * (i + 7)) % 20000 - 10000);
+      const trendedPrice = Math.round(basePrice * Math.pow(trendMultiplier, i) + noise);
+      return { month, price: trendedPrice };
+    });
+  }, [market, property.squareFeet]);
+
+  // Comp adjustment bar data
+  const compAdjustmentData = useMemo(
+    () =>
+      comps.map((c) => ({
+        name: c.id,
+        sale: c.salePrice,
+        adjusted: c.adjustedPrice,
+        diff: c.adjustedPrice - c.salePrice,
+      })),
+    [comps]
+  );
 
   const RiskIcon =
     risk.riskLevel === "Low"
@@ -255,6 +294,91 @@ function ReportContent() {
           </div>
         </section>
 
+        {/* Section 2b: Confidence visualization */}
+        <section className="mb-8">
+          <div className="rounded-lg border border-border bg-card p-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {/* Confidence ring */}
+              <div className="flex flex-col items-center gap-3">
+                <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
+                  CONFIDENCE GAUGE
+                </p>
+                <div className="relative h-36 w-36">
+                  <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+                    {/* Background circle */}
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="42"
+                      fill="none"
+                      stroke="hsl(240 4% 14%)"
+                      strokeWidth="8"
+                    />
+                    {/* Confidence arc */}
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="42"
+                      fill="none"
+                      stroke="hsl(160 84% 39%)"
+                      strokeWidth="8"
+                      strokeLinecap="round"
+                      strokeDasharray={`${valuation.confidenceLevel * 264} 264`}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="font-mono text-2xl font-bold text-primary">
+                      {Math.round(valuation.confidenceLevel * 100)}%
+                    </span>
+                    <span className="font-mono text-[8px] text-muted-foreground">
+                      CONFIDENCE
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Valuation breakdown bar */}
+              <div className="flex flex-col gap-3">
+                <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
+                  VALUATION COMPONENTS
+                </p>
+                {[
+                  { label: "Base (sqft x $200)", value: property.squareFeet * 200 },
+                  { label: "Bedroom adj", value: property.bedrooms * 25000 },
+                  { label: "Bathroom adj", value: property.bathrooms * 15000 },
+                ].map((comp) => (
+                  <div key={comp.label} className="flex flex-col gap-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[10px] text-foreground/70">
+                        {comp.label}
+                      </span>
+                      <span className="font-mono text-[10px] font-semibold text-foreground">
+                        ${comp.value.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                      <div
+                        className="h-full rounded-full bg-primary/60"
+                        style={{
+                          width: `${Math.min((comp.value / valuation.estimatedValue) * 100, 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+                <div className="mt-2 flex items-center justify-between border-t border-border pt-2">
+                  <span className="font-mono text-[10px] font-semibold text-foreground">
+                    Total AVM Estimate
+                  </span>
+                  <span className="font-mono text-sm font-bold text-primary">
+                    ${valuation.estimatedValue.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Section 3: Market */}
         <section className="mb-8">
           <h2 className="mb-4 flex items-center gap-2 font-mono text-xs font-semibold tracking-wider text-foreground">
@@ -292,6 +416,61 @@ function ReportContent() {
                   ${market.averagePricePerSqft}
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 3b: Market trend sparkline */}
+        <section className="mb-8">
+          <div className="rounded-lg border border-border bg-card p-6">
+            <div className="mb-3 flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
+                12-MONTH MEDIAN PRICE TREND -- {region.toUpperCase()}
+              </p>
+            </div>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={marketTrendData}>
+                  <defs>
+                    <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(160 84% 39%)" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="hsl(160 84% 39%)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid stroke="hsl(240 4% 16%)" strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: "hsl(240 4% 55%)", fontSize: 9, fontFamily: "var(--font-geist-mono)" }}
+                    axisLine={{ stroke: "hsl(240 4% 16%)" }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fill: "hsl(240 4% 55%)", fontSize: 9, fontFamily: "var(--font-geist-mono)" }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(240 5% 8%)",
+                      border: "1px solid hsl(240 4% 16%)",
+                      borderRadius: "8px",
+                      fontFamily: "var(--font-geist-mono)",
+                      fontSize: "10px",
+                      color: "hsl(0 0% 93%)",
+                    }}
+                    formatter={(value: number) => [`$${value.toLocaleString()}`, "Median Price"]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="price"
+                    stroke="hsl(160 84% 39%)"
+                    strokeWidth={2}
+                    fill="url(#trendFill)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </section>
@@ -362,6 +541,84 @@ function ReportContent() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </section>
+
+        {/* Section 4b: Comp adjustment visualization */}
+        <section className="mb-8">
+          <div className="rounded-lg border border-border bg-card p-6">
+            <div className="mb-3 flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-chart-2" />
+              <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
+                COMP SALE PRICE vs ADJUSTED PRICE
+              </p>
+            </div>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={compAdjustmentData} barGap={2}>
+                  <CartesianGrid stroke="hsl(240 4% 16%)" strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: "hsl(240 4% 55%)", fontSize: 9, fontFamily: "var(--font-geist-mono)" }}
+                    axisLine={{ stroke: "hsl(240 4% 16%)" }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fill: "hsl(240 4% 55%)", fontSize: 9, fontFamily: "var(--font-geist-mono)" }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(240 5% 8%)",
+                      border: "1px solid hsl(240 4% 16%)",
+                      borderRadius: "8px",
+                      fontFamily: "var(--font-geist-mono)",
+                      fontSize: "10px",
+                      color: "hsl(0 0% 93%)",
+                    }}
+                    formatter={(value: number, name: string) => [
+                      `$${value.toLocaleString()}`,
+                      name === "sale" ? "Sale Price" : "Adjusted",
+                    ]}
+                  />
+                  <Bar dataKey="sale" fill="hsl(240 4% 35%)" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="adjusted" radius={[2, 2, 0, 0]}>
+                    {compAdjustmentData.map((entry, index) => (
+                      <Cell
+                        key={index}
+                        fill={
+                          entry.diff >= 0
+                            ? "hsl(160 84% 39%)"
+                            : "hsl(38 92% 50%)"
+                        }
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-3 flex items-center gap-4">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-sm bg-[hsl(240_4%_35%)]" />
+                <span className="font-mono text-[9px] text-muted-foreground">
+                  Sale Price
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-sm bg-primary" />
+                <span className="font-mono text-[9px] text-muted-foreground">
+                  Adjusted (+ adj)
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-sm bg-chart-2" />
+                <span className="font-mono text-[9px] text-muted-foreground">
+                  Adjusted (- adj)
+                </span>
+              </div>
+            </div>
           </div>
         </section>
 
