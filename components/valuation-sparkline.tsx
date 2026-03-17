@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComparableSale, } from "@/lib/engines";
+import type { ComparableSale } from "@/lib/types";
 import type { Valuation } from "@/lib/types";
 import {
   BarChart,

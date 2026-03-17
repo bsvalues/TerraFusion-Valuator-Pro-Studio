@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { SwarmPipelineResult, Property } from "@/lib/types";
-import type { ComparableSale } from "@/lib/engines";
+import type { ComparableSale } from "@/lib/types";
 import {
   DollarSign,
   TrendingUp,
@@ -52,7 +52,7 @@ export function ExportSummary({
   const riskColor =
     result.riskAssessment.riskLevel === "Low"
       ? "text-primary"
-      : result.riskAssessment.riskLevel === "Medium"
+      : result.riskAssessment.riskLevel === "Moderate" || result.riskAssessment.riskLevel === "Elevated"
         ? "text-chart-2"
         : "text-destructive";
 

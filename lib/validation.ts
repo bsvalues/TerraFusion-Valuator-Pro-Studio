@@ -28,11 +28,11 @@ export function validateProperty(property: Property): ValidationResult {
     errors.push("Square feet must be positive");
   }
 
-  if (property.bedrooms < 1) {
+  if ((property.bedrooms ?? 0) < 1 && property.propertyType === "single_family") {
     errors.push("Bedrooms must be at least 1");
   }
 
-  if (property.bathrooms <= 0) {
+  if ((property.bathrooms ?? 0) <= 0 && property.propertyType === "single_family") {
     errors.push("Bathrooms must be positive");
   }
 

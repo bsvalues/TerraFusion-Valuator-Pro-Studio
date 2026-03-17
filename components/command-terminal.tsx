@@ -32,20 +32,20 @@ const HELP_TEXT = `Available Commands:
   swarm                Show swarm mesh topology status
   clear                Clear terminal output
   help                 Show this help message
-  whoami               Identify the Cloud Coach
-  ralph                Activate Ralph Wiggum Mode`;
+  whoami               Identify the Valuator Pro system
+  appraise             Activate Fee Appraiser Mode`;
 
 export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: CommandTerminalProps) {
   const [lines, setLines] = useState<TerminalLine[]>([
     {
       id: 0,
       type: "system",
-      text: "TerraFusion Cloud Coach Terminal v1.0.0",
+      text: "TerraFusion Valuator Pro Terminal v2.0.0",
     },
     {
       id: 1,
       type: "system",
-      text: "Ralph Wiggum Mode ACTIVE -- Multi-Agent Swarm Orchestrator",
+      text: "Fee Appraiser Mode ACTIVE -- USPAP Compliant AI Platform",
     },
     {
       id: 2,
@@ -154,6 +154,12 @@ export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: Comm
           const sampleProperty: Property = {
             id: `TF-${Math.floor(Math.random() * 90000) + 10000}`,
             address: `${100 + Math.floor(Math.random() * 900)} Terminal Ave`,
+            city: "Austin",
+            state: "TX",
+            zip: "78701",
+            county: "Travis",
+            propertyType: "single_family",
+            condition: "Average",
             squareFeet: 1800 + Math.floor(Math.random() * 2200),
             bedrooms: 2 + Math.floor(Math.random() * 4),
             bathrooms: 1 + Math.floor(Math.random() * 3),
@@ -225,7 +231,7 @@ export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: Comm
           addLine("output", "         \\__________|__________/");
           addLine("output", "           Fully Connected Mesh");
           addLine("output", "");
-          addLine("output", "  Mode: Ralph Wiggum (Multi-Agent Swarm)");
+          addLine("output", "  Mode: Fee Appraiser (USPAP Compliant)");
           addLine("output", "  Protocol: Event-Driven Sequential Pipeline");
           addLine("output", "  Mesh status: All links healthy");
           break;
@@ -288,24 +294,24 @@ export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: Comm
           break;
         }
 
-        case "ralph":
+        case "appraise":
           addLine("system", "=== RALPH WIGGUM MODE ACTIVATED ===");
           addLine("output", '"I\'m helping!"');
           addLine("output", '"Me fail English? That\'s unpossible!"');
           addLine("output", '"I bent my wookiee."');
           addLine("output", '"My cat\'s breath smells like cat food."');
           addLine("output", '"I\'m learnding!"');
-          addLine("system", "Cloud Coach operating at maximum Ralph capacity.");
+          addLine("system", "Valuator Pro operating at maximum capacity.");
           addLine("system", "All agents have been encouraged. Morale: MAXIMUM.");
           break;
 
         case "whoami":
-          addLine("output", "TerraFusion Cloud Coach -- Elite Government OS");
+          addLine("output", "TerraFusion Valuator Pro -- Commercial Fee Appraisal Platform");
           addLine("output", "Primary Orchestrator Agent");
           addLine("output", "Designation: COACH-0");
           addLine(
             "output",
-            "Mode: Ralph Wiggum (Multi-Agent Swarm)"
+            "Mode: Fee Appraiser (USPAP Compliant)"
           );
           addLine("output", '"I\'m helping!"');
           break;
@@ -368,7 +374,7 @@ export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: Comm
       <div className="flex items-center gap-2 border-b border-border px-5 py-3">
         <Terminal className="h-3.5 w-3.5 text-primary" />
         <h3 className="font-mono text-xs font-medium tracking-wider text-foreground">
-          CLOUD COACH TERMINAL
+          VALUATOR PRO TERMINAL
         </h3>
         <span className="ml-auto font-mono text-[10px] text-muted-foreground">
           {isRunning ? "EXECUTING..." : "READY"}

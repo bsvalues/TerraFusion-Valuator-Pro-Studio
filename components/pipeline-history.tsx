@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { PipelineRun } from "@/lib/swarm";
+import type { PipelineRun } from "@/lib/types";
 import { Clock, TrendingUp, TrendingDown, Minus, ShieldCheck, ShieldAlert, ShieldX } from "lucide-react";
 
 interface PipelineHistoryProps {

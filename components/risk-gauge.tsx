@@ -4,19 +4,12 @@ import { ShieldAlert, ShieldCheck, ShieldX } from "lucide-react";
 
 const riskConfig: Record<
   RiskLevel,
-  { color: string; bgColor: string; Icon: typeof ShieldCheck }
+  { color: string; bgColor: string; barColor: string; Icon: typeof ShieldCheck }
 > = {
-  Low: { color: "text-primary", bgColor: "bg-primary/10", Icon: ShieldCheck },
-  Medium: {
-    color: "text-chart-2",
-    bgColor: "bg-chart-2/10",
-    Icon: ShieldAlert,
-  },
-  High: {
-    color: "text-destructive",
-    bgColor: "bg-destructive/10",
-    Icon: ShieldX,
-  },
+  Low: { color: "text-primary", bgColor: "bg-primary/10", barColor: "bg-primary", Icon: ShieldCheck },
+  Moderate: { color: "text-chart-2", bgColor: "bg-chart-2/10", barColor: "bg-chart-2", Icon: ShieldAlert },
+  Elevated: { color: "text-orange-400", bgColor: "bg-orange-400/10", barColor: "bg-orange-400", Icon: ShieldAlert },
+  High: { color: "text-destructive", bgColor: "bg-destructive/10", barColor: "bg-destructive", Icon: ShieldX },
 };
 
 interface RiskGaugeProps {
@@ -24,7 +17,7 @@ interface RiskGaugeProps {
 }
 
 export function RiskGauge({ assessment }: RiskGaugeProps) {
-  const config = riskConfig[assessment.riskLevel];
+  const config = riskConfig[assessment.riskLevel] ?? riskConfig["Moderate"];
   const scorePct = Math.round(assessment.riskScore * 100);
 
   return (
@@ -55,14 +48,7 @@ export function RiskGauge({ assessment }: RiskGaugeProps) {
       {/* Risk bar */}
       <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
         <div
-          className={cn(
-            "h-full rounded-full transition-all duration-700",
-            assessment.riskLevel === "Low"
-              ? "bg-primary"
-              : assessment.riskLevel === "Medium"
-                ? "bg-chart-2"
-                : "bg-destructive"
-          )}
+          className={cn("h-full rounded-full transition-all duration-700", config.barColor)}
           style={{ width: `${Math.max(scorePct, 5)}%` }}
         />
       </div>

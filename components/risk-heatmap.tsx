@@ -46,7 +46,8 @@ function getHeatColor(intensity: number, riskLevel: string): string {
   switch (riskLevel) {
     case "Low":
       return "bg-primary/40";
-    case "Medium":
+    case "Moderate":
+    case "Elevated":
       return "bg-chart-2/50";
     case "High":
       return "bg-destructive/50";
@@ -60,7 +61,8 @@ function getHeatBorder(intensity: number, riskLevel: string): string {
   switch (riskLevel) {
     case "Low":
       return "border-primary/30";
-    case "Medium":
+    case "Moderate":
+    case "Elevated":
       return "border-chart-2/30";
     case "High":
       return "border-destructive/30";
@@ -81,7 +83,7 @@ export function RiskHeatmap({ assessment }: RiskHeatmapProps) {
             "rounded-sm px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wider",
             assessment.riskLevel === "Low"
               ? "bg-primary/10 text-primary"
-              : assessment.riskLevel === "Medium"
+              : assessment.riskLevel === "Moderate" || assessment.riskLevel === "Elevated"
                 ? "bg-chart-2/10 text-chart-2"
                 : "bg-destructive/10 text-destructive"
           )}
@@ -138,7 +140,7 @@ export function RiskHeatmap({ assessment }: RiskHeatmapProps) {
               "h-full rounded-full transition-all duration-700",
               assessment.riskLevel === "Low"
                 ? "bg-primary"
-                : assessment.riskLevel === "Medium"
+                : assessment.riskLevel === "Moderate" || assessment.riskLevel === "Elevated"
                   ? "bg-chart-2"
                   : "bg-destructive"
             )}

@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TerraFusion Cloud Coach | Elite Government OS",
+  title: "TerraFusion Valuator Pro | Commercial Fee Appraisal Platform",
   description:
-    "Multi-Agent Swarm Orchestrator for Property Valuation, Market Analysis, and Risk Assessment -- TerraFusion Valuator Pro Studio",
+    "AI-powered commercial fee appraisal platform — Three Approaches to Value, USPAP Compliance, Order Management, and Multi-Agent AI for professional appraisers",
 };
 
 export const viewport: Viewport = {

@@ -6,8 +6,9 @@ import type {
   AgentStatus,
   SwarmEvent,
   SwarmPipelineResult,
+  ComparableSale,
 } from "@/lib/types";
-import type { PipelineRun } from "@/lib/swarm";
+import type { PipelineRun } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "@/components/sidebar";
 import { MetricsGrid } from "@/components/metrics-grid";
@@ -24,14 +25,32 @@ import { RegionRadar } from "@/components/region-radar";
 import { ComplianceBadge } from "@/components/compliance-badge";
 import { DispatchCenter } from "@/components/dispatch-center";
 import { ExportSummary } from "@/components/export-summary";
-import { generateComparables, type ComparableSale } from "@/lib/engines";
-import { Radio } from "lucide-react";
+import { CompGrid } from "@/components/comp-grid";
+import { IncomeApproach } from "@/components/income-approach";
+import { CostApproach } from "@/components/cost-approach";
+import { ValueReconciliation } from "@/components/value-reconciliation";
+import { OrderManagement } from "@/components/order-management";
+import { USPAPCertification } from "@/components/uspap-certification";
+import { generateComparableSales, analyzeMarket } from "@/lib/engines";
+import {
+  Building2,
+  ClipboardList,
+  Scale,
+  TrendingUp,
+  HardHat,
+  Shield,
+  Radio,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-export default function CloudCoachDashboard() {
+type ActiveTab = "pipeline" | "orders" | "approaches" | "compliance";
+
+export default function TerraFusionValuatorPro() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [lastResult, setLastResult] = useState<SwarmPipelineResult | null>(null);
@@ -41,9 +60,15 @@ export default function CloudCoachDashboard() {
   const [comps, setComps] = useState<ComparableSale[]>([]);
   const [lastProperty, setLastProperty] = useState<Property | null>(null);
   const [lastRegion, setLastRegion] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<ActiveTab>("pipeline");
+  const [salesCompValue, setSalesCompValue] = useState<number | undefined>();
+  const [incomeValue, setIncomeValue] = useState<number | undefined>();
+  const [costValue, setCostValue] = useState<number | undefined>();
+  const [finalValue, setFinalValue] = useState<number | undefined>();
+  const [showAgents, setShowAgents] = useState(false);
   const router = useRouter();
 
-  // Pipeline completion sound (Web Audio API -- no files needed)
+  // Pipeline completion chime
   const playSuccessSound = useCallback(() => {
     try {
       const ctx = new AudioContext();
@@ -52,98 +77,90 @@ export default function CloudCoachDashboard() {
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.type = "sine";
-      // Two-tone ascending chime
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-      osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12); // E5
-      osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.24); // G5
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12);
+      osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.24);
       gain.gain.setValueAtTime(0.08, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.5);
-    } catch {
-      // Audio not available -- silent fail
-    }
+    } catch { /* silent fail */ }
   }, []);
 
   // Uptime counter
   useEffect(() => {
-    const interval = setInterval(() => {
-      setUptime((prev) => prev + 1);
-    }, 1000);
+    const interval = setInterval(() => setUptime((p) => p + 1), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch agent statuses and events via SWR
-  const { data: swarmData } = useSWR<{ agents: AgentStatus[] }>(
-    "/api/swarm",
-    fetcher,
-    { refreshInterval: 3000 }
-  );
-
-  const { data: eventsData } = useSWR<{ events: SwarmEvent[] }>(
-    "/api/swarm/events",
-    fetcher,
-    { refreshInterval: 2000 }
-  );
-
-  const { data: historyData } = useSWR<{ history: PipelineRun[] }>(
-    "/api/swarm/history",
-    fetcher,
-    { refreshInterval: 3000 }
-  );
+  // SWR data feeds
+  const { data: swarmData } = useSWR<{ agents: AgentStatus[] }>("/api/swarm", fetcher, { refreshInterval: 3000 });
+  const { data: eventsData } = useSWR<{ events: SwarmEvent[] }>("/api/swarm/events", fetcher, { refreshInterval: 2000 });
+  const { data: historyData } = useSWR<{ history: PipelineRun[] }>("/api/swarm/history", fetcher, { refreshInterval: 3000 });
 
   const agents = swarmData?.agents ?? [
-    { name: "Valuation Agent" as const, status: "online" as const, lastRun: null, taskCount: 0, health: 100 },
-    { name: "Market Agent" as const, status: "online" as const, lastRun: null, taskCount: 0, health: 100 },
-    { name: "Risk Agent" as const, status: "online" as const, lastRun: null, taskCount: 0, health: 100 },
+    { name: "Market Intelligence Agent" as const, status: "online" as const, lastRun: null, taskCount: 0, health: 100 },
+    { name: "Comparable Sales Agent" as const,    status: "online" as const, lastRun: null, taskCount: 0, health: 100 },
+    { name: "Income Analysis Agent" as const,     status: "idle" as const,   lastRun: null, taskCount: 0, health: 100 },
+    { name: "Risk Assessment Agent" as const,     status: "online" as const, lastRun: null, taskCount: 0, health: 100 },
+    { name: "Narrative Drafting Agent" as const,  status: "idle" as const,   lastRun: null, taskCount: 0, health: 100 },
   ];
 
   const events = eventsData?.events ?? [];
   const history = historyData?.history ?? [];
 
-  const handleRunPipeline = useCallback(
-    async (property: Property, region: string) => {
-      setIsRunning(true);
-      setError(null);
-      setLastProperty(property);
-      setLastRegion(region);
+  const handleRunPipeline = useCallback(async (property: Property, region: string) => {
+    setIsRunning(true);
+    setError(null);
+    setLastProperty(property);
+    setLastRegion(region);
 
-      try {
-        const res = await fetch("/api/swarm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ property, region }),
-        });
+    try {
+      const res = await fetch("/api/swarm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ property, region }),
+      });
 
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || "Pipeline execution failed");
-        }
-
-        const result: SwarmPipelineResult = await res.json();
-        setLastResult(result);
-        setTotalRuns((prev) => prev + 1);
-
-        // Generate comparable sales for deep analysis
-        const generatedComps = generateComparables(property, region);
-        setComps(generatedComps);
-
-        // Refresh SWR caches
-        mutate("/api/swarm");
-        mutate("/api/swarm/events");
-        mutate("/api/swarm/history");
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Unknown error occurred"
-        );
-      } finally {
-        setIsRunning(false);
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Pipeline execution failed");
       }
-    },
-    []
-  );
+
+      const result: SwarmPipelineResult = await res.json();
+      setLastResult(result);
+      setTotalRuns((prev) => prev + 1);
+      playSuccessSound();
+
+      // Generate comparable sales
+      const market = analyzeMarket(region);
+      const generatedComps = generateComparableSales(property, market);
+      setComps(generatedComps);
+
+      // Set sales comp value
+      const avgAdj = generatedComps.length > 0
+        ? Math.round(generatedComps.reduce((s, c) => s + c.adjustedPrice, 0) / generatedComps.length)
+        : result.valuation.estimatedValue;
+      setSalesCompValue(avgAdj);
+
+      mutate("/api/swarm");
+      mutate("/api/swarm/events");
+      mutate("/api/swarm/history");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error occurred");
+    } finally {
+      setIsRunning(false);
+    }
+  }, [playSuccessSound]);
 
   const systemOnline = agents.every((a) => a.status !== "error");
+
+  const TABS: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
+    { id: "pipeline",    label: "Appraisal Pipeline",      icon: <Radio className="h-3.5 w-3.5" /> },
+    { id: "orders",      label: "Order Management",        icon: <ClipboardList className="h-3.5 w-3.5" /> },
+    { id: "approaches",  label: "Three Approaches",        icon: <Scale className="h-3.5 w-3.5" /> },
+    { id: "compliance",  label: "USPAP Compliance",        icon: <Shield className="h-3.5 w-3.5" /> },
+  ];
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -153,189 +170,258 @@ export default function CloudCoachDashboard() {
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
-      {/* Main content area */}
-      <main
-        className={cn(
-          "flex-1 transition-all duration-300",
-          sidebarCollapsed ? "lg:ml-16" : "lg:ml-60"
-        )}
-      >
-        {/* Live data ticker */}
-        <LiveTicker
-          agents={agents}
-          lastResult={lastResult}
-          totalRuns={totalRuns}
-          uptime={uptime}
-        />
+      <main className={cn("flex-1 transition-all duration-300", sidebarCollapsed ? "lg:ml-16" : "lg:ml-60")}>
+        <LiveTicker agents={agents} lastResult={lastResult} totalRuns={totalRuns} uptime={uptime} />
 
-        {/* Inner content padding */}
         <div className="px-4 py-6 sm:px-6 lg:px-8">
-        {/* Header */}
-        <header className="mb-8 flex items-center justify-between pt-10 lg:pt-0">
-          <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <Radio className="h-5 w-5 text-primary" />
+          {/* Header */}
+          <header className="mb-6 flex items-center justify-between pt-10 lg:pt-0">
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <Building2 className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-foreground">
+                  TerraFusion Valuator Pro
+                </h1>
+                <p className="font-mono text-[10px] tracking-widest text-muted-foreground">
+                  COMMERCIAL FEE APPRAISAL PLATFORM · USPAP COMPLIANT · MULTI-AGENT AI
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-balance text-xl font-semibold text-foreground">
-                TerraFusion Cloud Coach
-              </h1>
-              <p className="font-mono text-[10px] tracking-widest text-muted-foreground">
-                ELITE GOVERNMENT OS / MULTI-AGENT SWARM / RALPH WIGGUM MODE
-              </p>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 animate-pulse-glow rounded-full bg-primary" />
+              <span className="font-mono text-[10px] tracking-wider text-primary">LIVE</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 animate-pulse-glow rounded-full bg-primary" />
-            <span className="font-mono text-[10px] tracking-wider text-primary">
-              LIVE
-            </span>
-          </div>
-        </header>
+          </header>
 
-        {/* KPI Metrics */}
-        <section className="mb-6" aria-label="Key metrics">
-          <MetricsGrid
-            agents={agents}
-            lastResult={lastResult}
-            totalRuns={totalRuns}
-          />
-        </section>
+          {/* KPI Metrics */}
+          <section className="mb-6" aria-label="Key metrics">
+            <MetricsGrid agents={agents} lastResult={lastResult} totalRuns={totalRuns} />
+          </section>
 
-        {/* Agent Status + Activity Feed + Topology */}
-        <section className="mb-6 grid grid-cols-1 gap-6 xl:grid-cols-12" aria-label="Agent status">
-          {/* Agent Cards */}
-          <div className="flex flex-col gap-4 xl:col-span-4">
-            <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
-              AGENT SWARM STATUS
-            </h2>
-            <div className="flex flex-col gap-4">
-              {agents.map((agent) => (
-                <AgentCard key={agent.name} agent={agent} />
-              ))}
-            </div>
+          {/* Tab Navigation */}
+          <div className="mb-6 flex gap-1 rounded-lg border border-border bg-card p-1">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 font-mono text-[10px] font-semibold tracking-wider transition-all",
+                  activeTab === tab.id
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {tab.icon}
+                <span className="hidden sm:block">{tab.label.toUpperCase()}</span>
+              </button>
+            ))}
           </div>
 
-          {/* Network Topology */}
-          <div className="xl:col-span-4">
-            <NetworkTopology agents={agents} isRunning={isRunning} />
-          </div>
+          {/* ── Tab: Appraisal Pipeline ── */}
+          {activeTab === "pipeline" && (
+            <div className="space-y-6">
+              {/* Agent Network (collapsible) */}
+              <section aria-label="Agent network">
+                <button
+                  onClick={() => setShowAgents(!showAgents)}
+                  className="mb-3 flex items-center gap-2 font-mono text-[10px] font-medium tracking-wider text-muted-foreground hover:text-foreground"
+                >
+                  {showAgents ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  AI AGENT NETWORK ({agents.length} AGENTS)
+                </button>
+                {showAgents && (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-4">
+                    <div className="xl:col-span-1 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                      {agents.map((agent) => (
+                        <AgentCard key={agent.name} agent={agent} />
+                      ))}
+                    </div>
+                    <div className="xl:col-span-1">
+                      <NetworkTopology agents={agents} isRunning={isRunning} />
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      <SystemHealth agents={agents} totalRuns={totalRuns} uptime={uptime} />
+                      <SwarmActivityFeed events={events} />
+                    </div>
+                  </div>
+                )}
+              </section>
 
-          {/* Activity Feed + System Health */}
-          <div className="flex flex-col gap-4 xl:col-span-4">
-            <SystemHealth
-              agents={agents}
-              totalRuns={totalRuns}
-              uptime={uptime}
-            />
-            <SwarmActivityFeed events={events} />
-          </div>
-        </section>
+              {/* Property Input */}
+              <section aria-label="Property input">
+                <div className="mb-3">
+                  <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
+                    SUBJECT PROPERTY INPUT
+                  </h2>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-5">
+                  <PropertyForm onSubmit={handleRunPipeline} isLoading={isRunning} />
+                </div>
+              </section>
 
-        {/* Pipeline Orchestrator */}
-        <section className="mb-6" aria-label="Swarm pipeline">
-          <div className="mb-4">
-            <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
-              SWARM PIPELINE ORCHESTRATOR
-            </h2>
-          </div>
+              {error && (
+                <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3">
+                  <p className="font-mono text-xs text-destructive">{error}</p>
+                </div>
+              )}
 
-          {/* Property input form */}
-          <div className="mb-6 rounded-lg border border-border bg-card p-5">
-            <h3 className="mb-4 font-mono text-xs font-medium tracking-wider text-foreground">
-              PROPERTY INPUT
-            </h3>
-            <PropertyForm onSubmit={handleRunPipeline} isLoading={isRunning} />
-          </div>
+              {/* Pipeline Results */}
+              <SwarmOrchestrator result={lastResult} isRunning={isRunning} comps={comps} lastProperty={lastProperty} />
 
-          {/* Error display */}
-          {error && (
-            <div className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3">
-              <p className="font-mono text-xs text-destructive">{error}</p>
-            </div>
-          )}
+              {/* Comp Grid */}
+              {comps.length > 0 && (
+                <section aria-label="Comparable sales">
+                  <CompGrid comps={comps} subjectValue={salesCompValue} />
+                </section>
+              )}
 
-          {/* Pipeline results */}
-          <SwarmOrchestrator
-            result={lastResult}
-            isRunning={isRunning}
-            comps={comps}
-            lastProperty={lastProperty}
-          />
+              {/* Export Summary */}
+              {lastResult && lastProperty && lastRegion && (
+                <ExportSummary result={lastResult} property={lastProperty} region={lastRegion} comps={comps} />
+              )}
 
-          {/* Export Summary */}
-          {lastResult && lastProperty && lastRegion && (
-            <div className="mt-6">
-              <ExportSummary
-                result={lastResult}
-                property={lastProperty}
-                region={lastRegion}
-                comps={comps}
-              />
-            </div>
-          )}
-        </section>
+              {/* Pipeline History */}
+              <PipelineHistory history={history} />
 
-        {/* Pipeline History */}
-        <section className="mb-6" aria-label="Pipeline history">
-          <PipelineHistory history={history} />
-        </section>
+              {/* Region Analysis */}
+              <section aria-label="Multi-region analysis">
+                <div className="mb-3">
+                  <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
+                    MULTI-REGION MARKET INTELLIGENCE
+                  </h2>
+                </div>
+                <RegionRadar activeRegion={lastRegion} />
+              </section>
 
-        {/* Region analysis */}
-        <section className="mb-6" aria-label="Multi-region analysis">
-          <div className="mb-4">
-            <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
-              MULTI-REGION INTELLIGENCE
-            </h2>
-          </div>
-          <RegionRadar activeRegion={lastRegion} />
-        </section>
-
-        {/* Command Terminal */}
-        <section className="mb-6" aria-label="Cloud Coach terminal">
-          <div className="mb-4">
-            <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
-              CLOUD COACH TERMINAL
-            </h2>
-          </div>
-          <CommandTerminal
-            onRunPipeline={handleRunPipeline}
-            onOpenReport={
-              lastProperty
-                ? () => {
-                    const params = new URLSearchParams({
-                      id: lastProperty.id,
-                      address: lastProperty.address,
-                      sqft: String(lastProperty.squareFeet),
-                      beds: String(lastProperty.bedrooms),
-                      baths: String(lastProperty.bathrooms),
-                      region: lastRegion ?? "Downtown",
-                    });
-                    router.push(`/report?${params.toString()}`);
+              {/* Command Terminal */}
+              <section aria-label="Command terminal">
+                <div className="mb-3">
+                  <h2 className="font-mono text-xs font-medium tracking-wider text-muted-foreground">
+                    AI COMMAND TERMINAL
+                  </h2>
+                </div>
+                <CommandTerminal
+                  onRunPipeline={handleRunPipeline}
+                  onOpenReport={
+                    lastProperty
+                      ? () => {
+                          const params = new URLSearchParams({
+                            id: lastProperty.id,
+                            address: lastProperty.address,
+                            sqft: String(lastProperty.squareFeet),
+                            beds: String(lastProperty.bedrooms ?? 0),
+                            baths: String(lastProperty.bathrooms ?? 0),
+                            region: lastRegion ?? "Downtown Core",
+                          });
+                          router.push(`/report?${params.toString()}`);
+                        }
+                      : undefined
                   }
-                : undefined
-            }
-            isRunning={isRunning}
-          />
-        </section>
+                  isRunning={isRunning}
+                />
+              </section>
+            </div>
+          )}
 
-        {/* Compliance */}
-        <section className="mb-6" aria-label="Regulatory compliance">
-          <ComplianceBadge />
-        </section>
+          {/* ── Tab: Order Management ── */}
+          {activeTab === "orders" && (
+            <div className="space-y-6">
+              <OrderManagement />
+            </div>
+          )}
 
-        {/* Footer */}
-        <footer className="border-t border-border pt-4 pb-6">
-          <p className="font-mono text-[10px] text-muted-foreground/50">
-            TerraFusion Valuator Pro Studio v1.0.0 -- Cloud Coach Agent --
-            Multi-Agent Swarm Architecture -- Rust Backend + Next.js Control
-            Plane -- Ralph Wiggum Mode Active
-          </p>
-        </footer>
-        </div>{/* end inner content padding */}
+          {/* ── Tab: Three Approaches to Value ── */}
+          {activeTab === "approaches" && (
+            <div className="space-y-6">
+              <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+                <p className="font-mono text-[10px] text-primary">
+                  THREE APPROACHES TO VALUE — Run the Appraisal Pipeline first to pre-populate the Sales Comparison value.
+                  Income and Cost approaches can be used independently.
+                </p>
+              </div>
+
+              {/* Sales Comparison */}
+              {comps.length > 0 ? (
+                <section aria-label="Sales comparison approach">
+                  <CompGrid comps={comps} subjectValue={salesCompValue} />
+                </section>
+              ) : (
+                <div className="rounded-lg border border-border bg-card p-8 text-center">
+                  <Scale className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="font-mono text-xs text-muted-foreground">
+                    Run the pipeline on the &quot;Appraisal Pipeline&quot; tab to generate comparable sales data.
+                  </p>
+                </div>
+              )}
+
+              {/* Income Approach */}
+              <section aria-label="Income approach">
+                <IncomeApproach
+                  propertySquareFeet={lastProperty?.squareFeet}
+                  onValueChange={setIncomeValue}
+                />
+              </section>
+
+              {/* Cost Approach */}
+              <section aria-label="Cost approach">
+                <CostApproach
+                  propertySquareFeet={lastProperty?.squareFeet}
+                  yearBuilt={lastProperty?.yearBuilt}
+                  onValueChange={setCostValue}
+                />
+              </section>
+
+              {/* Value Reconciliation */}
+              <section aria-label="Value reconciliation">
+                <ValueReconciliation
+                  salesCompValue={salesCompValue}
+                  incomeValue={incomeValue}
+                  costValue={costValue}
+                  propertyType={lastProperty?.propertyType}
+                  onFinalValueChange={setFinalValue}
+                />
+              </section>
+
+              {finalValue && (
+                <div className="rounded-lg border-2 border-primary/40 bg-primary/10 p-6 text-center">
+                  <p className="font-mono text-[10px] tracking-widest text-primary mb-2">FINAL OPINION OF MARKET VALUE</p>
+                  <p className="font-mono text-4xl font-bold text-primary">${finalValue.toLocaleString()}</p>
+                  <p className="font-mono text-[10px] text-muted-foreground mt-2">
+                    {lastProperty?.address ? `${lastProperty.address}, ${lastProperty.city}, ${lastProperty.state}` : "Subject Property"}
+                    {" · "}As of {new Date().toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Tab: USPAP Compliance ── */}
+          {activeTab === "compliance" && (
+            <div className="space-y-6">
+              <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 px-4 py-3">
+                <p className="font-mono text-[10px] text-yellow-500/80">
+                  USPAP NOTICE — This platform assists fee appraisers in developing and communicating credible opinions
+                  of value. The appraiser remains solely responsible for the appraisal and its compliance with USPAP,
+                  applicable state law, and client requirements. This tool does not constitute an appraisal.
+                </p>
+              </div>
+              <USPAPCertification />
+              <ComplianceBadge />
+            </div>
+          )}
+
+          {/* Footer */}
+          <footer className="mt-8 border-t border-border pt-4 pb-6">
+            <p className="font-mono text-[10px] text-muted-foreground/50">
+              TerraFusion Valuator Pro Studio v2.0.0 — Commercial Fee Appraiser Platform —
+              USPAP Compliant · Three Approaches to Value · Multi-Agent AI · Order Management
+            </p>
+          </footer>
+        </div>
       </main>
 
-      {/* Dispatch center (Cmd+K) */}
       <DispatchCenter
         onRunPipeline={handleRunPipeline}
         onOpenReport={
@@ -345,9 +431,9 @@ export default function CloudCoachDashboard() {
                   id: lastProperty.id,
                   address: lastProperty.address,
                   sqft: String(lastProperty.squareFeet),
-                  beds: String(lastProperty.bedrooms),
-                  baths: String(lastProperty.bathrooms),
-                  region: lastRegion ?? "Downtown",
+                  beds: String(lastProperty.bedrooms ?? 0),
+                  baths: String(lastProperty.bathrooms ?? 0),
+                  region: lastRegion ?? "Downtown Core",
                 });
                 router.push(`/report?${params.toString()}`);
               }

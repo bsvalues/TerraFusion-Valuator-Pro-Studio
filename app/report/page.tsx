@@ -7,7 +7,7 @@ import {
   calculateValuation,
   analyzeMarket,
   assessRisk,
-  generateComparables,
+  generateComparableSales,
 } from "@/lib/engines";
 import type { Property } from "@/lib/types";
 import {
@@ -50,6 +50,12 @@ function ReportContent() {
     () => ({
       id: searchParams.get("id") || "TF-00001",
       address: searchParams.get("address") || "123 Main Street",
+      city: searchParams.get("city") || "Austin",
+      state: searchParams.get("state") || "TX",
+      zip: searchParams.get("zip") || "78701",
+      county: searchParams.get("county") || "Travis",
+      propertyType: (searchParams.get("propertyType") as Property["propertyType"]) || "single_family",
+      condition: (searchParams.get("condition") as Property["condition"]) || "Average",
       squareFeet: Number(searchParams.get("sqft")) || 2000,
       bedrooms: Number(searchParams.get("beds")) || 3,
       bathrooms: Number(searchParams.get("baths")) || 2,
@@ -66,7 +72,7 @@ function ReportContent() {
     [property, market, valuation]
   );
   const comps = useMemo(
-    () => generateComparables(property, region),
+    () => generateComparableSales(property, analyzeMarket(region)),
     [property, region]
   );
 
@@ -111,13 +117,13 @@ function ReportContent() {
   const RiskIcon =
     risk.riskLevel === "Low"
       ? ShieldCheck
-      : risk.riskLevel === "Medium"
+      : risk.riskLevel === "Moderate" || risk.riskLevel === "Elevated"
         ? ShieldAlert
         : ShieldX;
   const riskColor =
     risk.riskLevel === "Low"
       ? "text-primary"
-      : risk.riskLevel === "Medium"
+      : risk.riskLevel === "Moderate" || risk.riskLevel === "Elevated"
         ? "text-chart-2"
         : "text-destructive";
 
@@ -344,8 +350,8 @@ function ReportContent() {
                 </p>
                 {[
                   { label: "Base (sqft x $200)", value: property.squareFeet * 200 },
-                  { label: "Bedroom adj", value: property.bedrooms * 25000 },
-                  { label: "Bathroom adj", value: property.bathrooms * 15000 },
+                  { label: "Bedroom adj", value: (property.bedrooms ?? 0) * 25000 },
+                  { label: "Bathroom adj", value: (property.bathrooms ?? 0) * 15000 },
                 ].map((comp) => (
                   <div key={comp.label} className="flex flex-col gap-1">
                     <div className="flex items-center justify-between">
@@ -638,7 +644,7 @@ function ReportContent() {
                   "rounded-md px-3 py-1 font-mono text-xs font-bold tracking-wider",
                   risk.riskLevel === "Low"
                     ? "bg-primary/10 text-primary"
-                    : risk.riskLevel === "Medium"
+                    : risk.riskLevel === "Moderate" || risk.riskLevel === "Elevated"
                       ? "bg-chart-2/10 text-chart-2"
                       : "bg-destructive/10 text-destructive"
                 )}
@@ -655,7 +661,7 @@ function ReportContent() {
                   "h-full rounded-full",
                   risk.riskLevel === "Low"
                     ? "bg-primary"
-                    : risk.riskLevel === "Medium"
+                    : risk.riskLevel === "Moderate" || risk.riskLevel === "Elevated"
                       ? "bg-chart-2"
                       : "bg-destructive"
                 )}

@@ -76,7 +76,7 @@ const ACTIONS: DispatchAction[] = [
   {
     id: "scroll-terminal",
     label: "Go to Terminal",
-    description: "Scroll to Cloud Coach Terminal",
+    description: "Scroll to Valuator Pro Terminal",
     shortcut: "T",
     icon: Zap,
     category: "navigate",
@@ -139,6 +139,12 @@ export function DispatchCenter({
         const sampleProperty: Property = {
           id: `TF-${Math.floor(Math.random() * 90000) + 10000}`,
           address: `${100 + Math.floor(Math.random() * 900)} Dispatch Ave`,
+          city: "Austin",
+          state: "TX",
+          zip: "78701",
+          county: "Travis",
+          propertyType: "single_family",
+          condition: "Average",
           squareFeet: 1800 + Math.floor(Math.random() * 2200),
           bedrooms: 2 + Math.floor(Math.random() * 4),
           bathrooms: 1 + Math.floor(Math.random() * 3),
@@ -157,7 +163,7 @@ export function DispatchCenter({
       }
       if (action.id === "scroll-terminal") {
         document
-          .querySelector('[aria-label="Cloud Coach terminal"]')
+          .querySelector('[aria-label="Valuator Pro terminal"]')
           ?.scrollIntoView({ behavior: "smooth" });
       }
       if (action.id === "scroll-risk") {

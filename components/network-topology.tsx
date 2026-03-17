@@ -9,7 +9,7 @@ interface NetworkTopologyProps {
 }
 
 const AGENT_POSITIONS = [
-  { x: 50, y: 18, label: "CLOUD COACH", role: "orchestrator" },
+  { x: 50, y: 18, label: "VALUATOR PRO", role: "orchestrator" },
   { x: 15, y: 72, label: "VALUATION", role: "agent" },
   { x: 50, y: 85, label: "MARKET", role: "agent" },
   { x: 85, y: 72, label: "RISK", role: "agent" },

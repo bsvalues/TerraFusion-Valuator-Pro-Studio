@@ -100,7 +100,7 @@ export function Sidebar({ systemOnline, collapsed, onToggle }: SidebarProps) {
     swarm: "Agent status",
     pipeline: "Swarm pipeline",
     market: "Multi-region analysis",
-    terminal: "Cloud Coach terminal",
+    terminal: "Valuator Pro terminal",
     compliance: "Regulatory compliance",
   };
 
@@ -142,7 +142,7 @@ export function Sidebar({ systemOnline, collapsed, onToggle }: SidebarProps) {
                 TERRAFUSION
               </span>
               <span className="truncate font-mono text-[10px] tracking-widest text-muted-foreground">
-                CLOUD COACH
+                VALUATOR PRO
               </span>
             </div>
           )}

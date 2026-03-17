@@ -8,7 +8,7 @@ import { MarketChart } from "./market-chart";
 import { CompGrid } from "./comp-grid";
 import { RiskHeatmap } from "./risk-heatmap";
 import { ValuationSparkline } from "./valuation-sparkline";
-import type { ComparableSale } from "@/lib/engines";
+import type { ComparableSale } from "@/lib/types";
 import { Network, ArrowRight, CheckCircle2, Clock, FileText } from "lucide-react";
 import Link from "next/link";
 
