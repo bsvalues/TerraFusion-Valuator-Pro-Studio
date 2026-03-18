@@ -50,16 +50,22 @@ const sectionTitleCls = "flex items-center gap-2 font-mono text-[10px] font-semi
 export function PropertyForm({ onSubmit, isLoading }: PropertyFormProps) {
   const [property, setProperty] = useState<Property>({
     id: "",
-    address: "",
-    city: "",
+    address: "123 Main Street",
+    city: "Austin",
     state: "TX",
-    zip: "",
-    county: "",
+    zip: "78701",
+    county: "Travis",
     propertyType: "single_family",
     condition: "Average",
     squareFeet: 2000,
+    yearBuilt: 2005,
+    landAreaAcres: 0.25,
     bedrooms: 3,
     bathrooms: 2,
+    garageSpaces: 2,
+    stories: 2,
+    lastSalePrice: 450000,
+    assessedValue: 420000,
   });
   const [region, setRegion] = useState("Downtown");
 
@@ -74,6 +80,14 @@ export function PropertyForm({ onSubmit, isLoading }: PropertyFormProps) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!property.address.trim()) {
+      alert("Street address is required.");
+      return;
+    }
+    if (!property.city.trim()) {
+      alert("City is required.");
+      return;
+    }
     const prop: Property = {
       ...property,
       id: property.id || generateId(),
@@ -139,7 +153,6 @@ export function PropertyForm({ onSubmit, isLoading }: PropertyFormProps) {
             <label className={labelCls}>STREET ADDRESS *</label>
             <input
               type="text"
-              required
               placeholder="123 Main Street"
               value={property.address}
               onChange={(e) => set("address", e.target.value)}
@@ -150,7 +163,6 @@ export function PropertyForm({ onSubmit, isLoading }: PropertyFormProps) {
             <label className={labelCls}>CITY *</label>
             <input
               type="text"
-              required
               placeholder="Austin"
               value={property.city}
               onChange={(e) => set("city", e.target.value)}
@@ -161,7 +173,6 @@ export function PropertyForm({ onSubmit, isLoading }: PropertyFormProps) {
             <label className={labelCls}>COUNTY *</label>
             <input
               type="text"
-              required
               placeholder="Travis"
               value={property.county}
               onChange={(e) => set("county", e.target.value)}
@@ -171,7 +182,6 @@ export function PropertyForm({ onSubmit, isLoading }: PropertyFormProps) {
           <div className="flex flex-col gap-1.5">
             <label className={labelCls}>STATE *</label>
             <select
-              required
               value={property.state}
               onChange={(e) => set("state", e.target.value)}
               className={inputCls}
@@ -185,7 +195,6 @@ export function PropertyForm({ onSubmit, isLoading }: PropertyFormProps) {
             <label className={labelCls}>ZIP CODE *</label>
             <input
               type="text"
-              required
               placeholder="78701"
               value={property.zip}
               onChange={(e) => set("zip", e.target.value)}
@@ -269,7 +278,6 @@ export function PropertyForm({ onSubmit, isLoading }: PropertyFormProps) {
             <label className={labelCls}>{isCommercial(pType) ? "RENTABLE AREA (SQFT)" : "GLA (SQFT) *"}</label>
             <input
               type="number"
-              required
               min={1}
               value={property.squareFeet}
               onChange={(e) => set("squareFeet", Number(e.target.value))}

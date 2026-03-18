@@ -30,7 +30,9 @@ import { IncomeApproach } from "@/components/income-approach";
 import { CostApproach } from "@/components/cost-approach";
 import { ValueReconciliation } from "@/components/value-reconciliation";
 import { OrderManagement } from "@/components/order-management";
+import { NarrativeDrafting } from "@/components/narrative-drafting";
 import { USPAPCertification } from "@/components/uspap-certification";
+import { AppraiserDashboard } from "@/components/appraiser-dashboard";
 import { generateComparableSales, analyzeMarket } from "@/lib/engines";
 import {
   Building2,
@@ -48,7 +50,7 @@ import useSWR, { mutate } from "swr";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-type ActiveTab = "pipeline" | "orders" | "approaches" | "compliance";
+type ActiveTab = "dashboard" | "pipeline" | "orders" | "approaches" | "compliance";
 
 export default function TerraFusionValuatorPro() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -60,7 +62,7 @@ export default function TerraFusionValuatorPro() {
   const [comps, setComps] = useState<ComparableSale[]>([]);
   const [lastProperty, setLastProperty] = useState<Property | null>(null);
   const [lastRegion, setLastRegion] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<ActiveTab>("pipeline");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [salesCompValue, setSalesCompValue] = useState<number | undefined>();
   const [incomeValue, setIncomeValue] = useState<number | undefined>();
   const [costValue, setCostValue] = useState<number | undefined>();
@@ -156,6 +158,7 @@ export default function TerraFusionValuatorPro() {
   const systemOnline = agents.every((a) => a.status !== "error");
 
   const TABS: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
+    { id: "dashboard",   label: "Dashboard",               icon: <TrendingUp className="h-3.5 w-3.5" /> },
     { id: "pipeline",    label: "Appraisal Pipeline",      icon: <Radio className="h-3.5 w-3.5" /> },
     { id: "orders",      label: "Order Management",        icon: <ClipboardList className="h-3.5 w-3.5" /> },
     { id: "approaches",  label: "Three Approaches",        icon: <Scale className="h-3.5 w-3.5" /> },
@@ -218,6 +221,13 @@ export default function TerraFusionValuatorPro() {
               </button>
             ))}
           </div>
+
+          {/* ── Tab: Dashboard ── */}
+          {activeTab === "dashboard" && (
+            <div className="space-y-6">
+              <AppraiserDashboard />
+            </div>
+          )}
 
           {/* ── Tab: Appraisal Pipeline ── */}
           {activeTab === "pipeline" && (
@@ -394,6 +404,45 @@ export default function TerraFusionValuatorPro() {
                   </p>
                 </div>
               )}
+
+              {/* AI Narrative Drafting */}
+              <section aria-label="AI narrative drafting">
+                <NarrativeDrafting
+                  property={lastProperty ? {
+                    address: lastProperty.address,
+                    city: lastProperty.city,
+                    state: lastProperty.state,
+                    zip: lastProperty.zip,
+                    county: lastProperty.county,
+                    propertyType: lastProperty.propertyType,
+                    squareFeet: lastProperty.squareFeet,
+                    yearBuilt: lastProperty.yearBuilt,
+                    condition: lastProperty.condition,
+                    bedrooms: lastProperty.bedrooms,
+                    bathrooms: lastProperty.bathrooms,
+                    landAreaAcres: lastProperty.landAreaAcres,
+                    zoning: lastProperty.zoning,
+                  } : undefined}
+                  market={lastResult ? {
+                    region: lastRegion ?? undefined,
+                    marketTrend: lastResult.marketData.marketTrend,
+                    medianPrice: lastResult.marketData.medianPrice,
+                    averagePricePerSqft: lastResult.marketData.averagePricePerSqft,
+                    averageDaysOnMarket: lastResult.marketData.averageDaysOnMarket,
+                    listToSaleRatio: lastResult.marketData.listToSaleRatio,
+                  } : undefined}
+                  approaches={{
+                    salesComp: salesCompValue,
+                    salesCompWeight: 70,
+                    income: incomeValue,
+                    incomeWeight: 15,
+                    cost: costValue,
+                    costWeight: 15,
+                    final: finalValue,
+                  }}
+                  risk={lastResult ? { riskLevel: lastResult.riskAssessment.riskLevel } : undefined}
+                />
+              </section>
             </div>
           )}
 
