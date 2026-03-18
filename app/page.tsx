@@ -27,6 +27,10 @@ import { DispatchCenter } from "@/components/dispatch-center";
 import { ExportSummary } from "@/components/export-summary";
 import { CompGrid } from "@/components/comp-grid";
 import { IncomeApproach } from "@/components/income-approach";
+import { DCFIncomeApproach } from "@/components/dcf-income-approach";
+import { CompSearch } from "@/components/comp-search";
+import type { CompSearchResult } from "@/components/comp-search";
+import { AppraiserProfilePage } from "@/components/appraiser-profile";
 import { CostApproach } from "@/components/cost-approach";
 import { ValueReconciliation } from "@/components/value-reconciliation";
 import { OrderManagement } from "@/components/order-management";
@@ -44,13 +48,15 @@ import {
   Radio,
   ChevronDown,
   ChevronUp,
+  Settings,
+  Search,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-type ActiveTab = "dashboard" | "pipeline" | "orders" | "approaches" | "compliance";
+type ActiveTab = "dashboard" | "pipeline" | "orders" | "approaches" | "compliance" | "settings";
 
 export default function TerraFusionValuatorPro() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -68,6 +74,8 @@ export default function TerraFusionValuatorPro() {
   const [costValue, setCostValue] = useState<number | undefined>();
   const [finalValue, setFinalValue] = useState<number | undefined>();
   const [showAgents, setShowAgents] = useState(false);
+  const [searchedComps, setSearchedComps] = useState<CompSearchResult[]>([]);
+  const [showDCF, setShowDCF] = useState(false);
   const router = useRouter();
 
   // Pipeline completion chime
@@ -163,6 +171,7 @@ export default function TerraFusionValuatorPro() {
     { id: "orders",      label: "Order Management",        icon: <ClipboardList className="h-3.5 w-3.5" /> },
     { id: "approaches",  label: "Three Approaches",        icon: <Scale className="h-3.5 w-3.5" /> },
     { id: "compliance",  label: "USPAP Compliance",        icon: <Shield className="h-3.5 w-3.5" /> },
+    { id: "settings",    label: "Appraiser Profile",       icon: <Settings className="h-3.5 w-3.5" /> },
   ];
 
   return (
@@ -366,12 +375,61 @@ export default function TerraFusionValuatorPro() {
                 </div>
               )}
 
-              {/* Income Approach */}
+              {/* Comp Search */}
+              <section aria-label="Comp search">
+                <div className="rounded-lg border border-border bg-card p-5">
+                  <CompSearch
+                    subjectAddress={lastProperty?.address}
+                    subjectCity={lastProperty?.city}
+                    subjectState={lastProperty?.state}
+                    subjectGla={lastProperty?.squareFeet}
+                    subjectPropertyType={lastProperty?.propertyType}
+                    subjectYearBuilt={lastProperty?.yearBuilt}
+                    onAddComp={(comp) => setSearchedComps((prev) => [...prev.filter((c) => c.id !== comp.id), comp])}
+                    selectedComps={searchedComps}
+                  />
+                </div>
+              </section>
+
+              {/* Income Approach — Toggle between Simple and DCF */}
               <section aria-label="Income approach">
-                <IncomeApproach
-                  propertySquareFeet={lastProperty?.squareFeet}
-                  onValueChange={setIncomeValue}
-                />
+                <div className="rounded-lg border border-border bg-card p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-mono text-xs font-bold text-muted-foreground tracking-wider">INCOME CAPITALIZATION APPROACH</h3>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => setShowDCF(false)}
+                        className={cn(
+                          "px-3 py-1.5 text-xs font-mono rounded border transition-all",
+                          !showDCF ? "border-primary text-primary bg-primary/10" : "border-border text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        DIRECT CAP
+                      </button>
+                      <button
+                        onClick={() => setShowDCF(true)}
+                        className={cn(
+                          "px-3 py-1.5 text-xs font-mono rounded border transition-all",
+                          showDCF ? "border-primary text-primary bg-primary/10" : "border-border text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        DCF MODEL
+                      </button>
+                    </div>
+                  </div>
+                  {showDCF ? (
+                    <DCFIncomeApproach
+                      initialSqft={lastProperty?.squareFeet ?? 20000}
+                      initialPropertyType={lastProperty?.propertyType ?? "Office"}
+                      onValueChange={setIncomeValue}
+                    />
+                  ) : (
+                    <IncomeApproach
+                      propertySquareFeet={lastProperty?.squareFeet}
+                      onValueChange={setIncomeValue}
+                    />
+                  )}
+                </div>
               </section>
 
               {/* Cost Approach */}
@@ -443,6 +501,13 @@ export default function TerraFusionValuatorPro() {
                   risk={lastResult ? { riskLevel: lastResult.riskAssessment.riskLevel } : undefined}
                 />
               </section>
+            </div>
+          )}
+
+          {/* ── Tab: Settings / Appraiser Profile ── */}
+          {activeTab === "settings" && (
+            <div className="space-y-6">
+              <AppraiserProfilePage />
             </div>
           )}
 

@@ -168,7 +168,78 @@ function ReportContent() {
               {generatingAll ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
               {generatingAll ? "DRAFTING..." : "AI DRAFT ALL SECTIONS"}
             </button>
-            <button onClick={() => window.print()}
+            <button
+              onClick={async () => {
+                try {
+                  const reportData = {
+                    fileNumber,
+                    address, city, state, zip, county,
+                    propertyType: PT_LABELS[propertyType] || propertyType,
+                    gla: sqft,
+                    yearBuilt,
+                    condition: "Average",
+                    bedrooms: beds || undefined,
+                    bathrooms: baths || undefined,
+                    lotSize: 0.25,
+                    zoning: propertyType === "single_family" ? "R-1" : "C-1",
+                    effectiveDate: new Date().toISOString(),
+                    reportDate: new Date().toISOString(),
+                    clientName,
+                    intendedUse: "Mortgage Lending / Financing",
+                    reportType: "Summary Appraisal Report",
+                    scopeOfWork: "Interior & Exterior Inspection",
+                    finalValue: valuation?.estimatedValue || 0,
+                    confidence: valuation?.confidenceLevel || 0,
+                    riskLevel: risk?.riskLevel || "Low",
+                    marketTrend: market?.marketTrend || "Stable",
+                    appraiserName,
+                    appraiserTitle: "",
+                    appraiserLicense,
+                    appraiserLicenseState: state,
+                    appraiserLicenseType: "Certified Residential",
+                    firmName: "TerraFusion Valuator Pro",
+                    firmAddress: "",
+                    firmPhone: "",
+                    firmEmail: "",
+                    designations: [],
+                    comps: comps.slice(0, 5).map((c) => ({
+                      address: c.address,
+                      salePrice: c.salePrice,
+                      saleDate: c.saleDate,
+                      gla: c.squareFeet,
+                      pricePerSqft: Math.round(c.salePrice / c.squareFeet),
+                      yearBuilt: c.yearBuilt,
+                      condition: c.condition,
+                      netAdj: c.adjustedPrice - c.salePrice,
+                      adjPrice: c.adjustedPrice,
+                      grossAdj: Math.abs((c.adjustedPrice - c.salePrice) / c.salePrice) * 100,
+                    })),
+                    narratives,
+                    medianPrice: market?.medianPrice || 0,
+                    avgPsf: market?.averagePricePerSqft || 0,
+                    avgDom: market?.averageDaysOnMarket || 0,
+                    listToSale: market?.listToSaleRatio || 100,
+                    salesCompValue: valuation?.estimatedValue || 0,
+                    salesCompWeight: 70,
+                    costWeight: 30,
+                    incomeWeight: 0,
+                  };
+                  const res = await fetch("/api/export-pdf", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(reportData),
+                  });
+                  const html = await res.text();
+                  const blob = new Blob([html], { type: "text/html" });
+                  const url = URL.createObjectURL(blob);
+                  const win = window.open(url, "_blank");
+                  if (win) {
+                    setTimeout(() => { win.print(); URL.revokeObjectURL(url); }, 1200);
+                  }
+                } catch {
+                  window.print();
+                }
+              }}
               className="flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 font-mono text-[10px] font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
               <Printer className="h-3.5 w-3.5" /> PRINT / PDF
             </button>
