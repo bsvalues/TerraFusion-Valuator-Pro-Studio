@@ -16,6 +16,8 @@ import { SubjectPanel } from "@/components/subject-panel";
 import { CostForgePanel } from "@/components/costforge-panel";
 import { SalesComparisonPanel } from "@/components/sales-comparison-panel";
 import { IncomeApproachPanel } from "@/components/income-approach-panel";
+import { ReconciliationPanel } from "@/components/reconciliation-panel";
+import { ReportPanel } from "@/components/report-panel";
 import {
   ClipboardList,
   Building2,
@@ -77,8 +79,8 @@ const TABS: Array<{
     label: "Reconciliation",
     icon: <Scale className="w-4 h-4" />,
     description: "Approach weighting & final value opinion",
-    phase: "D",
-    available: false,
+    phase: "E",
+    available: true,
   },
   {
     id: "report",
@@ -86,7 +88,7 @@ const TABS: Array<{
     icon: <FileText className="w-4 h-4" />,
     description: "Narrative assembly & export",
     phase: "E",
-    available: false,
+    available: true,
   },
 ];
 
@@ -194,15 +196,14 @@ function WorkbenchInner() {
             <IncomeApproachPanel />
           </div>
         )}
-        {(activeTab === "reconcile" || activeTab === "report") && (
-          <div className="flex items-center justify-center h-64 text-zinc-600">
-            <div className="text-center">
-              <div className="text-4xl mb-3">🔧</div>
-              <div className="text-sm font-medium">
-                {currentTab.label} — Coming in Phase {currentTab.phase}
-              </div>
-              <div className="text-xs text-zinc-700 mt-1">{currentTab.description}</div>
-            </div>
+        {activeTab === "reconcile" && (
+          <div className="p-6">
+            <ReconciliationPanel />
+          </div>
+        )}
+        {activeTab === "report" && (
+          <div className="p-6">
+            <ReportPanel />
           </div>
         )}
       </div>

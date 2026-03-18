@@ -474,7 +474,7 @@ function generatePdfHtml(data: ReportData): string {
     ${data.zoning ? `<div class="data-cell"><div class="data-label">Zoning</div><div class="data-value">${data.zoning}</div></div>` : ""}
   </div>
   ${data.narratives?.description
-    ? `<div class="narrative">${data.narratives.description}</div>`
+    ? `<div class="narrative">${data.narratives.description ?? data.narratives.property_description}</div>`
     : `<div class="narrative-placeholder">AI-drafted narrative not yet generated. Click "AI Draft" in the report editor to generate USPAP-compliant language for this section.</div>`
   }
 
@@ -491,7 +491,7 @@ function generatePdfHtml(data: ReportData): string {
     <div class="data-cell"><div class="data-label">Prior Sale History</div><div class="data-value">3-year history researched</div></div>
   </div>
   ${data.narratives?.scope
-    ? `<div class="narrative">${data.narratives.scope}</div>`
+    ? `<div class="narrative">${data.narratives.scope ?? data.narratives.scope_of_work}</div>`
     : `<div class="narrative-placeholder">Scope of work narrative not yet generated.</div>`
   }
 
@@ -508,7 +508,7 @@ function generatePdfHtml(data: ReportData): string {
     <div class="data-cell"><div class="data-label">Risk Level</div><div class="data-value">${data.riskLevel}</div></div>
   </div>
   ${data.narratives?.market
-    ? `<div class="narrative">${data.narratives.market}</div>`
+    ? `<div class="narrative">${data.narratives.market ?? data.narratives.market_conditions}</div>`
     : `<div class="narrative-placeholder">Market conditions narrative not yet generated.</div>`
   }
 </div>
@@ -520,7 +520,7 @@ function generatePdfHtml(data: ReportData): string {
     <div class="section-ref">USPAP SR 1-3(b)</div>
   </div>
   ${data.narratives?.hbu
-    ? `<div class="narrative">${data.narratives.hbu}</div>`
+    ? `<div class="narrative">${data.narratives.hbu ?? data.narratives.highest_best_use}</div>`
     : `
   <p style="margin-bottom:8px;"><strong>As Vacant:</strong> ${data.propertyType} use, consistent with current zoning${data.zoning ? ` (${data.zoning})` : ""}. Legally permissible, physically possible, financially feasible, and maximally productive.</p>
   <p><strong>As Improved:</strong> Continued use as ${data.propertyType.toLowerCase()}. The existing improvements represent the highest and best use as improved.</p>
@@ -599,7 +599,7 @@ function generatePdfHtml(data: ReportData): string {
   ` : `<div class="narrative-placeholder">No comparable sales data available.</div>`}
 
   ${data.narratives?.salesComp
-    ? `<div class="narrative">${data.narratives.salesComp}</div>`
+    ? `<div class="narrative">${data.narratives.salesComp ?? data.narratives.sales_comparison}</div>`
     : ""
   }
 </div>
