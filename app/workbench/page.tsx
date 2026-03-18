@@ -18,6 +18,7 @@ import { SalesComparisonPanel } from "@/components/sales-comparison-panel";
 import { IncomeApproachPanel } from "@/components/income-approach-panel";
 import { ReconciliationPanel } from "@/components/reconciliation-panel";
 import { ReportPanel } from "@/components/report-panel";
+import { LegacyImportPanel } from "@/components/legacy-import-panel";
 import {
   ClipboardList,
   Building2,
@@ -25,6 +26,7 @@ import {
   TrendingUp,
   Scale,
   FileText,
+  Upload,
   CheckCircle,
   AlertCircle,
   ArrowLeft,
@@ -39,7 +41,7 @@ const TABS: Array<{
   label: string;
   icon: React.ReactNode;
   description: string;
-  phase: "A" | "B" | "C" | "D" | "E";
+  phase: "A" | "B" | "C" | "D" | "E" | "F";
   available: boolean;
 }> = [
   {
@@ -88,6 +90,14 @@ const TABS: Array<{
     icon: <FileText className="w-4 h-4" />,
     description: "Narrative assembly & export",
     phase: "E",
+    available: true,
+  },
+  {
+    id: "legacy_import",
+    label: "Legacy Import",
+    icon: <Upload className="w-4 h-4" />,
+    description: "Import a la mode WinTOTAL / Mercury XML reports",
+    phase: "F",
     available: true,
   },
 ];
@@ -204,6 +214,11 @@ function WorkbenchInner() {
         {activeTab === "report" && (
           <div className="p-6">
             <ReportPanel />
+          </div>
+        )}
+        {activeTab === "legacy_import" && (
+          <div className="p-6 max-w-4xl mx-auto">
+            <LegacyImportPanel />
           </div>
         )}
       </div>

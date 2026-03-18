@@ -39,13 +39,14 @@ import {
 // Active Tab type — mirrors terra-forge SuiteTab but fee-appraiser scoped
 // ---------------------------------------------------------------------------
 export type WorkbenchTab =
-  | "subject"      // Subject property + assignment conditions
-  | "cost"         // Cost Approach (CostForge)
-  | "sales"        // Sales Comparison (Comp Grid + Regression)
-  | "income"       // Income Approach (Direct Cap + DCF)
-  | "reconcile"    // Value Reconciliation
-  | "report"       // Report Assembly + Narrative
-  | "orders";      // Order Management
+  | "subject"        // Subject property + assignment conditions
+  | "cost"           // Cost Approach (CostForge)
+  | "sales"          // Sales Comparison (Comp Grid + Regression)
+  | "income"         // Income Approach (Direct Cap + DCF)
+  | "reconcile"      // Value Reconciliation
+  | "report"         // Report Assembly + Narrative
+  | "orders"         // Order Management
+  | "legacy_import"; // Legacy Data Import (a la mode MISMO XML)
 
 // ---------------------------------------------------------------------------
 // Context value interface
