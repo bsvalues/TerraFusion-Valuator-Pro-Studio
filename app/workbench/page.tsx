@@ -15,6 +15,7 @@ import { SubjectWorkbenchProvider, useSubjectWorkbench, WorkbenchTab } from "@/l
 import { SubjectPanel } from "@/components/subject-panel";
 import { CostForgePanel } from "@/components/costforge-panel";
 import { SalesComparisonPanel } from "@/components/sales-comparison-panel";
+import { IncomeApproachPanel } from "@/components/income-approach-panel";
 import {
   ClipboardList,
   Building2,
@@ -68,8 +69,8 @@ const TABS: Array<{
     label: "Income Approach",
     icon: <TrendingUp className="w-4 h-4" />,
     description: "Direct cap & DCF with evidence lineage",
-    phase: "C",
-    available: false,
+    phase: "D",
+    available: true,
   },
   {
     id: "reconcile",
@@ -188,7 +189,12 @@ function WorkbenchInner() {
             <SalesComparisonPanel />
           </div>
         )}
-        {(activeTab === "income" || activeTab === "reconcile" || activeTab === "report") && (
+        {activeTab === "income" && (
+          <div className="p-6">
+            <IncomeApproachPanel />
+          </div>
+        )}
+        {(activeTab === "reconcile" || activeTab === "report") && (
           <div className="flex items-center justify-center h-64 text-zinc-600">
             <div className="text-center">
               <div className="text-4xl mb-3">🔧</div>
