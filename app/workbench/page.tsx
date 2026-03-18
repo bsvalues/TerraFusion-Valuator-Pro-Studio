@@ -14,6 +14,7 @@
 import { SubjectWorkbenchProvider, useSubjectWorkbench, WorkbenchTab } from "@/lib/subject-workbench-context";
 import { SubjectPanel } from "@/components/subject-panel";
 import { CostForgePanel } from "@/components/costforge-panel";
+import { SalesComparisonPanel } from "@/components/sales-comparison-panel";
 import {
   ClipboardList,
   Building2,
@@ -60,7 +61,7 @@ const TABS: Array<{
     icon: <BarChart3 className="w-4 h-4" />,
     description: "Comp grid, regression extraction, adjustments",
     phase: "C",
-    available: false,
+    available: true,
   },
   {
     id: "income",
@@ -182,7 +183,12 @@ function WorkbenchInner() {
       <div className="flex-1 overflow-auto">
         {activeTab === "subject" && <SubjectPanel />}
         {activeTab === "cost" && <CostForgePanel />}
-        {(activeTab === "sales" || activeTab === "income" || activeTab === "reconcile" || activeTab === "report") && (
+        {activeTab === "sales" && (
+          <div className="p-6">
+            <SalesComparisonPanel />
+          </div>
+        )}
+        {(activeTab === "income" || activeTab === "reconcile" || activeTab === "report") && (
           <div className="flex items-center justify-center h-64 text-zinc-600">
             <div className="text-center">
               <div className="text-4xl mb-3">🔧</div>
