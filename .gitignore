@@ -22,3 +22,7 @@ coverage/
 **/*.rs.bk
 .next/
 node_modules/
+
+# Environment variables
+.env.local
+.env.*.local
