@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
-});
-
 export async function POST(request: Request) {
+  // Initialize lazily so missing env var only fails at request time, not build time
+  const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY || "",
+    baseURL: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
+  });
   try {
     const body = await request.json();
     const {
