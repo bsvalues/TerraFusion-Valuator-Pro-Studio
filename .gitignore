@@ -26,3 +26,4 @@ node_modules/
 # Environment variables
 .env.local
 .env.*.local
+.vercel
