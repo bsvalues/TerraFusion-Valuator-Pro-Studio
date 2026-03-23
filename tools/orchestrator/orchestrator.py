@@ -104,17 +104,55 @@ def tauri_test_build():
 
 
 def security_scan():
-    # lightweight grep for likely secrets
+    # Lightweight secret grep plus cargo-audit and npm audit if available
     patterns = ['AWS_SECRET', 'AWS_ACCESS', 'BEGIN RSA PRIVATE KEY', 'PRIVATE KEY', 'PASSWORD', 'SECRET']
     hits = []
     for p in patterns:
         r = run(['git', 'grep', '-n', '-I', p], cwd=REPO_ROOT, shell=False)
         if r['status']=='ok' and r['output'].strip():
             hits.append({'pattern': p, 'matches': r['output'].splitlines()})
+
+    # cargo-audit
+    cargo_audit = {'available': False}
+    try:
+        a = run(['cargo', 'audit', '--version'], cwd=REPO_ROOT)
+        cargo_audit['available'] = a['status']=='ok'
+    except Exception:
+        cargo_audit['available'] = False
+
+    cargo_audit_result = None
+    if cargo_audit['available']:
+        cargo_audit_result = run(['cargo', 'audit'], cwd=os.path.join(REPO_ROOT, 'backend'))
+
+    # npm audit (frontend)
+    npm_audit_result = None
+    fe_path = os.path.join(REPO_ROOT, 'frontend', 'valuator-studio')
+    if os.path.isdir(fe_path):
+        npm_audit_result = run(['npm', 'audit', '--audit-level=high'], cwd=fe_path)
+
     path = os.path.join(ARTIFACTS, 'security_scan.json')
+    out = {'grep_hits': hits, 'cargo_audit': cargo_audit_result, 'npm_audit': npm_audit_result}
     with open(path, 'w', encoding='utf-8') as fh:
-        json.dump(hits, fh, indent=2)
-    return {'hits': len(hits), 'details': hits}
+        json.dump(out, fh, indent=2)
+    return {'hits': len(hits), 'cargo_audit': cargo_audit_result and cargo_audit_result['status'], 'npm_audit': npm_audit_result and npm_audit_result['status'], 'details_path': path}
+
+
+def packaging_step():
+    # Attempt a Tauri packaging step (best-effort). May require platform toolchain.
+    tauri_dir = os.path.join(REPO_ROOT, 'frontend', 'src-tauri')
+    if not os.path.isdir(tauri_dir):
+        return {'skipped': True}
+
+    # Prefer invoking npm script if present
+    fe_dir = os.path.join(REPO_ROOT, 'frontend', 'valuator-studio')
+    if os.path.isdir(fe_dir):
+        # run `npm run tauri:build` if defined
+        pkg = run(['npm', 'run', 'tauri:build'], cwd=fe_dir)
+        if pkg['status'] == 'ok':
+            return pkg
+
+    # Fallback to `cargo build --release` for the tauri crate
+    return run(['cargo', 'build', '--release'], cwd=tauri_dir)
 
 
 def perf_run():
@@ -175,6 +213,9 @@ def main():
 
     print('Running perf harness...')
     results['perf'] = perf_run()
+
+    print('Attempting packaging step...')
+    results['packaging'] = packaging_step()
 
     print('Summarizing...')
     report = summarize(results)

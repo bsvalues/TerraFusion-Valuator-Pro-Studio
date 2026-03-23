@@ -1,0 +1,50 @@
+name: Security Scan
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Gitleaks
+        uses: zricethezav/gitleaks-action@v2
+        with:
+          args: detect --report-format json --report-path tools/artifacts/gitleaks.json
+
+      - name: Setup Rust and cargo-audit
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install cargo-audit
+        run: |
+          cargo install cargo-audit || true
+
+      - name: Run cargo-audit
+        run: |
+          if command -v cargo-audit >/dev/null 2>&1; then
+            cargo audit --json > tools/artifacts/cargo_audit.json || true
+          else
+            echo 'cargo-audit not available'
+          fi
+
+      - name: Run npm audit (frontend)
+        run: |
+          if [ -d frontend/valuator-studio ]; then
+            cd frontend/valuator-studio
+            npm ci --no-audit --no-fund
+            npm audit --json > ../../tools/artifacts/npm_audit.json || true
+          fi
+
+      - name: Upload security artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-artifacts
+          path: |
+            tools/artifacts/gitleaks.json
+            tools/artifacts/cargo_audit.json
+            tools/artifacts/npm_audit.json
