@@ -1,0 +1,116 @@
+{
+  "timestamp": "2026-03-23T20:49:25.668429",
+  "results": {
+    "repo_explorer": {
+      "cmd": [
+        "git",
+        "ls-files"
+      ],
+      "cwd": "c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio",
+      "status": "ok",
+      "output": ".env\n.gitignore\nLICENSE\nbackend/DEV_SETUP.md\nbackend/ai-engine/Cargo.lock\nbackend/auth-service/Cargo.lock\nbackend/data-engine/Cargo.lock\nbackend/valuator-api/Cargo.lock\nbackend/valuator-api/package-lock.json\nbackend/valuator-core/Cargo.lock\nbackend/valuator-core/Cargo.toml\nbackend/valuator-core/src/cost_approach.rs\nbackend/valuator-core/src/income_approach.rs\nbackend/valuator-core/src/lib.rs\nbackend/valuator-core/src/lib.rs.new\nbackend/valuator-core/src/model.rs\nbackend/valuator-core/src/qc.rs\nbackend/valuator-core/src/reconciliation.rs\nbackend/valuator-core/src/sales_comparison.rs\nbackend/valuator-core/tests/integration_tests.rs\nfrontend/valuator-studio/.env.local\nfrontend/valuator-studio/coverage/clover.xml\nfrontend/valuator-studio/coverage/coverage-final.json\nfrontend/valuator-studio/coverage/lcov-report/app/index.html\nfrontend/valuator-studio/coverage/lcov-report/app/layout.tsx.html\nfrontend/valuator-studio/coverage/lcov-report/app/orders/[id]/index.html\nfrontend/valuator-studio/coverage/lcov-report/app/orders/[id]/page-with-ai.tsx.html\nfrontend/valuator-studio/coverage/lcov-report/base.css\nfrontend/valuator-studio/coverage/lcov-report/block-navigation.js\nfrontend/valuator-studio/coverage/lcov-report/components/AiIntegration.tsx.html\nfrontend/valuator-studio/coverage/lcov-report/components/index.html\nfrontend/valuator-studio/coverage/lcov-report/components/ui/badge.tsx.html\nfrontend/valuator-studio/coverage/lcov-report/components/ui/button.tsx.html\nfrontend/valuator-studio/coverage/lcov-report/components/ui/card.tsx.html\nfrontend/valuator-studio/coverage/lcov-report/components/ui/index.html\nfrontend/valuator-studio/coverage/lcov-report/components/ui/progress.tsx.html\nfrontend/valuator-studio/coverage/lcov-report/components/ui/tabs.tsx.html\nfrontend/valuator-studio/coverage/lcov-report/favicon.png\nfrontend/valuator-studio/coverage/lcov-report/index.html\nfrontend/valuator-studio/coverage/lcov-report/lib/index.html\nfrontend/valuator-studio/coverage/lcov-report/lib/utils.ts.html\nfrontend/valuator-studio/coverage/lcov-report/prettify.css\nfrontend/valuator-studio/coverage/lcov-report/prettify.js\nfrontend/valuator-studio/coverage/lcov-report/sort-arrow-sprite.png\nfrontend/valuator-studio/coverage/lcov-report/sorter.js\nfrontend/valuator-studio/coverage/lcov.info\nfrontend/valuator-studio/package-lock.json\ninfrastructure/.env.development.template\ninfrastructure/.env.production.template\ntests/package-lock.json\n",
+      "start": "2026-03-23T20:45:08.573908",
+      "end": "2026-03-23T20:45:08.773985"
+    },
+    "install_tauri": {
+      "skipped": true
+    },
+    "install_backend": {
+      "cmd": [
+        "cargo",
+        "fetch"
+      ],
+      "cwd": "c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\backend\\auth-service",
+      "status": "ok",
+      "output": " Downloading crates ...\n  Downloaded wasm-bindgen-shared v0.2.114\n  Downloaded wit-bindgen-rust-macro v0.51.0\n  Downloaded plain v0.2.3\n  Downloaded system-configuration-sys v0.5.0\n  Downloaded core-foundation v0.9.4\n  Downloaded redox_syscall v0.7.3\n  Downloaded r-efi v5.3.0\n  Downloaded openssl-sys v0.9.112\n  Downloaded jiff-static v0.2.23\n  Downloaded prettyplease v0.2.37\n  Downloaded wasip2 v1.0.2+wasi-0.2.9\n  Downloaded wit-parser v0.244.0\n  Downloaded wasip3 v0.4.0+wasi-0.3.0-rc-2026-01-06\n  Downloaded portable-atomic v1.13.1\n  Downloaded wasm-encoder v0.244.0\n  Downloaded js-sys v0.3.91\n  Downloaded wit-component v0.244.0\n  Downloaded wasmparser v0.244.0\n  Downloaded openssl v0.10.76\n  Downloaded bumpalo v3.20.2\n  Downloaded wasm-bindgen-macro-support v0.2.114\n  Downloaded security-framework v3.7.0\n  Downloaded portable-atomic-util v0.2.6\n  Downloaded wit-bindgen-rust v0.51.0\n  Downloaded wit-bindgen v0.51.0\n  Downloaded rustix v1.1.4\n  Downloaded windows_aarch64_gnullvm v0.52.6\n  Downloaded windows_aarch64_gnullvm v0.48.5\n  Downloaded windows_x86_64_gnullvm v0.52.6\n  Downloaded windows_i686_gnullvm v0.52.6\n  Downloaded windows_x86_64_gnullvm v0.48.5\n  Downloaded r-efi v6.0.0\n  Downloaded core-foundation-sys v0.8.7\n  Downloaded windows-core v0.62.2\n  Downloaded iana-time-zone v0.1.65\n  Downloaded wasi v0.11.1+wasi-snapshot-preview1\n  Downloaded wit-bindgen-core v0.51.0\n  Downloaded wasm-bindgen v0.2.114\n  Downloaded core-foundation v0.10.1\n  Downloaded web-sys v0.3.91\n  Downloaded security-framework-sys v2.17.0\n  Downloaded wasm-bindgen-futures v0.4.64\n  Downloaded redox_syscall v0.5.18\n  Downloaded signal-hook-registry v1.4.8\n  Downloaded leb128fmt v0.1.0\n  Downloaded windows_aarch64_msvc v0.48.5\n  Downloaded wasm-metadata v0.244.0\n  Downloaded system-configuration v0.5.1\n  Downloaded windows_aarch64_msvc v0.52.6\n  Downloaded windows_i686_gnu v0.48.5\n  Downloaded windows_i686_msvc v0.52.6\n  Downloaded windows_i686_gnu v0.52.6\n  Downloaded windows_i686_msvc v0.48.5\n  Downloaded foreign-types-shared v0.1.1\n  Downloaded foreign-types v0.3.2\n  Downloaded openssl-macros v0.1.1\n  Downloaded openssl-probe v0.2.1\n  Downloaded windows-result v0.4.1\n  Downloaded id-arena v2.3.0\n  Downloaded libredox v0.1.14\n  Downloaded wasite v0.1.0\n  Downloaded android_system_properties v0.1.5\n  Downloaded iana-time-zone-haiku v0.1.2\n  Downloaded windows-strings v0.5.1\n  Downloaded errno v0.3.14\n  Downloaded wasm-bindgen-macro v0.2.114\n  Downloaded linux-raw-sys v0.12.1\n",
+      "start": "2026-03-23T20:45:09.287895",
+      "end": "2026-03-23T20:46:27.107293"
+    },
+    "install_frontend": {
+      "cmd": [
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "cwd": "c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\frontend\\valuator-studio",
+      "status": "ok",
+      "output": "npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.\nnpm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead\nnpm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported\nnpm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported\nnpm warn deprecated abab@2.0.6: Use your platform's native atob() and btoa() methods instead\nnpm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead\nnpm warn deprecated domexception@4.0.0: Use your platform's native DOMException instead\nnpm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.\n\nadded 738 packages in 2m\n",
+      "start": "2026-03-23T20:45:09.288465",
+      "end": "2026-03-23T20:47:40.952767"
+    },
+    "tauri_test_build": {
+      "skipped": true
+    },
+    "frontend_build": {
+      "cmd": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\frontend\\valuator-studio",
+      "status": "ok",
+      "output": "\n> valuator-studio@0.1.0 build\n> next build\n\n  \u00e2\u2013\u00b2 Next.js 14.2.0\n  - Environments: .env.local\n\n   Creating an optimized production build ...\n \u00e2\u0153\u201c Compiled successfully\n   Skipping validation of types\n   Linting ...\n   Collecting page data ...\n   Generating static pages (0/8) ...\n   Generating static pages (2/8) \n   Generating static pages (4/8) \n   Generating static pages (6/8) \n \u00e2\u0153\u201c Generating static pages (8/8)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                               Size     First Load JS\n\u00e2\u201d\u0152 \u00e2\u2014\u2039 /                                     1.69 kB         122 kB\n\u00e2\u201d\u0153 \u00e2\u2014\u2039 /_not-found                           871 B          87.9 kB\n\u00e2\u201d\u0153 \u00e2\u2014\u2039 /1073                                 2.41 kB         123 kB\n\u00e2\u201d\u0153 \u00e2\u2014\u2039 /2055                                 1.7 kB          122 kB\n\u00e2\u201d\u0153 \u00c6\u2019 /api/workfiles/[id]/mismo             0 B                0 B\n\u00e2\u201d\u0153 \u00c6\u2019 /api/workfiles/[id]/pdf               0 B                0 B\n\u00e2\u201d\u201d \u00e2\u2014\u2039 /orders                               3.02 kB         118 kB\n+ First Load JS shared by all             87 kB\n  \u00e2\u201d\u0153 chunks/23-fdad2a81cb148043.js         31.3 kB\n  \u00e2\u201d\u0153 chunks/fd9d1056-7e3ed040e4ba57fc.js   53.6 kB\n  \u00e2\u201d\u201d other shared chunks (total)           2.06 kB\n\nRoute (pages)                             Size     First Load JS\n\u00e2\u201d\u20ac \u00e2\u2014\u2039 /tauri-kv (380 ms)                    921 B          80.2 kB\n+ First Load JS shared by all             79.3 kB\n  \u00e2\u201d\u0153 chunks/framework-2f080fc43111705e.js  45.2 kB\n  \u00e2\u201d\u0153 chunks/main-8e5ef297d4867e61.js       32.1 kB\n  \u00e2\u201d\u201d other shared chunks (total)           2.04 kB\n\n\u00e2\u2014\u2039  (Static)   prerendered as static content\n\u00c6\u2019  (Dynamic)  server-rendered on demand\n\n",
+      "start": "2026-03-23T20:47:40.957440",
+      "end": "2026-03-23T20:48:53.816863"
+    },
+    "backend_test": {
+      "cmd": [
+        "cargo",
+        "test",
+        "--color",
+        "never"
+      ],
+      "cwd": "c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\backend\\auth-service",
+      "status": "ok",
+      "output": "   Compiling auth-service v0.1.0 (C:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\backend\\auth-service)\nwarning: unused import: `error`\n  --> auth-service\\src\\handlers.rs:10:11\n   |\n10 | use log::{error, info, warn};\n   |           ^^^^^\n   |\n   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unused import: `UserRole`\n --> auth-service\\src\\jwt.rs:2:35\n  |\n2 | use crate::models::{Claims, User, UserRole};\n  |                                   ^^^^^^^^\n\nwarning: use of deprecated function `base64::decode`: Use Engine::decode\n   --> auth-service\\src\\handlers.rs:356:27\n    |\n356 |     let decoded = base64::decode(&req.signature_base64)\n    |                           ^^^^^^\n    |\n    = note: `#[warn(deprecated)]` on by default\n\nwarning: variants `TokenRevoked` and `InsufficientPermissions` are never constructed\n  --> auth-service\\src\\error.rs:22:5\n   |\n 5 | pub enum AuthError {\n   |          --------- variants in this enum\n...\n22 |     TokenRevoked,\n   |     ^^^^^^^^^^^^\n...\n25 |     InsufficientPermissions,\n   |     ^^^^^^^^^^^^^^^^^^^^^^^\n   |\n   = note: `AuthError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis\n   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: field `issuer` is never read\n  --> auth-service\\src\\jwt.rs:13:9\n   |\n 9 | pub struct JwtConfig {\n   |            --------- field in this struct\n...\n13 |     pub issuer: String,\n   |         ^^^^^^\n   |\n   = note: `JwtConfig` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis\n\nwarning: `auth-service` (bin \"auth-service\" test) generated 5 warnings (run `cargo fix --bin \"auth-service\" -p auth-service --tests` to apply 2 suggestions)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 29s\n     Running unittests src\\main.rs (c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\backend\\target\\debug\\deps\\auth_service-02e8bc951d746887.exe)\n\nrunning 6 tests\ntest jwt::tests::test_weak_password_rejection ... ok\ntest jwt::tests::test_generate_and_validate_token ... ok\ntest handlers::tests::test_health_endpoint ... ok\ntest handlers::tests::test_update_profile_and_signature ... ok\ntest handlers::tests::test_register_and_login ... ok\ntest jwt::tests::test_password_hashing ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.91s\n\n",
+      "start": "2026-03-23T20:47:40.956556",
+      "end": "2026-03-23T20:49:21.729260"
+    },
+    "security_scan": {
+      "hits": 2,
+      "details": [
+        {
+          "pattern": "PASSWORD",
+          "matches": [
+            "infrastructure/.env.development.template:6:POSTGRES_PASSWORD=tfvps",
+            "infrastructure/.env.development.template:11:REDIS_PASSWORD=tfvps_redis",
+            "infrastructure/.env.development.template:50:GRAFANA_ADMIN_PASSWORD=admin",
+            "infrastructure/.env.production.template:6:POSTGRES_PASSWORD=CHANGE_ME_STRONG_PASSWORD",
+            "infrastructure/.env.production.template:11:REDIS_PASSWORD=CHANGE_ME_REDIS_PASSWORD",
+            "infrastructure/.env.production.template:55:GRAFANA_ADMIN_PASSWORD=CHANGE_ME_GRAFANA_PASSWORD"
+          ]
+        },
+        {
+          "pattern": "SECRET",
+          "matches": [
+            "infrastructure/.env.development.template:15:JWT_SECRET=development_jwt_secret_not_for_production",
+            "infrastructure/.env.development.template:41:OAUTH_CLIENT_SECRET=dev_oauth_client_secret",
+            "infrastructure/.env.production.template:15:JWT_SECRET=CHANGE_ME_SUPER_STRONG_JWT_SECRET_AT_LEAST_32_CHARS",
+            "infrastructure/.env.production.template:46:OAUTH_CLIENT_SECRET=your_oauth_client_secret"
+          ]
+        }
+      ]
+    },
+    "perf": {
+      "cmd": [
+        "C:\\Users\\bsval\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\cli\\cli.py",
+        "perf",
+        "run",
+        "--rows",
+        "1000",
+        "--iterations",
+        "3",
+        "--warmup",
+        "1",
+        "--shell"
+      ],
+      "cwd": "c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio",
+      "status": "ok",
+      "output": "Wrote 1000 rows to c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\perf\\cli_synth.csv\nWrote 1000 rows to c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\perf\\cli_synth.csv\nWrote 1000 rows to c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\perf\\cli_synth.csv\nWrote 1000 rows to c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\perf\\cli_synth.csv\nWrote 1000 rows to c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\perf\\cli_synth.csv\nWarmup: 1 runs\nRunning 3 iterations...\nIter 1: 0.349s\nIter 2: 0.282s\nIter 3: 0.334s\n\nStats:\nmin: 0.282s\nmedian: 0.334s\nmean: 0.322s\nmax: 0.349s\nGenerating synthetic data: C:\\Users\\bsval\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\perf\\generate_synthetic_data.py --rows 1000 --out c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\perf\\cli_synth.csv --features 8\nRunning benchmark: C:\\Users\\bsval\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\perf\\benchmark_runner.py --command python c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\perf\\generate_synthetic_data.py --rows 1000 --out c:\\Dev\\ValuatorPro\\valuator-pro-studio\\TerraFusion-Valuator-Pro-Studio\\tools\\perf\\cli_synth.csv --iterations 3 --warmup 1 --shell\n",
+      "start": "2026-03-23T20:49:22.748171",
+      "end": "2026-03-23T20:49:25.666797"
+    }
+  }
+}

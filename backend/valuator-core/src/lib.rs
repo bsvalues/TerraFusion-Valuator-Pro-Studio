@@ -4,6 +4,7 @@ pub mod model;
 pub mod qc;
 pub mod reconciliation;
 pub mod sales_comparison;
+pub mod workfile;
 
 use model::{SubjectProperty, ValuationResult};
 use sales_comparison::ComparableSale;

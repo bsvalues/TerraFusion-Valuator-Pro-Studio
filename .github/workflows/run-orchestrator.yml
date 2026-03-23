@@ -1,0 +1,44 @@
+name: Run Orchestrator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  orchestrator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: x86_64-unknown-linux-gnu
+
+      - name: Install npm deps (frontend)
+        run: |
+          cd frontend/valuator-studio
+          npm ci --no-audit --no-fund
+
+      - name: Run orchestrator
+        run: |
+          python tools/orchestrator/orchestrator.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestrator-artifacts
+          path: |
+            tools/artifacts/**
+            tools/orchestrator/logs/**

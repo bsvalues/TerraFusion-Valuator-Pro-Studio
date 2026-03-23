@@ -1,0 +1,27 @@
+name: Agent PR Guard
+
+on:
+  pull_request:
+
+jobs:
+  guard:
+    name: Enforce agent prompt for bot PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate PR body for agent prompts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const login = pr.user && pr.user.login ? pr.user.login.toLowerCase() : '';
+            const body = pr.body || '';
+            const isBot = login.endsWith('-bot') || login.endsWith('[bot]') || login.includes('github-actions') || login.includes('dependabot');
+            const hasPrompt = /Agent Prompt|PROMPT-TEMPLATE.md|Agent Prompt \(if used\)/i.test(body);
+            if (isBot && !hasPrompt) {
+              core.setFailed(`PR created by bot '${pr.user.login}' must include an 'Agent Prompt' section or link to PROMPT-TEMPLATE.md in the PR body.`);
+            } else {
+              console.log('PR guard passed');
+            }

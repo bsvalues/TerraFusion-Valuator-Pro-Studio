@@ -1,0 +1,22 @@
+[
+  {
+    "pattern": "PASSWORD",
+    "matches": [
+      "infrastructure/.env.development.template:6:POSTGRES_PASSWORD=tfvps",
+      "infrastructure/.env.development.template:11:REDIS_PASSWORD=tfvps_redis",
+      "infrastructure/.env.development.template:50:GRAFANA_ADMIN_PASSWORD=admin",
+      "infrastructure/.env.production.template:6:POSTGRES_PASSWORD=CHANGE_ME_STRONG_PASSWORD",
+      "infrastructure/.env.production.template:11:REDIS_PASSWORD=CHANGE_ME_REDIS_PASSWORD",
+      "infrastructure/.env.production.template:55:GRAFANA_ADMIN_PASSWORD=CHANGE_ME_GRAFANA_PASSWORD"
+    ]
+  },
+  {
+    "pattern": "SECRET",
+    "matches": [
+      "infrastructure/.env.development.template:15:JWT_SECRET=development_jwt_secret_not_for_production",
+      "infrastructure/.env.development.template:41:OAUTH_CLIENT_SECRET=dev_oauth_client_secret",
+      "infrastructure/.env.production.template:15:JWT_SECRET=CHANGE_ME_SUPER_STRONG_JWT_SECRET_AT_LEAST_32_CHARS",
+      "infrastructure/.env.production.template:46:OAUTH_CLIENT_SECRET=your_oauth_client_secret"
+    ]
+  }
+]
