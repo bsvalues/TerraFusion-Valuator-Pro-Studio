@@ -33,7 +33,9 @@ NEXT_PUBLIC_STRIPE_PRO_URL     = https://buy.stripe.com/...   # Pro link
 NEXT_PUBLIC_STRIPE_FIRM_URL    = https://buy.stripe.com/...   # Firm link
 NEXT_PUBLIC_STRIPE_REPORT_URL  = https://buy.stripe.com/...   # Per-report link
 NEXT_PUBLIC_CONTACT_EMAIL      = you@yourdomain.com           # powers the fallback
-OPENAI_API_KEY                 = sk-...                       # AI narrative drafting
+# AI is OPTIONAL — sovereign by design; default needs no external AI:
+AI_PROVIDER                    = template                     # template | terrafusion | openai | disabled
+OPENAI_API_KEY                 = sk-...                       # OPTIONAL — only if AI_PROVIDER=openai
 ```
 Then **redeploy** (Vercel does this automatically on the next push, or trigger it manually).
 
@@ -47,8 +49,9 @@ Then **redeploy** (Vercel does this automatically on the next push, or trigger i
   **"Request access."**
 - `NEXT_PUBLIC_CONTACT_EMAIL` → **`app/pricing/page.tsx`** fallback: "Request access" becomes a
   `mailto:` to this address. If unset, it links to `/welcome`.
-- `OPENAI_API_KEY` → **`app/api/narrative`** (AI-assisted narrative drafting in `/workbench`). Without
-  it, narrative drafting won't work; the rest of the app still runs.
+- `AI_PROVIDER` / `OPENAI_API_KEY` / `TERRAFUSION_AI_ENDPOINT` → **`app/api/narrative`** via the
+  TerraFusion AI gateway. **`OPENAI_API_KEY` is OPTIONAL** — only used when `AI_PROVIDER=openai`. The
+  default (`template`) drafts a structured scaffold with **no external AI**. See SOVEREIGN_AI_ALIGNMENT.md.
 
 ---
 

@@ -127,7 +127,7 @@ export function NarrativeDrafting({ property, market, approaches, risk }: Narrat
           <h3 className="font-mono text-xs font-semibold tracking-wider text-foreground">
             AI NARRATIVE DRAFTING AGENT
           </h3>
-          <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-[10px] text-primary">GPT-4.1</span>
+          <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-[10px] text-primary">AI-assisted</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="font-mono text-[10px] text-muted-foreground">

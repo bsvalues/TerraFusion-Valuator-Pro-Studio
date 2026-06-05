@@ -12,7 +12,10 @@ Ordered. None require touching the analytical engines.
    ```
    Until set, pricing buttons safely degrade to "Request access" — not broken, but no self-serve payment.
 
-2. **Set `OPENAI_API_KEY`** in the deploy env (narrative drafting). Confirm narrative works.
+2. **AI narrative is provider-abstracted (sovereign by design) — `OPENAI_API_KEY` is OPTIONAL, not a
+   blocker.** Default `AI_PROVIDER=template` drafts a structured scaffold with **no external AI**. Only
+   set `OPENAI_API_KEY` if you choose `AI_PROVIDER=openai`, or point `TERRAFUSION_AI_ENDPOINT` at the
+   sovereign provider. See `SOVEREIGN_AI_ALIGNMENT.md`.
 
 3. **Decide the launch access model.** `/workbench` is open today. Recommended launch posture: keep it
    open, sell **access + onboarding** to the first 10 manually, add entitlement gating *after* first

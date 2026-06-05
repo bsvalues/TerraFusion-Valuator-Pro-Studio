@@ -1,19 +1,14 @@
 /**
  * POST /api/narrative
  *
- * AI narrative generation endpoint for TerraFusion Valuator Pro.
+ * Narrative drafting for TerraFusion Valuator Pro. Routes through the TerraFusion AI Gateway
+ * (lib/ai/narrative-provider) — sovereign by design: default is a no-external-AI template
+ * scaffold; OpenAI / TerraFusion providers are optional and explicit (env AI_PROVIDER).
  * Accepts real SubjectContext + runHistory from the workbench (not mock data).
- * Generates USPAP-compliant narratives for each report section.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
-
-const getClient = () =>
-  new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY || "",
-    baseURL: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
-  });
+import { generateNarrative } from "@/lib/ai/narrative-provider";
 
 type NarrativeType =
   | "property_description"
@@ -147,19 +142,19 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const client = getClient();
-    const completion = await client.chat.completions.create({
-      model: "gpt-4.1-mini",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: buildPrompt(body) },
-      ],
-      max_tokens: 800,
-      temperature: 0.3,
+    const result = await generateNarrative({
+      type: body.type as NarrativeType,
+      systemPrompt: SYSTEM_PROMPT,
+      userPrompt: buildPrompt(body),
+      fields: body,
     });
-
-    const narrative = completion.choices[0]?.message?.content ?? "";
-    return NextResponse.json({ narrative, type: body.type });
+    return NextResponse.json({
+      narrative: result.narrative,
+      type: result.type,
+      provider: result.provider,
+      mode: result.mode,
+      isTemplate: result.isTemplate,
+    });
   } catch (err) {
     console.error("Narrative API error:", err);
     return NextResponse.json(
