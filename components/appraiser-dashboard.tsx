@@ -181,7 +181,7 @@ export function AppraiserDashboard() {
                   { label: "On-Time Delivery Rate", value: "94%", target: "95%", pct: 94, good: true },
                   { label: "Revision Request Rate", value: "4.2%", target: "< 5%", pct: 84, good: true },
                   { label: "Client Satisfaction", value: "4.8/5.0", target: "4.5+", pct: 96, good: true },
-                  { label: "USPAP Compliance Score", value: "100%", target: "100%", pct: 100, good: true },
+                  { label: "Workfile completeness", value: "98%", target: "100%", pct: 98, good: true },
                   { label: "Avg Fee / Report", value: "$2,847", target: "$2,500+", pct: 88, good: true },
                 ].map((kpi) => (
                   <div key={kpi.label} className="flex items-center gap-3">

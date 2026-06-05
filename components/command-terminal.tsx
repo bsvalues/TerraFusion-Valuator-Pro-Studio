@@ -45,7 +45,7 @@ export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: Comm
     {
       id: 1,
       type: "system",
-      text: "Fee Appraiser Mode ACTIVE -- USPAP Compliant AI Platform",
+      text: "Fee Appraiser Mode ACTIVE -- USPAP-aware appraisal platform",
     },
     {
       id: 2,
@@ -231,7 +231,7 @@ export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: Comm
           addLine("output", "         \\__________|__________/");
           addLine("output", "           Fully Connected Mesh");
           addLine("output", "");
-          addLine("output", "  Mode: Fee Appraiser (USPAP Compliant)");
+          addLine("output", "  Mode: Fee Appraiser (USPAP-aware)");
           addLine("output", "  Protocol: Event-Driven Sequential Pipeline");
           addLine("output", "  Mesh status: All links healthy");
           break;
@@ -311,7 +311,7 @@ export function CommandTerminal({ onRunPipeline, onOpenReport, isRunning }: Comm
           addLine("output", "Designation: COACH-0");
           addLine(
             "output",
-            "Mode: Fee Appraiser (USPAP Compliant)"
+            "Mode: Fee Appraiser (USPAP-aware)"
           );
           addLine("output", '"I\'m helping!"');
           break;

@@ -224,7 +224,7 @@ export function NarrativeDrafting({ property, market, approaches, risk }: Narrat
                 <div className="rounded border border-border/50 bg-background/50 p-4">
                   <div className="mb-2 flex items-center gap-2">
                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    <span className="font-mono text-[9px] tracking-wider text-emerald-400">USPAP-COMPLIANT DRAFT</span>
+                    <span className="font-mono text-[9px] tracking-wider text-emerald-400">USPAP-AWARE DRAFT</span>
                   </div>
                   <textarea
                     value={narratives[n.type]}
@@ -242,7 +242,7 @@ export function NarrativeDrafting({ property, market, approaches, risk }: Narrat
                 <div className="rounded border border-dashed border-border/40 bg-background/20 p-6 text-center">
                   <FileText className="h-6 w-6 text-muted-foreground/40 mx-auto mb-2" />
                   <p className="font-mono text-[10px] text-muted-foreground">
-                    Click &quot;Draft with AI&quot; to generate a USPAP-compliant {n.label.toLowerCase()} narrative
+                    Click &quot;Draft with AI&quot; to generate a USPAP-aware {n.label.toLowerCase()} narrative
                   </p>
                   <p className="font-mono text-[9px] text-muted-foreground/60 mt-1">
                     Uses property data, market conditions, and valuation results

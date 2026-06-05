@@ -197,7 +197,7 @@ export default function TerraFusionValuatorPro() {
                   TerraFusion Valuator Pro
                 </h1>
                 <p className="font-mono text-[10px] tracking-widest text-muted-foreground">
-                  COMMERCIAL FEE APPRAISAL PLATFORM · USPAP COMPLIANT · MULTI-AGENT AI
+                  COMMERCIAL FEE APPRAISAL PLATFORM · USPAP-AWARE · EVIDENCE-ANCHORED
                 </p>
               </div>
             </div>
@@ -530,7 +530,7 @@ export default function TerraFusionValuatorPro() {
           <footer className="mt-8 border-t border-border pt-4 pb-6">
             <p className="font-mono text-[10px] text-muted-foreground/50">
               TerraFusion Valuator Pro Studio v2.0.0 — Commercial Fee Appraiser Platform —
-              USPAP Compliant · Three Approaches to Value · Multi-Agent AI · Order Management
+              USPAP-aware · Three Approaches to Value · Evidence-anchored · Order Management
             </p>
           </footer>
         </div>

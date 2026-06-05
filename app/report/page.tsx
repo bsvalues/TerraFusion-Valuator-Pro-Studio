@@ -596,7 +596,7 @@ function ReportContent() {
 
         <div className="print:hidden border-t border-border pt-4 pb-8 text-center">
           <p className="font-mono text-[10px] text-muted-foreground/50">
-            TerraFusion Valuator Pro Studio · Commercial Fee Appraisal Platform · USPAP Compliant
+            TerraFusion Valuator Pro Studio · Commercial Fee Appraisal Platform · USPAP-aware
           </p>
         </div>
       </div>
@@ -645,7 +645,7 @@ function RptSection({
       {loading && (
         <div className="rounded border border-primary/20 bg-primary/5 p-4 text-center">
           <RefreshCw className="h-5 w-5 text-primary animate-spin mx-auto mb-1" />
-          <p className="font-mono text-[10px] text-primary">Drafting USPAP-compliant narrative...</p>
+          <p className="font-mono text-[10px] text-primary">Drafting USPAP-aware narrative...</p>
         </div>
       )}
       {narrative && !loading && (
@@ -660,7 +660,7 @@ function RptSection({
       {!narrative && !loading && (
         <div className="print:hidden rounded border border-dashed border-border/40 p-4 text-center">
           <p className="font-mono text-[10px] text-muted-foreground">
-            Click &quot;AI Draft&quot; to generate a USPAP-compliant narrative for this section
+            Click &quot;AI Draft&quot; to generate a USPAP-aware narrative for this section
           </p>
         </div>
       )}

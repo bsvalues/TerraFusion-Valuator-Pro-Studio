@@ -5,7 +5,7 @@
  *
  * Governed report assembly UI for TerraFusion Valuator Pro.
  * Pulls all data from SubjectWorkbenchContext (real governed data, not mock engines).
- * Generates USPAP-compliant AI narratives for each report section.
+ * Generates USPAP-aware AI narratives for each report section.
  * Exports to print-ready HTML via the /api/export-pdf endpoint.
  *
  * Report Sections (USPAP SR 2-2):
@@ -310,7 +310,7 @@ export function ReportPanel() {
               {isLoading && (
                 <div className="rounded border border-[hsl(var(--tf-transcend-cyan)/0.2)] bg-[hsl(var(--tf-transcend-cyan)/0.05)] p-3 text-center">
                   <RefreshCw className="w-4 h-4 text-[hsl(var(--tf-transcend-cyan))] animate-spin mx-auto mb-1" />
-                  <p className="text-xs text-[hsl(var(--tf-transcend-cyan))]">Drafting USPAP-compliant narrative…</p>
+                  <p className="text-xs text-[hsl(var(--tf-transcend-cyan))]">Drafting USPAP-aware narrative…</p>
                 </div>
               )}
 
@@ -326,7 +326,7 @@ export function ReportPanel() {
 
               {!narrative && !isLoading && (
                 <div className="rounded border border-dashed border-border/40 p-3 text-center">
-                  <p className="text-xs text-muted-foreground">Click "AI Draft" to generate a USPAP-compliant narrative for this section.</p>
+                  <p className="text-xs text-muted-foreground">Click "AI Draft" to generate a USPAP-aware narrative for this section.</p>
                 </div>
               )}
             </div>

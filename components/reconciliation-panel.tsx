@@ -473,7 +473,7 @@ export function ReconciliationPanel() {
                   <AlertCircle className="w-3 h-3 text-amber-400" />
                 )}
                 <span className="text-[10px] text-muted-foreground">
-                  {evidence.uspapCompliant ? "USPAP Compliant" : "Review Required"}
+                  {evidence.uspapCompliant ? "Reconciliation complete" : "Review required"}
                 </span>
               </div>
             </div>

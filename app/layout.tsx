@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TerraFusion Valuator Pro | Commercial Fee Appraisal Platform",
+  title: "TerraFusion Valuator Pro | Commercial Fee Appraisal Workbench",
   description:
-    "AI-powered commercial fee appraisal platform — Three Approaches to Value, USPAP Compliance, Order Management, and Multi-Agent AI for professional appraisers",
+    "A USPAP-aware, evidence-anchored commercial fee appraisal workbench — Three Approaches to Value, workfile discipline, order management, and AI-assisted narrative drafting for professional appraisers",
 };
 
 export const viewport: Viewport = {
