@@ -83,14 +83,14 @@ function ImportCard({
   const comps = r.parsed.salesComparison.comps.slice(0, 3);
 
   return (
-    <div className={`border rounded-lg overflow-hidden transition-all ${saved ? "border-green-300 bg-green-50" : "border-slate-200 bg-white"}`}>
+    <div className={`border rounded-lg overflow-hidden transition-all ${saved ? "border-cyan-300 bg-cyan-50" : "border-slate-200 bg-white"}`}>
       {/* Header */}
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               {saved ? (
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-cyan-700 bg-cyan-100 px-2 py-0.5 rounded-full">
                   ✓ Saved to TerraFusion
                 </span>
               ) : (
@@ -197,9 +197,9 @@ function ImportCard({
           </div>
 
           {/* Governance Badge */}
-          <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded p-2">
-            <span className="text-emerald-600 text-sm">✓</span>
-            <span className="text-xs text-emerald-700">
+          <div className="flex items-center gap-2 bg-cyan-50 border border-cyan-200 rounded p-2">
+            <span className="text-cyan-600 text-sm">✓</span>
+            <span className="text-xs text-cyan-700">
               <strong>Governance:</strong> All cost service brand references have been sanitized. No proprietary cost manual names in imported data.
             </span>
           </div>
@@ -231,7 +231,7 @@ function ImportCard({
             </span>
           )}
           {saved ? (
-            <span className="text-xs font-medium text-green-700 bg-green-100 px-3 py-1.5 rounded">
+            <span className="text-xs font-medium text-cyan-700 bg-cyan-100 px-3 py-1.5 rounded">
               ✓ Saved — TF File: {r.fileNumber}
             </span>
           ) : (
@@ -407,7 +407,7 @@ export function LegacyImportPanel() {
             <span className="text-slate-600">
               <strong>{importResponse.processed}</strong> file{importResponse.processed !== 1 ? "s" : ""} processed
             </span>
-            <span className="text-green-700">
+            <span className="text-cyan-700">
               <strong>{importResponse.succeeded}</strong> succeeded
             </span>
             {importResponse.failed > 0 && (
@@ -440,7 +440,7 @@ export function LegacyImportPanel() {
                 <p className={`text-xs mt-1 px-1 ${
                   saveMessages[result.record.fileNumber].startsWith("Error")
                     ? "text-red-600"
-                    : "text-green-600"
+                    : "text-cyan-600"
                 }`}>
                   {saveMessages[result.record.fileNumber]}
                 </p>

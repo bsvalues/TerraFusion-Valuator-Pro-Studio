@@ -17,9 +17,9 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; bg: str
   analysis:     { label: "Analysis",      color: "text-purple-400",  bg: "bg-purple-400/10",  border: "border-purple-400/30" },
   draft:        { label: "Draft",         color: "text-cyan-400",    bg: "bg-cyan-400/10",    border: "border-cyan-400/30" },
   review:       { label: "Review",        color: "text-primary",     bg: "bg-primary/10",     border: "border-primary/30" },
-  delivered:    { label: "Delivered",     color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/30" },
+  delivered:    { label: "Delivered",     color: "text-cyan-400", bg: "bg-cyan-400/10", border: "border-cyan-400/30" },
   invoiced:     { label: "Invoiced",      color: "text-chart-2",     bg: "bg-chart-2/10",     border: "border-chart-2/30" },
-  paid:         { label: "Paid",          color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/30" },
+  paid:         { label: "Paid",          color: "text-cyan-400", bg: "bg-cyan-400/10", border: "border-cyan-400/30" },
   on_hold:      { label: "On Hold",       color: "text-red-400",     bg: "bg-red-400/10",     border: "border-red-400/30" },
   cancelled:    { label: "Cancelled",     color: "text-muted-foreground", bg: "bg-muted/20",  border: "border-muted/20" },
 };
@@ -48,7 +48,7 @@ function daysUntilDue(dueDate: string): number {
 function DueBadge({ dueDate }: { dueDate?: string }) {
   if (!dueDate) return null;
   const days = daysUntilDue(dueDate);
-  const color = days < 0 ? "text-red-400" : days <= 3 ? "text-red-400" : days <= 7 ? "text-yellow-400" : "text-emerald-400";
+  const color = days < 0 ? "text-red-400" : days <= 3 ? "text-red-400" : days <= 7 ? "text-yellow-400" : "text-cyan-400";
   const label = days < 0 ? `${Math.abs(days)}d OVERDUE` : days === 0 ? "DUE TODAY" : `${days}d left`;
   return <span className={`font-mono text-[9px] font-semibold ${color}`}>{label}</span>;
 }
@@ -194,7 +194,7 @@ export function OrderManagement() {
         </div>
         <div className="rounded-lg border border-border bg-card p-3 text-center">
           <p className="font-mono text-[9px] tracking-wider text-muted-foreground">COLLECTED</p>
-          <p className="font-mono text-lg font-bold text-emerald-400">${totalRevenuePaid.toLocaleString()}</p>
+          <p className="font-mono text-lg font-bold text-cyan-400">${totalRevenuePaid.toLocaleString()}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3 text-center">
           <p className="font-mono text-[9px] tracking-wider text-muted-foreground">OVERDUE / RUSH</p>
@@ -466,7 +466,7 @@ export function OrderManagement() {
                       <div>
                         <p className="font-mono text-[9px] tracking-wider text-muted-foreground">FEE STATUS</p>
                         <p className={cn("font-mono text-xs font-semibold",
-                          order.feeStatus === "paid" ? "text-emerald-400" :
+                          order.feeStatus === "paid" ? "text-cyan-400" :
                           order.feeStatus === "invoiced" ? "text-chart-2" : "text-muted-foreground"
                         )}>
                           {order.fee ? `$${order.fee.toLocaleString()}` : "N/A"} · {(order.feeStatus || "pending").toUpperCase()}
@@ -571,7 +571,7 @@ export function OrderManagement() {
             {(["pending", "invoiced", "paid"] as const).map((fs) => {
               const total = orders.filter((o) => o.feeStatus === fs).reduce((s, o) => s + (o.fee ?? 0), 0);
               const count = orders.filter((o) => o.feeStatus === fs).length;
-              const color = fs === "paid" ? "bg-emerald-400" : fs === "invoiced" ? "bg-chart-2" : "bg-muted-foreground/30";
+              const color = fs === "paid" ? "bg-cyan-400" : fs === "invoiced" ? "bg-chart-2" : "bg-muted-foreground/30";
               return (
                 <div key={fs} className="mb-2">
                   <div className="flex justify-between mb-1">

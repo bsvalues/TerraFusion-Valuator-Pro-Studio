@@ -143,7 +143,7 @@ function ReportContent() {
     );
   }
 
-  const riskColor = risk?.riskLevel === "Low" ? "text-emerald-400" : risk?.riskLevel === "Moderate" ? "text-yellow-400" : "text-red-400";
+  const riskColor = risk?.riskLevel === "Low" ? "text-cyan-400" : risk?.riskLevel === "Moderate" ? "text-yellow-400" : "text-red-400";
   const incomeApplicable = ["office", "retail", "industrial", "multi_family_5plus"].includes(propertyType);
 
   return (
@@ -631,7 +631,7 @@ function RptSection({
           {narrative && (
             <button onClick={copy}
               className="print:hidden flex items-center gap-1 rounded border border-border px-2 py-1 font-mono text-[9px] text-muted-foreground hover:text-foreground transition-colors">
-              {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+              {copied ? <Check className="h-3 w-3 text-cyan-400" /> : <Copy className="h-3 w-3" />}
             </button>
           )}
           <button onClick={onGenerate} disabled={loading}
@@ -649,10 +649,10 @@ function RptSection({
         </div>
       )}
       {narrative && !loading && (
-        <div className="rounded border border-emerald-400/20 bg-emerald-400/5 p-4">
+        <div className="rounded border border-cyan-400/20 bg-cyan-400/5 p-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            <span className="font-mono text-[9px] tracking-wider text-emerald-400">AI-DRAFTED — REVIEW BEFORE FINALIZING</span>
+            <div className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+            <span className="font-mono text-[9px] tracking-wider text-cyan-400">AI-DRAFTED — REVIEW BEFORE FINALIZING</span>
           </div>
           <p className="font-mono text-[11px] text-foreground/90 leading-relaxed whitespace-pre-wrap">{narrative}</p>
         </div>

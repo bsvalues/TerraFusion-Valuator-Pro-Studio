@@ -327,7 +327,7 @@ export function DCFIncomeApproach({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-mono font-bold text-green-400 tracking-wider flex items-center gap-2">
+          <h3 className="text-sm font-mono font-bold text-cyan-400 tracking-wider flex items-center gap-2">
             <BarChart3 className="w-4 h-4" />
             INCOME CAPITALIZATION APPROACH — DCF MODEL
           </h3>
@@ -337,7 +337,7 @@ export function DCFIncomeApproach({
         </div>
         <div className="text-right">
           <div className="text-xs text-gray-400 font-mono">INDICATED VALUE</div>
-          <div className="text-2xl font-bold text-green-400 font-mono">{fmt(results.indicatedValue)}</div>
+          <div className="text-2xl font-bold text-cyan-400 font-mono">{fmt(results.indicatedValue)}</div>
           <div className="text-xs text-gray-400 font-mono">
             IRR: {fmtPct(results.irr)} · EM: {results.equityMultiple.toFixed(2)}x
           </div>
@@ -370,7 +370,7 @@ export function DCFIncomeApproach({
             onClick={() => setActiveView(v)}
             className={`px-4 py-2 text-xs font-mono font-bold border-b-2 transition-colors ${
               activeView === v
-                ? "border-green-400 text-green-400"
+                ? "border-cyan-400 text-cyan-400"
                 : "border-transparent text-gray-500 hover:text-gray-300"
             }`}
           >
@@ -400,7 +400,7 @@ export function DCFIncomeApproach({
                 { key: "vacancy", label: "Less: Vacancy & Credit Loss", color: "text-red-400", neg: true },
                 { key: "egi", label: "Effective Gross Income", color: "text-blue-400", bold: true },
                 { key: "opex", label: "Less: Operating Expenses", color: "text-red-400", neg: true },
-                { key: "noi", label: "Net Operating Income", color: "text-green-400", bold: true },
+                { key: "noi", label: "Net Operating Income", color: "text-cyan-400", bold: true },
                 { key: "capex", label: "Less: Capital Expenditures", color: "text-red-400", neg: true },
                 { key: "ncf", label: "Net Cash Flow", color: "text-yellow-400", bold: true },
                 { key: "dcf", label: "Discounted Cash Flow (PV)", color: "text-purple-400" },
@@ -442,9 +442,9 @@ export function DCFIncomeApproach({
                 Terminal NOI: {fmt(results.projections[results.projections.length - 1].noi * (1 + inputs.rentGrowthRate / 100))} ÷ {inputs.terminalCapRate}%
               </div>
             </div>
-            <div className="border border-green-500/30 rounded p-3 bg-green-500/5">
+            <div className="border border-cyan-500/30 rounded p-3 bg-cyan-500/5">
               <div className="text-xs text-gray-400 font-mono mb-1">INDICATED VALUE (DCF)</div>
-              <div className="text-lg font-bold text-green-400 font-mono">{fmt(results.indicatedValue)}</div>
+              <div className="text-lg font-bold text-cyan-400 font-mono">{fmt(results.indicatedValue)}</div>
               <div className="text-xs text-gray-500">${(results.indicatedValue / inputs.totalSqft).toFixed(0)}/sf overall</div>
             </div>
           </div>
@@ -463,7 +463,7 @@ export function DCFIncomeApproach({
                 <tr>
                   <th className="px-3 py-2 text-gray-400 text-left">DR \ Cap Rate</th>
                   {[-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5].map((d) => (
-                    <th key={d} className={`px-3 py-2 text-right ${d === 0 ? "text-green-400" : "text-gray-400"}`}>
+                    <th key={d} className={`px-3 py-2 text-right ${d === 0 ? "text-cyan-400" : "text-gray-400"}`}>
                       {(inputs.terminalCapRate + d).toFixed(1)}%
                     </th>
                   ))}
@@ -472,7 +472,7 @@ export function DCFIncomeApproach({
               <tbody>
                 {[-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5].map((drDelta, ri) => (
                   <tr key={drDelta} className="border-t border-gray-800">
-                    <td className={`px-3 py-2 ${drDelta === 0 ? "text-green-400 font-bold" : "text-gray-400"}`}>
+                    <td className={`px-3 py-2 ${drDelta === 0 ? "text-cyan-400 font-bold" : "text-gray-400"}`}>
                       {(inputs.discountRate + drDelta).toFixed(1)}%
                     </td>
                     {sensitivityData[ri].map((val, ci) => {
@@ -483,7 +483,7 @@ export function DCFIncomeApproach({
                           key={ci}
                           className={`px-3 py-2 text-right border border-gray-800 ${
                             isBase
-                              ? "bg-green-500/20 text-green-400 font-bold"
+                              ? "bg-cyan-500/20 text-cyan-400 font-bold"
                               : pct > 10
                               ? "bg-blue-500/10 text-blue-400"
                               : pct < -10
@@ -493,7 +493,7 @@ export function DCFIncomeApproach({
                         >
                           <div>{fmt(val)}</div>
                           {!isBase && (
-                            <div className={`text-xs ${pct >= 0 ? "text-green-500" : "text-red-500"}`}>
+                            <div className={`text-xs ${pct >= 0 ? "text-cyan-500" : "text-red-500"}`}>
                               {pct >= 0 ? "+" : ""}{pct.toFixed(1)}%
                             </div>
                           )}
@@ -513,7 +513,7 @@ export function DCFIncomeApproach({
         <div className="grid grid-cols-2 gap-6">
           {/* Market Assumptions */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono text-green-400 uppercase tracking-wider">Market & Income Assumptions</h4>
+            <h4 className="text-xs font-mono text-cyan-400 uppercase tracking-wider">Market & Income Assumptions</h4>
             {[
               { label: "Total Rentable Area", field: "totalSqft" as const, suffix: "sf", type: "number" },
               { label: "Market Rent ($/sf/yr)", field: "marketRentPsf" as const, suffix: "$/sf/yr", type: "number", step: 0.5 },
@@ -527,7 +527,7 @@ export function DCFIncomeApproach({
                   <input
                     type="number"
                     step={step || 1}
-                    className="w-20 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs text-white font-mono text-right focus:border-green-500 outline-none"
+                    className="w-20 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs text-white font-mono text-right focus:border-cyan-500 outline-none"
                     value={inputs[field] as number}
                     onChange={(e) => upd(field, parseFloat(e.target.value) || 0)}
                   />
@@ -536,7 +536,7 @@ export function DCFIncomeApproach({
               </div>
             ))}
 
-            <h4 className="text-xs font-mono text-green-400 uppercase tracking-wider mt-4">Operating Expenses</h4>
+            <h4 className="text-xs font-mono text-cyan-400 uppercase tracking-wider mt-4">Operating Expenses</h4>
             {[
               { label: "Base OpEx ($/sf/yr)", field: "operatingExpenses" as const, step: 0.25 },
               { label: "Management Fee", field: "managementFee" as const, suffix: "% EGI", step: 0.5 },
@@ -551,7 +551,7 @@ export function DCFIncomeApproach({
                   <input
                     type="number"
                     step={step}
-                    className="w-20 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs text-white font-mono text-right focus:border-green-500 outline-none"
+                    className="w-20 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs text-white font-mono text-right focus:border-cyan-500 outline-none"
                     value={inputs[field] as number}
                     onChange={(e) => upd(field, parseFloat(e.target.value) || 0)}
                   />
@@ -563,7 +563,7 @@ export function DCFIncomeApproach({
 
           {/* Valuation Assumptions */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono text-green-400 uppercase tracking-wider">Valuation Parameters</h4>
+            <h4 className="text-xs font-mono text-cyan-400 uppercase tracking-wider">Valuation Parameters</h4>
             {[
               { label: "Discount Rate (WACC)", field: "discountRate" as const, suffix: "%", step: 0.25 },
               { label: "Terminal Cap Rate", field: "terminalCapRate" as const, suffix: "%", step: 0.25 },
@@ -579,7 +579,7 @@ export function DCFIncomeApproach({
                     step={step}
                     min={min}
                     max={max}
-                    className="w-20 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs text-white font-mono text-right focus:border-green-500 outline-none"
+                    className="w-20 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs text-white font-mono text-right focus:border-cyan-500 outline-none"
                     value={inputs[field] as number}
                     onChange={(e) => upd(field, parseFloat(e.target.value) || 0)}
                   />
@@ -589,8 +589,8 @@ export function DCFIncomeApproach({
             ))}
 
             {/* Value Summary Box */}
-            <div className="border border-green-500/30 rounded p-3 bg-green-500/5 mt-4 space-y-2">
-              <div className="text-xs font-mono text-green-400 font-bold">VALUE RECONCILIATION</div>
+            <div className="border border-cyan-500/30 rounded p-3 bg-cyan-500/5 mt-4 space-y-2">
+              <div className="text-xs font-mono text-cyan-400 font-bold">VALUE RECONCILIATION</div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-400">Direct Capitalization</span>
                 <span className="text-white font-mono">{fmt(results.directCapValue)}</span>
@@ -604,8 +604,8 @@ export function DCFIncomeApproach({
                 <span className="text-white font-mono">{fmt(results.presentValueReversion)}</span>
               </div>
               <div className="border-t border-gray-600 pt-2 flex justify-between text-sm font-bold">
-                <span className="text-green-400">Indicated Value (DCF)</span>
-                <span className="text-green-400 font-mono">{fmt(results.indicatedValue)}</span>
+                <span className="text-cyan-400">Indicated Value (DCF)</span>
+                <span className="text-cyan-400 font-mono">{fmt(results.indicatedValue)}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-400">Per Square Foot</span>
@@ -620,7 +620,7 @@ export function DCFIncomeApproach({
       <div className="border border-gray-700 rounded">
         <button
           onClick={() => setShowTenants(!showTenants)}
-          className="w-full flex items-center justify-between px-4 py-3 text-xs font-mono font-bold text-green-400 hover:bg-gray-900/30"
+          className="w-full flex items-center justify-between px-4 py-3 text-xs font-mono font-bold text-cyan-400 hover:bg-gray-900/30"
         >
           <span className="flex items-center gap-2">
             <Building2 className="w-3 h-3" />
@@ -634,7 +634,7 @@ export function DCFIncomeApproach({
             <div className="flex justify-end">
               <button
                 onClick={addTenant}
-                className="text-xs font-mono text-green-400 border border-green-500/50 rounded px-3 py-1 hover:bg-green-500/10"
+                className="text-xs font-mono text-cyan-400 border border-cyan-500/50 rounded px-3 py-1 hover:bg-cyan-500/10"
               >
                 + ADD TENANT
               </button>
@@ -650,7 +650,7 @@ export function DCFIncomeApproach({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className={`text-xs px-1.5 py-0.5 rounded font-mono font-bold ${
-                        tenant.creditRating === "A" ? "bg-green-500/20 text-green-400" :
+                        tenant.creditRating === "A" ? "bg-cyan-500/20 text-cyan-400" :
                         tenant.creditRating === "B" ? "bg-blue-500/20 text-blue-400" :
                         tenant.creditRating === "C" ? "bg-yellow-500/20 text-yellow-400" :
                         "bg-red-500/20 text-red-400"
@@ -674,35 +674,35 @@ export function DCFIncomeApproach({
                   <div className="grid grid-cols-4 gap-3 text-xs">
                     <div>
                       <label className="block text-gray-500 mb-1">SUITE</label>
-                      <input className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-green-500 outline-none" value={tenant.suite} onChange={(e) => updateTenant(tenant.id, "suite", e.target.value)} />
+                      <input className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-cyan-500 outline-none" value={tenant.suite} onChange={(e) => updateTenant(tenant.id, "suite", e.target.value)} />
                     </div>
                     <div>
                       <label className="block text-gray-500 mb-1">SQFT</label>
-                      <input type="number" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-green-500 outline-none" value={tenant.sqft} onChange={(e) => updateTenant(tenant.id, "sqft", parseInt(e.target.value) || 0)} />
+                      <input type="number" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-cyan-500 outline-none" value={tenant.sqft} onChange={(e) => updateTenant(tenant.id, "sqft", parseInt(e.target.value) || 0)} />
                     </div>
                     <div>
                       <label className="block text-gray-500 mb-1">LEASE START</label>
-                      <input type="date" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-green-500 outline-none" value={tenant.leaseStart} onChange={(e) => updateTenant(tenant.id, "leaseStart", e.target.value)} />
+                      <input type="date" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-cyan-500 outline-none" value={tenant.leaseStart} onChange={(e) => updateTenant(tenant.id, "leaseStart", e.target.value)} />
                     </div>
                     <div>
                       <label className="block text-gray-500 mb-1">LEASE END</label>
-                      <input type="date" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-green-500 outline-none" value={tenant.leaseEnd} onChange={(e) => updateTenant(tenant.id, "leaseEnd", e.target.value)} />
+                      <input type="date" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-cyan-500 outline-none" value={tenant.leaseEnd} onChange={(e) => updateTenant(tenant.id, "leaseEnd", e.target.value)} />
                     </div>
                     <div>
                       <label className="block text-gray-500 mb-1">RENT ($/SF/YR)</label>
-                      <input type="number" step="0.5" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-green-500 outline-none" value={tenant.currentRent} onChange={(e) => updateTenant(tenant.id, "currentRent", parseFloat(e.target.value) || 0)} />
+                      <input type="number" step="0.5" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-cyan-500 outline-none" value={tenant.currentRent} onChange={(e) => updateTenant(tenant.id, "currentRent", parseFloat(e.target.value) || 0)} />
                     </div>
                     <div>
                       <label className="block text-gray-500 mb-1">ESCALATION %/YR</label>
-                      <input type="number" step="0.25" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-green-500 outline-none" value={tenant.annualEscalation} onChange={(e) => updateTenant(tenant.id, "annualEscalation", parseFloat(e.target.value) || 0)} />
+                      <input type="number" step="0.25" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-cyan-500 outline-none" value={tenant.annualEscalation} onChange={(e) => updateTenant(tenant.id, "annualEscalation", parseFloat(e.target.value) || 0)} />
                     </div>
                     <div>
                       <label className="block text-gray-500 mb-1">RENEWAL PROB %</label>
-                      <input type="number" step="5" min="0" max="100" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-green-500 outline-none" value={tenant.renewalProbability} onChange={(e) => updateTenant(tenant.id, "renewalProbability", parseFloat(e.target.value) || 0)} />
+                      <input type="number" step="5" min="0" max="100" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-cyan-500 outline-none" value={tenant.renewalProbability} onChange={(e) => updateTenant(tenant.id, "renewalProbability", parseFloat(e.target.value) || 0)} />
                     </div>
                     <div>
                       <label className="block text-gray-500 mb-1">CREDIT RATING</label>
-                      <select className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-green-500 outline-none" value={tenant.creditRating} onChange={(e) => updateTenant(tenant.id, "creditRating", e.target.value as Tenant["creditRating"])}>
+                      <select className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-cyan-500 outline-none" value={tenant.creditRating} onChange={(e) => updateTenant(tenant.id, "creditRating", e.target.value as Tenant["creditRating"])}>
                         <option value="A">A — Investment Grade</option>
                         <option value="B">B — Good Credit</option>
                         <option value="C">C — Speculative</option>
@@ -711,11 +711,11 @@ export function DCFIncomeApproach({
                     </div>
                     <div>
                       <label className="block text-gray-500 mb-1">TI AT RENEWAL ($/SF)</label>
-                      <input type="number" step="1" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-green-500 outline-none" value={tenant.tenantImprovements} onChange={(e) => updateTenant(tenant.id, "tenantImprovements", parseFloat(e.target.value) || 0)} />
+                      <input type="number" step="1" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-cyan-500 outline-none" value={tenant.tenantImprovements} onChange={(e) => updateTenant(tenant.id, "tenantImprovements", parseFloat(e.target.value) || 0)} />
                     </div>
                     <div>
                       <label className="block text-gray-500 mb-1">LEASING COMM %</label>
-                      <input type="number" step="0.5" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-green-500 outline-none" value={tenant.leasingCommission} onChange={(e) => updateTenant(tenant.id, "leasingCommission", parseFloat(e.target.value) || 0)} />
+                      <input type="number" step="0.5" className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white font-mono focus:border-cyan-500 outline-none" value={tenant.leasingCommission} onChange={(e) => updateTenant(tenant.id, "leasingCommission", parseFloat(e.target.value) || 0)} />
                     </div>
                     <div className="col-span-2 flex items-end">
                       <div className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-1.5 text-xs text-gray-300 font-mono">

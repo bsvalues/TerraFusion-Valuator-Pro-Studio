@@ -78,10 +78,10 @@ const fmt = (n: number) =>
 const fmtN = (n: number, dec = 0) => n.toLocaleString("en-US", { maximumFractionDigits: dec });
 
 const inputCls =
-  "w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30";
+  "w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30";
 
 const selectCls =
-  "w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30";
+  "w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30";
 
 // ---------------------------------------------------------------------------
 // Component
@@ -208,7 +208,7 @@ export function CostForgePanel() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-emerald-400" />
+            <Building2 className="w-5 h-5 text-cyan-400" />
             Cost Approach — TerraFusion CostForge
           </h2>
           <p className="text-xs text-zinc-500 mt-0.5">
@@ -218,7 +218,7 @@ export function CostForgePanel() {
         {result && (
           <div className="text-right">
             <div className="text-xs text-zinc-500">Indicated Value by Cost Approach</div>
-            <div className="text-2xl font-bold text-emerald-400">
+            <div className="text-2xl font-bold text-cyan-400">
               {fmt(result.cst_indicated_value)}
             </div>
             <div className="text-xs text-zinc-500">Run ID: {result.run_id}</div>
@@ -417,7 +417,7 @@ export function CostForgePanel() {
       <button
         onClick={handleRun}
         disabled={!subjectReady || running || reasonCode.trim().length < 3}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-600 disabled:cursor-not-allowed text-white font-medium transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:bg-zinc-800 disabled:text-zinc-600 disabled:cursor-not-allowed text-white font-medium transition-colors"
       >
         {running ? (
           <>
@@ -438,7 +438,7 @@ export function CostForgePanel() {
           {/* UAD CST Field Output */}
           <div className="border border-zinc-800 rounded-lg overflow-hidden">
             <div className="px-4 py-3 bg-zinc-900/60 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-emerald-400" />
+              <BarChart3 className="w-4 h-4 text-cyan-400" />
               <span className="text-sm font-medium text-zinc-200">
                 UAD Cost Approach Fields — {result.model_version}
               </span>
@@ -490,7 +490,7 @@ export function CostForgePanel() {
                     <tr className="border-t border-zinc-700">
                       <td className="py-2 font-medium text-zinc-200">
                         Total RCN{" "}
-                        <span className="text-xs font-mono text-emerald-500/70">[CST_RCN]</span>
+                        <span className="text-xs font-mono text-cyan-500/70">[CST_RCN]</span>
                       </td>
                       <td className="py-2 text-right font-mono font-semibold text-zinc-100">
                         {fmt(result.cst_rcn)}
@@ -511,7 +511,7 @@ export function CostForgePanel() {
                       <td className="py-1.5 text-zinc-400">
                         Physical Depreciation — Effective Age {result.effective_age} yrs /{" "}
                         {result.total_economic_life} yr life ({result.depreciation_rate_pct}%)
-                        <span className="ml-1 text-xs font-mono text-emerald-500/70">
+                        <span className="ml-1 text-xs font-mono text-cyan-500/70">
                           [CST_DEPRECIATION_PHYSICAL]
                         </span>
                       </td>
@@ -523,7 +523,7 @@ export function CostForgePanel() {
                       <tr>
                         <td className="py-1.5 text-zinc-400">
                           Functional Obsolescence
-                          <span className="ml-1 text-xs font-mono text-emerald-500/70">
+                          <span className="ml-1 text-xs font-mono text-cyan-500/70">
                             [CST_DEPRECIATION_FUNCTIONAL]
                           </span>
                         </td>
@@ -536,7 +536,7 @@ export function CostForgePanel() {
                       <tr>
                         <td className="py-1.5 text-zinc-400">
                           External Obsolescence
-                          <span className="ml-1 text-xs font-mono text-emerald-500/70">
+                          <span className="ml-1 text-xs font-mono text-cyan-500/70">
                             [CST_DEPRECIATION_EXTERNAL]
                           </span>
                         </td>
@@ -560,7 +560,7 @@ export function CostForgePanel() {
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">
                     Depreciated Value of Improvements
-                    <span className="ml-1 text-xs font-mono text-emerald-500/70">
+                    <span className="ml-1 text-xs font-mono text-cyan-500/70">
                       [CST_DEPRECIATED_VALUE]
                     </span>
                   </span>
@@ -569,7 +569,7 @@ export function CostForgePanel() {
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">
                     Site Value (As If Vacant)
-                    <span className="ml-1 text-xs font-mono text-emerald-500/70">
+                    <span className="ml-1 text-xs font-mono text-cyan-500/70">
                       [CST_SITE_VALUE]
                     </span>
                   </span>
@@ -578,11 +578,11 @@ export function CostForgePanel() {
                 <div className="flex justify-between text-base font-semibold border-t border-zinc-700 pt-2">
                   <span className="text-zinc-100">
                     Indicated Value by Cost Approach
-                    <span className="ml-1 text-xs font-mono text-emerald-500/70">
+                    <span className="ml-1 text-xs font-mono text-cyan-500/70">
                       [CST_INDICATED_VALUE]
                     </span>
                   </span>
-                  <span className="font-mono text-emerald-400">{fmt(result.cst_indicated_value)}</span>
+                  <span className="font-mono text-cyan-400">{fmt(result.cst_indicated_value)}</span>
                 </div>
               </div>
 
@@ -637,7 +637,7 @@ export function CostForgePanel() {
 
           {/* Narrative ready badge */}
           {result.narrative_ready && (
-            <div className="flex items-center gap-2 p-3 rounded-lg border bg-emerald-950/30 border-emerald-700/40 text-emerald-300 text-sm">
+            <div className="flex items-center gap-2 p-3 rounded-lg border bg-cyan-950/30 border-cyan-700/40 text-cyan-300 text-sm">
               <CheckCircle className="w-4 h-4 shrink-0" />
               <span>
                 <span className="font-medium">Narrative ready.</span> This cost run can be passed

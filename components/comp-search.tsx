@@ -212,7 +212,7 @@ export function CompSearch({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-mono font-bold text-green-400 tracking-wider">COMP SEARCH</h3>
+          <h3 className="text-sm font-mono font-bold text-cyan-400 tracking-wider">COMP SEARCH</h3>
           <p className="text-xs text-gray-400 mt-0.5">
             Subject: {subjectAddress}, {subjectCity}, {subjectState} · {subjectGla.toLocaleString()} sf · {subjectPropertyType}
           </p>
@@ -264,7 +264,7 @@ export function CompSearch({
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={`flex items-center gap-2 px-3 py-2 text-xs font-mono rounded border transition-all ${
-            showFilters ? "border-green-400 text-green-400 bg-green-400/10" : "border-gray-600 text-gray-400 hover:border-gray-400"
+            showFilters ? "border-cyan-400 text-cyan-400 bg-cyan-400/10" : "border-gray-600 text-gray-400 hover:border-gray-400"
           }`}
         >
           <SlidersHorizontal className="w-3 h-3" />
@@ -273,7 +273,7 @@ export function CompSearch({
         <button
           onClick={handleSearch}
           disabled={loading}
-          className="flex items-center gap-2 px-5 py-2 text-xs font-mono font-bold rounded border border-green-500 text-black bg-green-500 hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-5 py-2 text-xs font-mono font-bold rounded border border-cyan-500 text-black bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Search className="w-3 h-3" />
           {loading ? "SEARCHING..." : "SEARCH COMPS"}
@@ -290,7 +290,7 @@ export function CompSearch({
               <div className="flex items-center gap-2">
                 <input
                   type="number"
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono outline-none focus:border-green-500"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono outline-none focus:border-cyan-500"
                   value={glaMin}
                   onChange={(e) => setGlaMin(parseInt(e.target.value) || 0)}
                   placeholder="Min"
@@ -298,7 +298,7 @@ export function CompSearch({
                 <span className="text-gray-500 text-xs">—</span>
                 <input
                   type="number"
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono outline-none focus:border-green-500"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono outline-none focus:border-cyan-500"
                   value={glaMax}
                   onChange={(e) => setGlaMax(parseInt(e.target.value) || 0)}
                   placeholder="Max"
@@ -311,7 +311,7 @@ export function CompSearch({
               <div className="flex items-center gap-2">
                 <input
                   type="number"
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono outline-none focus:border-green-500"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono outline-none focus:border-cyan-500"
                   value={priceMin || ""}
                   onChange={(e) => setPriceMin(parseInt(e.target.value) || 0)}
                   placeholder="Min $"
@@ -319,7 +319,7 @@ export function CompSearch({
                 <span className="text-gray-500 text-xs">—</span>
                 <input
                   type="number"
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono outline-none focus:border-green-500"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono outline-none focus:border-cyan-500"
                   value={priceMax || ""}
                   onChange={(e) => setPriceMax(parseInt(e.target.value) || 0)}
                   placeholder="Max $"
@@ -331,7 +331,7 @@ export function CompSearch({
               <label className="block text-xs text-gray-400 mb-2">SORT BY</label>
               <div className="flex gap-1">
                 <select
-                  className="flex-1 bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono outline-none focus:border-green-500"
+                  className="flex-1 bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono outline-none focus:border-cyan-500"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 >
@@ -359,7 +359,7 @@ export function CompSearch({
                     onClick={() => toggleCondition(c)}
                     className={`px-2 py-1 text-xs font-mono rounded border transition-all ${
                       conditions.includes(c)
-                        ? "border-green-400 text-green-400 bg-green-400/10"
+                        ? "border-cyan-400 text-cyan-400 bg-cyan-400/10"
                         : "border-gray-600 text-gray-400 hover:border-gray-400"
                     }`}
                   >
@@ -379,7 +379,7 @@ export function CompSearch({
                   onClick={() => toggleType(t)}
                   className={`px-2 py-1 text-xs font-mono rounded border transition-all ${
                     selectedTypes.includes(t)
-                      ? "border-green-400 text-green-400 bg-green-400/10"
+                      ? "border-cyan-400 text-cyan-400 bg-cyan-400/10"
                       : "border-gray-600 text-gray-400 hover:border-gray-400"
                   }`}
                 >
@@ -394,8 +394,8 @@ export function CompSearch({
       {/* Results */}
       {loading && (
         <div className="text-center py-12">
-          <div className="inline-flex items-center gap-3 text-green-400 font-mono text-sm">
-            <div className="w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full animate-spin" />
+          <div className="inline-flex items-center gap-3 text-cyan-400 font-mono text-sm">
+            <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
             Searching MLS, CoStar, public records...
           </div>
         </div>
@@ -433,7 +433,7 @@ export function CompSearch({
                 key={comp.id}
                 className={`border rounded transition-all ${
                   selected
-                    ? "border-green-500 bg-green-500/5"
+                    ? "border-cyan-500 bg-cyan-500/5"
                     : "border-gray-700 hover:border-gray-500 bg-gray-900/30"
                 }`}
               >
@@ -450,7 +450,7 @@ export function CompSearch({
                   <div className="col-span-1 text-right text-xs text-white font-mono font-bold">
                     {fmt(comp.salePrice)}
                   </div>
-                  <div className="col-span-1 text-right text-xs text-green-400 font-mono">
+                  <div className="col-span-1 text-right text-xs text-cyan-400 font-mono">
                     ${comp.pricePerSqft}/sf
                   </div>
                   <div className="col-span-1 text-right text-xs text-gray-300 font-mono">
@@ -461,7 +461,7 @@ export function CompSearch({
                   </div>
                   <div className="col-span-1 text-center">
                     <span className={`text-xs font-mono px-1.5 py-0.5 rounded ${
-                      comp.condition === "Excellent" ? "bg-green-500/20 text-green-400" :
+                      comp.condition === "Excellent" ? "bg-cyan-500/20 text-cyan-400" :
                       comp.condition === "Good" ? "bg-blue-500/20 text-blue-400" :
                       comp.condition === "Average" ? "bg-yellow-500/20 text-yellow-400" :
                       "bg-red-500/20 text-red-400"
@@ -490,8 +490,8 @@ export function CompSearch({
                       disabled={selected}
                       className={`flex items-center justify-center w-6 h-6 rounded border text-xs transition-all ${
                         selected
-                          ? "border-green-500 text-green-500 bg-green-500/10 cursor-default"
-                          : "border-gray-600 text-gray-400 hover:border-green-400 hover:text-green-400 hover:bg-green-400/10"
+                          ? "border-cyan-500 text-cyan-500 bg-cyan-500/10 cursor-default"
+                          : "border-gray-600 text-gray-400 hover:border-cyan-400 hover:text-cyan-400 hover:bg-cyan-400/10"
                       }`}
                     >
                       {selected ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
@@ -536,7 +536,7 @@ export function CompSearch({
                     </div>
                     <div>
                       <span className="text-gray-500">Verified:</span>
-                      <span className={`ml-2 font-mono ${comp.verified ? "text-green-400" : "text-yellow-400"}`}>
+                      <span className={`ml-2 font-mono ${comp.verified ? "text-cyan-400" : "text-yellow-400"}`}>
                         {comp.verified ? "Yes" : "Unverified"}
                       </span>
                     </div>
@@ -550,9 +550,9 @@ export function CompSearch({
 
       {/* Selected Comps Summary */}
       {selectedComps.length > 0 && (
-        <div className="border border-green-500/30 rounded p-3 bg-green-500/5">
+        <div className="border border-cyan-500/30 rounded p-3 bg-cyan-500/5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-mono text-green-400 font-bold">
+            <span className="text-xs font-mono text-cyan-400 font-bold">
               {selectedComps.length} COMP{selectedComps.length !== 1 ? "S" : ""} SELECTED FOR ADJUSTMENT GRID
             </span>
             <span className="text-xs text-gray-400 font-mono">

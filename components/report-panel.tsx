@@ -247,7 +247,7 @@ export function ReportPanel() {
       <div className="rounded-md border border-border bg-muted/20 px-4 py-2 flex items-center gap-6 text-xs">
         <div className="flex items-center gap-1.5">
           {subjectComplete ? (
-            <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+            <CheckCircle className="w-3.5 h-3.5 text-cyan-400" />
           ) : (
             <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
           )}
@@ -257,7 +257,7 @@ export function ReportPanel() {
         <div className="text-muted-foreground">File: <span className="font-mono">{subject.fileNumber ?? "—"}</span></div>
         <div className="text-muted-foreground">Effective: <span className="font-mono">{subject.effectiveDate ?? "—"}</span></div>
         {costValue && <div className="text-blue-400">Cost: <span className="font-mono">${costValue.toLocaleString()}</span></div>}
-        {salesValue && <div className="text-emerald-400">Sales: <span className="font-mono">${salesValue.toLocaleString()}</span></div>}
+        {salesValue && <div className="text-cyan-400">Sales: <span className="font-mono">${salesValue.toLocaleString()}</span></div>}
         {incomeValue && <div className="text-amber-400">Income: <span className="font-mono">${incomeValue.toLocaleString()}</span></div>}
       </div>
 
@@ -278,7 +278,7 @@ export function ReportPanel() {
                       {section.uspap}
                     </span>
                     {narrative && (
-                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <CheckCircle className="w-3.5 h-3.5 text-cyan-400" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{section.description}</p>
@@ -289,7 +289,7 @@ export function ReportPanel() {
                       onClick={() => copyNarrative(section.key)}
                       className="h-7 px-2 text-xs rounded border border-border text-muted-foreground hover:text-foreground flex items-center gap-1"
                     >
-                      {isCopied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      {isCopied ? <Check className="w-3 h-3 text-cyan-400" /> : <Copy className="w-3 h-3" />}
                     </button>
                   )}
                   <button
@@ -315,10 +315,10 @@ export function ReportPanel() {
               )}
 
               {narrative && !isLoading && (
-                <div className="rounded border border-emerald-500/20 bg-emerald-500/5 p-3">
+                <div className="rounded border border-cyan-500/20 bg-cyan-500/5 p-3">
                   <div className="flex items-center gap-1.5 mb-2">
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    <span className="text-[10px] font-mono text-emerald-400 tracking-wider">AI-DRAFTED — REVIEW BEFORE FINALIZING</span>
+                    <div className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                    <span className="text-[10px] font-mono text-cyan-400 tracking-wider">AI-DRAFTED — REVIEW BEFORE FINALIZING</span>
                   </div>
                   <p className="text-xs text-foreground/90 leading-relaxed whitespace-pre-wrap font-mono">{narrative}</p>
                 </div>

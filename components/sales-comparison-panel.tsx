@@ -69,10 +69,10 @@ const fmtPct = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
 
 const adjColor = (amount: number) => {
   if (amount === 0) return "text-muted-foreground";
-  return amount > 0 ? "text-emerald-400" : "text-red-400";
+  return amount > 0 ? "text-cyan-400" : "text-red-400";
 };
 
-const flagColor = (flag: boolean) => (flag ? "text-amber-400" : "text-emerald-400");
+const flagColor = (flag: boolean) => (flag ? "text-amber-400" : "text-cyan-400");
 
 // ---------------------------------------------------------------------------
 // Demo comps for initial state
@@ -265,7 +265,7 @@ function RegressionPanel({ vault, extraction, isRunning, onRun, onApply }: Regre
                         <td className="py-1.5 text-right font-mono text-muted-foreground">
                           {c.tStatistic.toFixed(3)}
                         </td>
-                        <td className={`py-1.5 text-right font-mono ${c.significant ? "text-emerald-400" : "text-amber-400"}`}>
+                        <td className={`py-1.5 text-right font-mono ${c.significant ? "text-cyan-400" : "text-amber-400"}`}>
                           {c.pValue.toFixed(3)}
                         </td>
                         <td className={`py-1.5 text-right font-mono ${c.vif > 5 ? "text-red-400" : "text-muted-foreground"}`}>
@@ -273,7 +273,7 @@ function RegressionPanel({ vault, extraction, isRunning, onRun, onApply }: Regre
                         </td>
                         <td className="py-1.5 text-center">
                           {c.significant ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 inline" />
+                            <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 inline" />
                           ) : (
                             <AlertTriangle className="w-3.5 h-3.5 text-amber-400 inline" />
                           )}
@@ -298,7 +298,7 @@ function RegressionPanel({ vault, extraction, isRunning, onRun, onApply }: Regre
 
               <button
                 onClick={onApply}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded-lg transition-colors"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 Apply Regression Adjustments to Grid
@@ -524,7 +524,7 @@ export function SalesComparisonPanel() {
           {vault.comps.length < 6 && (
             <button
               onClick={() => setShowAddComp((s) => !s)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white text-xs rounded-lg transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               Add Comp
@@ -573,7 +573,7 @@ export function SalesComparisonPanel() {
           <div className="flex gap-2">
             <button
               onClick={handleAddComp}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg transition-colors"
+              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded-lg transition-colors"
             >
               Add
             </button>
@@ -639,7 +639,7 @@ export function SalesComparisonPanel() {
                   {vault.comps.map((comp, idx) => (
                     <th key={comp.compId} className="text-center px-3 py-2 font-medium border-r border-border min-w-[140px]">
                       <div className="flex items-center justify-between">
-                        <span className="text-emerald-400">COMP {idx + 1}</span>
+                        <span className="text-cyan-400">COMP {idx + 1}</span>
                         <button
                           onClick={() => setVault((v) => removeCompFromVault(v, comp.compId))}
                           className="text-muted-foreground hover:text-red-400 transition-colors"
@@ -796,11 +796,11 @@ export function SalesComparisonPanel() {
                   ))}
                 </tr>
                 {/* Adjusted sale price */}
-                <tr className="bg-emerald-950/20">
+                <tr className="bg-cyan-950/20">
                   <td className="px-3 py-2.5 font-semibold border-r border-border text-[11px]">Adjusted Sale Price</td>
                   <td className="px-3 py-2.5 text-center border-r border-border text-muted-foreground">—</td>
                   {vault.comps.map((comp) => (
-                    <td key={comp.compId} className="px-3 py-2.5 text-center border-r border-border font-semibold text-emerald-400">
+                    <td key={comp.compId} className="px-3 py-2.5 text-center border-r border-border font-semibold text-cyan-400">
                       {fmt(comp.adjustedSalePrice)}
                     </td>
                   ))}
@@ -847,9 +847,9 @@ export function SalesComparisonPanel() {
           ) : (
             <div className="space-y-4">
               {/* Indicated value */}
-              <div className="border border-emerald-500/30 rounded-xl p-6 bg-emerald-950/20 text-center">
+              <div className="border border-cyan-500/30 rounded-xl p-6 bg-cyan-950/20 text-center">
                 <div className="text-xs text-muted-foreground mb-1">Indicated Value — Sales Comparison Approach</div>
-                <div className="text-4xl font-bold text-emerald-400">
+                <div className="text-4xl font-bold text-cyan-400">
                   {fmt(reconciliation.indicatedValue)}
                 </div>
                 <div className="text-xs text-muted-foreground mt-2">

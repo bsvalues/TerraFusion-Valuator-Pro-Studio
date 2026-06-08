@@ -60,7 +60,7 @@ export function IncomeApproach({ propertySquareFeet, onValueChange }: IncomeAppr
   const totalRowCls = "flex items-center justify-between py-2 border-t-2 border-primary/30 mt-1";
 
   const riskColor =
-    result.expenseRatio < 0.35 ? "text-emerald-400" :
+    result.expenseRatio < 0.35 ? "text-cyan-400" :
     result.expenseRatio < 0.5  ? "text-yellow-400" : "text-red-400";
 
   return (

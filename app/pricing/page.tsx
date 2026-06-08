@@ -34,17 +34,17 @@ const TIERS = [
 export default function Pricing() {
   const perReport = buy(process.env.NEXT_PUBLIC_STRIPE_REPORT_URL, "Per-report");
   return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-5xl px-6">
         <header className="flex items-center justify-between py-6">
-          <Link href="/" className="text-sm font-semibold tracking-tight">TerraFusion <span className="text-emerald-400">Valuator Pro</span></Link>
-          <Link href="/workbench" className="text-sm text-zinc-400 hover:text-zinc-200">Open workbench →</Link>
+          <Link href="/" className="text-sm font-semibold tracking-tight">TerraFusion <span className="text-cyan-400">Valuator Pro</span></Link>
+          <Link href="/workbench" className="text-sm text-muted-foreground hover:text-foreground">Open workbench →</Link>
         </header>
 
         <section className="py-10 text-center">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Launch pricing</h1>
-          <p className="mx-auto mt-3 max-w-xl text-zinc-400">
-            Test pricing while we onboard the first appraisers. <span className="text-emerald-400">Founding access:</span> the
+          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+            Test pricing while we onboard the first appraisers. <span className="text-cyan-400">Founding access:</span> the
             first 10 users keep a discounted rate for life.
           </p>
         </section>
@@ -53,30 +53,30 @@ export default function Pricing() {
           {TIERS.map((t) => {
             const b = buy(t.url, t.name);
             return (
-              <div key={t.name} className={`rounded-2xl border p-6 ${t.featured ? "border-emerald-500/60 bg-emerald-500/5" : "border-zinc-800"}`}>
-                {t.featured && <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-400">Most popular</div>}
+              <div key={t.name} className={`rounded-2xl border p-6 ${t.featured ? "border-cyan-500/60 bg-cyan-500/5" : "border-border"}`}>
+                {t.featured && <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-cyan-400">Most popular</div>}
                 <h3 className="text-lg font-semibold">{t.name}</h3>
-                <div className="mt-2"><span className="text-3xl font-bold">{t.price}</span><span className="text-zinc-500">{t.cadence}</span></div>
-                <ul className="mt-4 space-y-2 text-sm text-zinc-400">
+                <div className="mt-2"><span className="text-3xl font-bold">{t.price}</span><span className="text-muted-foreground">{t.cadence}</span></div>
+                <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                   {t.points.map((p) => <li key={p}>· {p}</li>)}
                 </ul>
-                <a href={b.href} className={`mt-6 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold ${t.featured ? "bg-emerald-500 text-zinc-950 hover:bg-emerald-400" : "border border-zinc-700 text-zinc-200 hover:border-zinc-500"}`}>{b.label}</a>
-                {!b.live && <p className="mt-2 text-center text-xs text-zinc-600">checkout configuring — request access and we’ll set you up</p>}
+                <a href={b.href} className={`mt-6 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold ${t.featured ? "bg-cyan-500 text-background hover:bg-cyan-400" : "border border-border text-foreground hover:border-muted-foreground"}`}>{b.label}</a>
+                {!b.live && <p className="mt-2 text-center text-xs text-muted-foreground">checkout configuring — request access and we’ll set you up</p>}
               </div>
             );
           })}
         </section>
 
-        <section className="mt-6 rounded-2xl border border-zinc-800 p-6 sm:flex sm:items-center sm:justify-between">
+        <section className="mt-6 rounded-2xl border border-border p-6 sm:flex sm:items-center sm:justify-between">
           <div>
             <h3 className="text-lg font-semibold">Per-report export</h3>
-            <p className="mt-1 text-sm text-zinc-400">Low volume? Pay <span className="font-semibold text-zinc-200">$29</span> per finished report instead of a subscription.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Low volume? Pay <span className="font-semibold text-foreground">$29</span> per finished report instead of a subscription.</p>
           </div>
-          <a href={perReport.href} className="mt-4 inline-flex items-center justify-center rounded-lg border border-zinc-700 px-4 py-2.5 text-sm font-semibold text-zinc-200 hover:border-zinc-500 sm:mt-0">{perReport.live ? "Buy a report credit" : "Request access"}</a>
+          <a href={perReport.href} className="mt-4 inline-flex items-center justify-center rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-foreground hover:border-muted-foreground sm:mt-0">{perReport.live ? "Buy a report credit" : "Request access"}</a>
         </section>
 
-        <footer className="py-10 text-center text-sm text-zinc-500">
-          Prices are launch/test rates and may change. <Link href="/sample-report" className="text-zinc-300 underline underline-offset-4">See a sample report</Link> before you buy.
+        <footer className="py-10 text-center text-sm text-muted-foreground">
+          Prices are launch/test rates and may change. <Link href="/sample-report" className="text-foreground underline underline-offset-4">See a sample report</Link> before you buy.
         </footer>
       </div>
     </main>

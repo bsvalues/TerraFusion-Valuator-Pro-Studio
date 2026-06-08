@@ -127,7 +127,7 @@ function WorkbenchInner() {
           {subject.fileNumber && (
             <>
               <div className="w-px h-4 bg-zinc-700" />
-              <span className="text-xs font-mono text-emerald-400">
+              <span className="text-xs font-mono text-cyan-400">
                 File: {subject.fileNumber}
               </span>
             </>
@@ -140,7 +140,7 @@ function WorkbenchInner() {
         </div>
         <div className="flex items-center gap-3">
           {subjectReady ? (
-            <div className="flex items-center gap-1.5 text-xs text-emerald-400">
+            <div className="flex items-center gap-1.5 text-xs text-cyan-400">
               <CheckCircle className="w-3.5 h-3.5" />
               Subject Ready
             </div>
@@ -172,7 +172,7 @@ function WorkbenchInner() {
                 className={`
                   flex items-center gap-2 px-4 py-3 text-sm border-b-2 transition-colors
                   ${isActive
-                    ? "border-emerald-500 text-emerald-400"
+                    ? "border-cyan-500 text-cyan-400"
                     : isDisabled
                     ? "border-transparent text-zinc-700 cursor-not-allowed"
                     : "border-transparent text-zinc-400 hover:text-zinc-200 hover:border-zinc-600"
@@ -233,7 +233,7 @@ function WorkbenchInner() {
                 key={run.runId}
                 className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded border shrink-0 ${
                   run.status === "complete"
-                    ? "bg-emerald-950/30 border-emerald-800/40 text-emerald-400"
+                    ? "bg-cyan-950/30 border-cyan-800/40 text-cyan-400"
                     : run.status === "failed"
                     ? "bg-red-950/30 border-red-800/40 text-red-400"
                     : "bg-zinc-900 border-zinc-700 text-zinc-400"

@@ -307,8 +307,8 @@ export function ValueReconciliation({
                 </p>
               </div>
               <div className="mt-2 flex items-center gap-1.5">
-                <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
-                <p className="font-mono text-[10px] text-emerald-400">
+                <CheckCircle className="h-3.5 w-3.5 text-cyan-400" />
+                <p className="font-mono text-[10px] text-cyan-400">
                   USPAP SR 1-6 reconciliation complete
                 </p>
               </div>

@@ -178,7 +178,7 @@ export function AppraiserProfilePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-green-400 font-mono tracking-wider">
+          <h2 className="text-xl font-bold text-cyan-400 font-mono tracking-wider">
             APPRAISER PROFILE & CREDENTIALS
           </h2>
           <p className="text-xs text-gray-400 mt-1">
@@ -187,7 +187,7 @@ export function AppraiserProfilePage() {
         </div>
         <div className="flex items-center gap-3">
           {profileComplete ? (
-            <span className="flex items-center gap-1 text-xs text-green-400">
+            <span className="flex items-center gap-1 text-xs text-cyan-400">
               <CheckCircle className="w-4 h-4" /> Profile Complete
             </span>
           ) : (
@@ -199,8 +199,8 @@ export function AppraiserProfilePage() {
             onClick={handleSave}
             className={`flex items-center gap-2 px-4 py-2 text-xs font-mono font-bold rounded border transition-all ${
               saved
-                ? "border-green-400 text-green-400 bg-green-400/10"
-                : "border-green-500 text-black bg-green-500 hover:bg-green-400"
+                ? "border-cyan-400 text-cyan-400 bg-cyan-400/10"
+                : "border-cyan-500 text-black bg-cyan-500 hover:bg-cyan-400"
             }`}
           >
             {saved ? <CheckCircle className="w-3 h-3" /> : <Save className="w-3 h-3" />}
@@ -211,14 +211,14 @@ export function AppraiserProfilePage() {
 
       {/* Profile Preview Card */}
       {profile.firstName && (
-        <div className="border border-green-500/30 rounded bg-green-500/5 p-4 flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full border-2 border-green-500 bg-gray-900 flex items-center justify-center text-green-400 text-xl font-bold">
+        <div className="border border-cyan-500/30 rounded bg-cyan-500/5 p-4 flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full border-2 border-cyan-500 bg-gray-900 flex items-center justify-center text-cyan-400 text-xl font-bold">
             {profile.firstName[0]}{profile.lastName[0]}
           </div>
           <div>
             <div className="text-white font-bold text-lg">
               {profile.firstName} {profile.lastName}
-              {profile.title && <span className="text-green-400 ml-2 text-sm">{profile.title}</span>}
+              {profile.title && <span className="text-cyan-400 ml-2 text-sm">{profile.title}</span>}
             </div>
             <div className="text-gray-400 text-xs mt-0.5">
               {profile.firmName && <span>{profile.firmName} · </span>}
@@ -228,7 +228,7 @@ export function AppraiserProfilePage() {
             {profile.designations?.length > 0 && (
               <div className="flex gap-1 mt-1">
                 {profile.designations.map((d) => (
-                  <span key={d} className="text-xs bg-green-500/20 text-green-400 border border-green-500/40 rounded px-1.5 py-0.5">
+                  <span key={d} className="text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 rounded px-1.5 py-0.5">
                     {d}
                   </span>
                 ))}
@@ -239,12 +239,12 @@ export function AppraiserProfilePage() {
             {licenseExpired ? (
               <span className="text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> License EXPIRED</span>
             ) : profile.licenseExpiry ? (
-              <span className="text-green-400">License valid thru {new Date(profile.licenseExpiry).toLocaleDateString()}</span>
+              <span className="text-cyan-400">License valid thru {new Date(profile.licenseExpiry).toLocaleDateString()}</span>
             ) : null}
             {eoExpired ? (
               <div className="text-red-400 flex items-center gap-1 mt-1"><AlertCircle className="w-3 h-3" /> E&O EXPIRED</div>
             ) : profile.eoExpiry ? (
-              <div className="text-green-400 mt-1">E&O valid thru {new Date(profile.eoExpiry).toLocaleDateString()}</div>
+              <div className="text-cyan-400 mt-1">E&O valid thru {new Date(profile.eoExpiry).toLocaleDateString()}</div>
             ) : null}
           </div>
         </div>
@@ -258,7 +258,7 @@ export function AppraiserProfilePage() {
             onClick={() => setActiveTab(id)}
             className={`flex items-center gap-2 px-4 py-2 text-xs font-mono font-bold border-b-2 transition-colors ${
               activeTab === id
-                ? "border-green-400 text-green-400"
+                ? "border-cyan-400 text-cyan-400"
                 : "border-transparent text-gray-500 hover:text-gray-300"
             }`}
           >
@@ -272,12 +272,12 @@ export function AppraiserProfilePage() {
       {activeTab === "personal" && (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-4">
-            <h3 className="text-xs font-mono text-green-400 uppercase tracking-wider">Personal Information</h3>
+            <h3 className="text-xs font-mono text-cyan-400 uppercase tracking-wider">Personal Information</h3>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-gray-400 mb-1">FIRST NAME *</label>
                 <input
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                   value={profile.firstName}
                   onChange={(e) => update("firstName", e.target.value)}
                   placeholder="John"
@@ -286,7 +286,7 @@ export function AppraiserProfilePage() {
               <div>
                 <label className="block text-xs text-gray-400 mb-1">LAST NAME *</label>
                 <input
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                   value={profile.lastName}
                   onChange={(e) => update("lastName", e.target.value)}
                   placeholder="Smith"
@@ -296,7 +296,7 @@ export function AppraiserProfilePage() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">PROFESSIONAL TITLE / SUFFIX</label>
               <input
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                 value={profile.title}
                 onChange={(e) => update("title", e.target.value)}
                 placeholder="MAI, SRA, CCIM..."
@@ -306,7 +306,7 @@ export function AppraiserProfilePage() {
               <label className="block text-xs text-gray-400 mb-1">EMAIL *</label>
               <input
                 type="email"
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                 value={profile.email}
                 onChange={(e) => update("email", e.target.value)}
                 placeholder="john.smith@appraisalfirm.com"
@@ -315,7 +315,7 @@ export function AppraiserProfilePage() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">PHONE</label>
               <input
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                 value={profile.phone}
                 onChange={(e) => update("phone", e.target.value)}
                 placeholder="(512) 555-0100"
@@ -324,7 +324,7 @@ export function AppraiserProfilePage() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">WEBSITE</label>
               <input
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                 value={profile.website}
                 onChange={(e) => update("website", e.target.value)}
                 placeholder="https://www.appraisalfirm.com"
@@ -333,7 +333,7 @@ export function AppraiserProfilePage() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-xs font-mono text-green-400 uppercase tracking-wider">Professional Designations</h3>
+            <h3 className="text-xs font-mono text-cyan-400 uppercase tracking-wider">Professional Designations</h3>
             <p className="text-xs text-gray-400">Select all designations you hold. These appear on all reports.</p>
             <div className="grid grid-cols-3 gap-2">
               {DESIGNATIONS.map((d) => (
@@ -342,7 +342,7 @@ export function AppraiserProfilePage() {
                   onClick={() => toggleDesignation(d)}
                   className={`px-3 py-2 text-xs font-mono font-bold rounded border transition-all ${
                     profile.designations?.includes(d)
-                      ? "border-green-400 text-green-400 bg-green-400/10"
+                      ? "border-cyan-400 text-cyan-400 bg-cyan-400/10"
                       : "border-gray-600 text-gray-400 hover:border-gray-400"
                   }`}
                 >
@@ -351,11 +351,11 @@ export function AppraiserProfilePage() {
               ))}
             </div>
 
-            <h3 className="text-xs font-mono text-green-400 uppercase tracking-wider mt-4">Signature Block</h3>
+            <h3 className="text-xs font-mono text-cyan-400 uppercase tracking-wider mt-4">Signature Block</h3>
             <div>
               <label className="block text-xs text-gray-400 mb-1">SIGNATURE TEXT (appears on report)</label>
               <input
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                 value={profile.signatureText}
                 onChange={(e) => update("signatureText", e.target.value)}
                 placeholder="John Smith, MAI, SRA"
@@ -371,13 +371,13 @@ export function AppraiserProfilePage() {
           <div className="grid grid-cols-2 gap-6">
             {/* Primary License */}
             <div className="border border-gray-700 rounded p-4 space-y-3">
-              <h3 className="text-xs font-mono text-green-400 uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-xs font-mono text-cyan-400 uppercase tracking-wider flex items-center gap-2">
                 <Shield className="w-3 h-3" /> Primary Appraiser License
               </h3>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">LICENSE TYPE *</label>
                 <select
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                   value={profile.licenseType}
                   onChange={(e) => update("licenseType", e.target.value)}
                 >
@@ -389,7 +389,7 @@ export function AppraiserProfilePage() {
               <div>
                 <label className="block text-xs text-gray-400 mb-1">LICENSE NUMBER *</label>
                 <input
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                   value={profile.licenseNumber}
                   onChange={(e) => update("licenseNumber", e.target.value)}
                   placeholder="TX-1234567"
@@ -399,7 +399,7 @@ export function AppraiserProfilePage() {
                 <div>
                   <label className="block text-xs text-gray-400 mb-1">STATE *</label>
                   <select
-                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                     value={profile.licenseState}
                     onChange={(e) => update("licenseState", e.target.value)}
                   >
@@ -412,7 +412,7 @@ export function AppraiserProfilePage() {
                   <label className="block text-xs text-gray-400 mb-1">EXPIRY DATE</label>
                   <input
                     type="date"
-                    className={`w-full bg-gray-900 border rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none ${
+                    className={`w-full bg-gray-900 border rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none ${
                       licenseExpired ? "border-red-500" : "border-gray-700"
                     }`}
                     value={profile.licenseExpiry}
@@ -427,13 +427,13 @@ export function AppraiserProfilePage() {
 
             {/* E&O Insurance */}
             <div className="border border-gray-700 rounded p-4 space-y-3">
-              <h3 className="text-xs font-mono text-green-400 uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-xs font-mono text-cyan-400 uppercase tracking-wider flex items-center gap-2">
                 <Award className="w-3 h-3" /> E&O Insurance
               </h3>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">CARRIER</label>
                 <input
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                   value={profile.eoCarrier}
                   onChange={(e) => update("eoCarrier", e.target.value)}
                   placeholder="LIA, OREP, Victor O. Schinnerer..."
@@ -442,7 +442,7 @@ export function AppraiserProfilePage() {
               <div>
                 <label className="block text-xs text-gray-400 mb-1">POLICY NUMBER</label>
                 <input
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                   value={profile.eoPolicyNumber}
                   onChange={(e) => update("eoPolicyNumber", e.target.value)}
                   placeholder="EO-2026-XXXXXXX"
@@ -453,7 +453,7 @@ export function AppraiserProfilePage() {
                   <label className="block text-xs text-gray-400 mb-1">EXPIRY DATE</label>
                   <input
                     type="date"
-                    className={`w-full bg-gray-900 border rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none ${
+                    className={`w-full bg-gray-900 border rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none ${
                       eoExpired ? "border-red-500" : "border-gray-700"
                     }`}
                     value={profile.eoExpiry}
@@ -466,7 +466,7 @@ export function AppraiserProfilePage() {
                 <div>
                   <label className="block text-xs text-gray-400 mb-1">COVERAGE LIMIT</label>
                   <select
-                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                     value={profile.eoCoverage}
                     onChange={(e) => update("eoCoverage", e.target.value)}
                   >
@@ -482,12 +482,12 @@ export function AppraiserProfilePage() {
           {/* Additional State Licenses */}
           <div className="border border-gray-700 rounded p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-mono text-green-400 uppercase tracking-wider">
+              <h3 className="text-xs font-mono text-cyan-400 uppercase tracking-wider">
                 Additional State Licenses (Multi-State)
               </h3>
               <button
                 onClick={addLicense}
-                className="text-xs font-mono text-green-400 border border-green-500/50 rounded px-3 py-1 hover:bg-green-500/10"
+                className="text-xs font-mono text-cyan-400 border border-cyan-500/50 rounded px-3 py-1 hover:bg-cyan-500/10"
               >
                 + ADD STATE
               </button>
@@ -499,7 +499,7 @@ export function AppraiserProfilePage() {
                 {(profile.additionalLicenses || []).map((lic, i) => (
                   <div key={i} className="grid grid-cols-4 gap-2 items-center">
                     <select
-                      className="bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-white font-mono focus:border-green-500 outline-none"
+                      className="bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                       value={lic.state}
                       onChange={(e) => updateLicense(i, "state", e.target.value)}
                     >
@@ -507,14 +507,14 @@ export function AppraiserProfilePage() {
                       {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                     <input
-                      className="bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-white font-mono focus:border-green-500 outline-none"
+                      className="bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                       value={lic.number}
                       onChange={(e) => updateLicense(i, "number", e.target.value)}
                       placeholder="License #"
                     />
                     <input
                       type="date"
-                      className="bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-white font-mono focus:border-green-500 outline-none"
+                      className="bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                       value={lic.expiry}
                       onChange={(e) => updateLicense(i, "expiry", e.target.value)}
                     />
@@ -536,11 +536,11 @@ export function AppraiserProfilePage() {
       {activeTab === "firm" && (
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-4">
-            <h3 className="text-xs font-mono text-green-400 uppercase tracking-wider">Firm Information</h3>
+            <h3 className="text-xs font-mono text-cyan-400 uppercase tracking-wider">Firm Information</h3>
             <div>
               <label className="block text-xs text-gray-400 mb-1">FIRM / COMPANY NAME *</label>
               <input
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                 value={profile.firmName}
                 onChange={(e) => update("firmName", e.target.value)}
                 placeholder="Smith Appraisal Group, LLC"
@@ -549,7 +549,7 @@ export function AppraiserProfilePage() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">STREET ADDRESS</label>
               <input
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                 value={profile.firmAddress}
                 onChange={(e) => update("firmAddress", e.target.value)}
                 placeholder="100 Congress Ave, Suite 200"
@@ -559,7 +559,7 @@ export function AppraiserProfilePage() {
               <div className="col-span-1">
                 <label className="block text-xs text-gray-400 mb-1">CITY</label>
                 <input
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                   value={profile.firmCity}
                   onChange={(e) => update("firmCity", e.target.value)}
                   placeholder="Austin"
@@ -568,7 +568,7 @@ export function AppraiserProfilePage() {
               <div>
                 <label className="block text-xs text-gray-400 mb-1">STATE</label>
                 <select
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                   value={profile.firmState}
                   onChange={(e) => update("firmState", e.target.value)}
                 >
@@ -578,7 +578,7 @@ export function AppraiserProfilePage() {
               <div>
                 <label className="block text-xs text-gray-400 mb-1">ZIP</label>
                 <input
-                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                  className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                   value={profile.firmZip}
                   onChange={(e) => update("firmZip", e.target.value)}
                   placeholder="78701"
@@ -588,7 +588,7 @@ export function AppraiserProfilePage() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-xs font-mono text-green-400 uppercase tracking-wider">Contact Details</h3>
+            <h3 className="text-xs font-mono text-cyan-400 uppercase tracking-wider">Contact Details</h3>
             <div className="border border-gray-700 rounded p-4 space-y-3">
               <div className="flex items-center gap-2 text-xs text-gray-400">
                 <Mail className="w-3 h-3" />
@@ -599,7 +599,7 @@ export function AppraiserProfilePage() {
                   <label className="block text-xs text-gray-400 mb-1">BUSINESS EMAIL</label>
                   <input
                     type="email"
-                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                     value={profile.email}
                     onChange={(e) => update("email", e.target.value)}
                     placeholder="info@smithappraisalgroup.com"
@@ -608,7 +608,7 @@ export function AppraiserProfilePage() {
                 <div>
                   <label className="block text-xs text-gray-400 mb-1">BUSINESS PHONE</label>
                   <input
-                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                     value={profile.phone}
                     onChange={(e) => update("phone", e.target.value)}
                     placeholder="(512) 555-0100"
@@ -617,7 +617,7 @@ export function AppraiserProfilePage() {
                 <div>
                   <label className="block text-xs text-gray-400 mb-1">WEBSITE</label>
                   <input
-                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                     value={profile.website}
                     onChange={(e) => update("website", e.target.value)}
                     placeholder="https://www.smithappraisalgroup.com"
@@ -633,14 +633,14 @@ export function AppraiserProfilePage() {
       {activeTab === "defaults" && (
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-4">
-            <h3 className="text-xs font-mono text-green-400 uppercase tracking-wider">Default Report Settings</h3>
+            <h3 className="text-xs font-mono text-cyan-400 uppercase tracking-wider">Default Report Settings</h3>
             <p className="text-xs text-gray-400">
               These values pre-populate every new appraisal report you create.
             </p>
             <div>
               <label className="block text-xs text-gray-400 mb-1">DEFAULT INTENDED USE</label>
               <select
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                 value={profile.defaultIntendedUse}
                 onChange={(e) => update("defaultIntendedUse", e.target.value)}
               >
@@ -660,7 +660,7 @@ export function AppraiserProfilePage() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">DEFAULT REPORT TYPE</label>
               <select
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                 value={profile.defaultReportType}
                 onChange={(e) => update("defaultReportType", e.target.value)}
               >
@@ -677,7 +677,7 @@ export function AppraiserProfilePage() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">DEFAULT SCOPE OF WORK</label>
               <select
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none"
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none"
                 value={profile.defaultScopeOfWork}
                 onChange={(e) => update("defaultScopeOfWork", e.target.value)}
               >
@@ -692,18 +692,18 @@ export function AppraiserProfilePage() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-xs font-mono text-green-400 uppercase tracking-wider">Certification Statement</h3>
+            <h3 className="text-xs font-mono text-cyan-400 uppercase tracking-wider">Certification Statement</h3>
             <p className="text-xs text-gray-400">
               Custom certification language appended to the USPAP SR 2-3 certification block.
             </p>
             <textarea
-              className="w-full h-40 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-green-500 outline-none resize-none"
+              className="w-full h-40 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white font-mono focus:border-cyan-500 outline-none resize-none"
               value={profile.certificationStatement}
               onChange={(e) => update("certificationStatement", e.target.value)}
               placeholder="I have performed no services, as an appraiser or in any other capacity, regarding the property that is the subject of this report within the three-year period immediately preceding acceptance of this assignment..."
             />
-            <div className="border border-green-500/20 rounded p-3 bg-green-500/5">
-              <p className="text-xs text-green-400 font-mono font-bold mb-1">USPAP COMPLIANCE NOTE</p>
+            <div className="border border-cyan-500/20 rounded p-3 bg-cyan-500/5">
+              <p className="text-xs text-cyan-400 font-mono font-bold mb-1">USPAP COMPLIANCE NOTE</p>
               <p className="text-xs text-gray-400">
                 The standard 10-point USPAP SR 2-3 certification is always included. Your custom statement is appended as an additional certification item.
               </p>
@@ -718,8 +718,8 @@ export function AppraiserProfilePage() {
           onClick={handleSave}
           className={`flex items-center gap-2 px-6 py-2.5 text-sm font-mono font-bold rounded border transition-all ${
             saved
-              ? "border-green-400 text-green-400 bg-green-400/10"
-              : "border-green-500 text-black bg-green-500 hover:bg-green-400"
+              ? "border-cyan-400 text-cyan-400 bg-cyan-400/10"
+              : "border-cyan-500 text-black bg-cyan-500 hover:bg-cyan-400"
           }`}
         >
           {saved ? <CheckCircle className="w-4 h-4" /> : <Save className="w-4 h-4" />}

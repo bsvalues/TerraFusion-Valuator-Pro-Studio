@@ -183,7 +183,7 @@ export function NarrativeDrafting({ property, market, approaches, risk }: Narrat
                       onClick={() => copyToClipboard(n.type)}
                       className="flex items-center gap-1.5 rounded border border-border px-2.5 py-1.5 font-mono text-[10px] text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {copied === n.type ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                      {copied === n.type ? <Check className="h-3 w-3 text-cyan-400" /> : <Copy className="h-3 w-3" />}
                       {copied === n.type ? "COPIED" : "COPY"}
                     </button>
                   )}
@@ -223,8 +223,8 @@ export function NarrativeDrafting({ property, market, approaches, risk }: Narrat
               {narratives[n.type] && loading !== n.type && (
                 <div className="rounded border border-border/50 bg-background/50 p-4">
                   <div className="mb-2 flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    <span className="font-mono text-[9px] tracking-wider text-emerald-400">USPAP-AWARE DRAFT</span>
+                    <div className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                    <span className="font-mono text-[9px] tracking-wider text-cyan-400">USPAP-AWARE DRAFT</span>
                   </div>
                   <textarea
                     value={narratives[n.type]}
