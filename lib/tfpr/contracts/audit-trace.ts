@@ -25,6 +25,7 @@ export type TraceEventType =
   | "evidence_appended"
   | "draft_created"
   | "certified"
+  | "report_assembled"
   | "permission_denied";
 
 /** An immutable, append-only audit event. */

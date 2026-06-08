@@ -188,12 +188,22 @@ function WorkfileInner({ id }: { id: string }) {
             {hydrating ? " · loading…" : ""}
           </p>
         </div>
-        <Link
-          href={`/assignments/${id}/audit`}
-          className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:border-cyan-500/50 hover:text-cyan-400"
-        >
-          Inspect Audit Trace →
-        </Link>
+        <div className="flex gap-2">
+          <a
+            href={`/api/tfpr/assignments/${id}/report`}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:border-cyan-500/50 hover:text-cyan-400"
+          >
+            Export Report →
+          </a>
+          <Link
+            href={`/assignments/${id}/audit`}
+            className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:border-cyan-500/50 hover:text-cyan-400"
+          >
+            Inspect Audit Trace →
+          </Link>
+        </div>
       </div>
 
       {(error || persistenceError) && (

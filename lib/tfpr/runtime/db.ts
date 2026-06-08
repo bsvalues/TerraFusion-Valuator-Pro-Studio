@@ -17,7 +17,9 @@ export function getPool(): Pool {
     );
   }
   if (!_pool) {
-    _pool = new Pool({ connectionString: url, max: 5 });
+    // max well above the per-request parallel query count (getWorkfile fans out
+    // 5 reads) so concurrent requests can't starve the pool into a hang.
+    _pool = new Pool({ connectionString: url, max: 20, connectionTimeoutMillis: 5000 });
   }
   return _pool;
 }

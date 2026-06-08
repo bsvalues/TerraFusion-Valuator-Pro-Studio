@@ -139,6 +139,14 @@ export default function AssignmentsPage() {
                   <Link href={`/assignments/${a.id}`} className="text-cyan-400 hover:underline">
                     Review Workfile
                   </Link>
+                  <a
+                    href={`/api/tfpr/assignments/${a.id}/report`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Export Report
+                  </a>
                   <Link href={`/assignments/${a.id}/audit`} className="text-muted-foreground hover:text-foreground">
                     Audit
                   </Link>
