@@ -115,6 +115,7 @@ export type RunType =
   | "income_direct_cap"
   | "income_dcf"
   | "sales_comparison"
+  | "reconciliation"
   | "regression"
   | "spatial";
 

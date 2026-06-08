@@ -320,7 +320,7 @@ function RegressionPanel({ vault, extraction, isRunning, onRun, onApply }: Regre
 // ---------------------------------------------------------------------------
 
 export function SalesComparisonPanel() {
-  const { subject, dispatchRun } = useSubjectWorkbench();
+  const { subject, dispatchRun, addRunRecord } = useSubjectWorkbench();
   const [vault, setVault] = useState<CompVault>(buildInitialVault);
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
   const [isRunningRegression, setIsRunningRegression] = useState(false);
@@ -471,7 +471,25 @@ export function SalesComparisonPanel() {
     const flags = checkFNMAGuidelines(vault);
     setFnmaFlags(flags);
     setActiveTab("reconcile");
-  }, [vault]);
+
+    // Record the reconciled sales-comparison value in the governance spine so
+    // the Reconciliation and Report panels can read it. `reconciledValue` is the
+    // canonical key they read. Best-effort: if the subject isn't ready yet,
+    // dispatchRun returns null and we simply skip the spine write.
+    const pending = dispatchRun("sales_comparison", "Sales comparison grid reconciled", {
+      compCount: vault.comps.length,
+      fileNumber: vault.fileNumber,
+    });
+    if (pending) {
+      addRunRecord({
+        ...pending,
+        status: "complete",
+        completedAt: new Date().toISOString(),
+        outputSnapshot: { reconciledValue: rec.indicatedValue },
+        narrativeReady: true,
+      });
+    }
+  }, [vault, dispatchRun, addRunRecord]);
 
   // --- Add comp ---
   const handleAddComp = useCallback(() => {
