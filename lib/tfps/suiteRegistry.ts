@@ -35,7 +35,9 @@ export const TFPS_MODULES: TfpsModule[] = [
     id: "valuator",
     label: "Valuator Pro",
     description: "Assignment container — subject, scope, approaches, reconciliation, final opinion.",
-    truthState: "candidate-live",
+    // Promoted to live in TFPS Slice 3: the Assignment Command Center is
+    // navigable from the suite, user-actionable, and persistence-proven.
+    truthState: "live",
     group: "assignment",
     scope: "assignment",
   },

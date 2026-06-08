@@ -47,6 +47,7 @@ interface WorkfileMeta {
   evidence: EvidenceItem[];
   drafts: DraftArtifact[];
   certifiedValue: CertifiedValue | null;
+  traceCount: number;
 }
 
 const usd = (n?: number) =>
@@ -55,7 +56,7 @@ const usd = (n?: number) =>
     : "—";
 
 function WorkfileInner({ id }: { id: string }) {
-  const { subject, runHistory, subjectReady, hydrating, persistenceError } = useSubjectWorkbench();
+  const { subject, runHistory, subjectReady, missingFields, hydrating, persistenceError } = useSubjectWorkbench();
   const [tab, setTab] = useState<Tab>("subject");
   const [meta, setMeta] = useState<WorkfileMeta | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -71,9 +72,13 @@ function WorkfileInner({ id }: { id: string }) {
 
   const loadMeta = useCallback(async () => {
     try {
-      const r = await fetch(`/api/tfpr/assignments/${id}`, { cache: "no-store" });
+      const [r, tr] = await Promise.all([
+        fetch(`/api/tfpr/assignments/${id}`, { cache: "no-store" }),
+        fetch(`/api/tfpr/assignments/${id}/trace`, { cache: "no-store" }),
+      ]);
       const d = await r.json();
       if (!r.ok) throw new Error(d.error);
+      const td = await tr.json().catch(() => ({ events: [] }));
       const w = d.workfile;
       setMeta({
         status: w.assignment.status,
@@ -82,6 +87,7 @@ function WorkfileInner({ id }: { id: string }) {
         evidence: w.evidence,
         drafts: w.drafts,
         certifiedValue: w.certifiedValue,
+        traceCount: Array.isArray(td.events) ? td.events.length : 0,
       });
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -212,20 +218,53 @@ function WorkfileInner({ id }: { id: string }) {
         </div>
       )}
 
-      {/* Approach summary (from persisted runs) */}
-      <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: "Cost", v: costValue },
-          { label: "Sales", v: salesValue },
-          { label: "Income", v: incomeValue },
-          { label: "Reconciled", v: reconFinal },
-        ].map((x) => (
-          <div key={x.label} className="rounded-lg border border-border p-3">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{x.label}</p>
-            <p className="mt-0.5 font-mono text-sm">{usd(x.v)}</p>
+      {/* Assignment Command Center — module tiles + workfile status */}
+      {(() => {
+        const certified = meta?.certifiedValue ?? null;
+        const ev = meta?.evidence.length ?? 0;
+        const drafts = meta?.drafts.length ?? 0;
+        type Tone = "done" | "attention" | "idle";
+        const toneCls: Record<Tone, string> = {
+          done: "border-cyan-500/40 text-cyan-400",
+          attention: "border-amber-500/40 text-amber-400",
+          idle: "border-border text-muted-foreground",
+        };
+        const exportReady = certified ? "Ready to export" : costValue || salesValue || incomeValue ? "Draft export" : "Not ready";
+        const tiles: Array<{ label: string; status: string; tone: Tone; tab?: Tab; href?: string }> = [
+          { label: "Subject & Scope", status: subjectReady ? "Ready" : `${missingFields.length} missing`, tone: subjectReady ? "done" : "attention", tab: "subject" },
+          { label: "Evidence Ledger", status: `${ev} item${ev === 1 ? "" : "s"}`, tone: ev ? "done" : "attention", tab: "evidence" },
+          { label: "CostForge", status: costValue ? usd(costValue) : "Not run", tone: costValue ? "done" : "idle", tab: "cost" },
+          { label: "CompForge", status: salesValue ? usd(salesValue) : "Not run", tone: salesValue ? "done" : "idle", tab: "sales" },
+          { label: "IncomeForge", status: incomeValue ? usd(incomeValue) : "Not run", tone: incomeValue ? "done" : "idle", tab: "income" },
+          { label: "Reconciliation", status: reconFinal ? usd(reconFinal) : "Pending", tone: reconFinal ? "done" : "idle", tab: "reconcile" },
+          { label: "MUSE Review", status: `${drafts} draft${drafts === 1 ? "" : "s"}`, tone: drafts ? "done" : "idle", tab: "reconcile" },
+          { label: "Certify", status: certified ? usd(certified.value) : reconFinal ? "Ready" : "Pending", tone: certified ? "done" : reconFinal ? "attention" : "idle", tab: "certify" },
+          { label: "ReportForge", status: exportReady, tone: certified ? "done" : costValue || salesValue || incomeValue ? "attention" : "idle", href: `/api/tfpr/assignments/${id}/report` },
+          { label: "Audit / Workfile", status: `${meta?.traceCount ?? 0} events`, tone: "idle", href: `/assignments/${id}/audit` },
+        ];
+        return (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {tiles.map((t) => {
+              const inner = (
+                <>
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{t.label}</p>
+                  <p className="mt-0.5 font-mono text-sm">{t.status}</p>
+                </>
+              );
+              const cls = `rounded-lg border p-3 text-left transition-colors hover:border-cyan-500/50 ${toneCls[t.tone]}`;
+              return t.href ? (
+                <a key={t.label} href={t.href} target={t.href.startsWith("/api") ? "_blank" : undefined} rel="noreferrer" className={cls}>
+                  {inner}
+                </a>
+              ) : (
+                <button key={t.label} onClick={() => t.tab && setTab(t.tab)} className={cls}>
+                  {inner}
+                </button>
+              );
+            })}
           </div>
-        ))}
-      </div>
+        );
+      })()}
 
       {/* Tabs */}
       <div className="flex flex-wrap gap-0 border-b border-border">
