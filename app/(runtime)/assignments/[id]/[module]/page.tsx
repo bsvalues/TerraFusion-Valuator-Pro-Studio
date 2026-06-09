@@ -16,6 +16,7 @@ import { SalesComparisonPanel } from "@/components/sales-comparison-panel";
 import { IncomeApproachPanel } from "@/components/income-approach-panel";
 import { ReconciliationPanel } from "@/components/reconciliation-panel";
 import type { ReviewFinding } from "@/lib/tfps/review";
+import type { MarketPulseResult } from "@/lib/tfps/market-pulse";
 
 interface EvidenceItem { evidenceId: string; sourceType: string; sourceLabel: string }
 interface DraftArtifact { draftId: string; text: string; providerId: string }
@@ -31,7 +32,7 @@ const usd = (n?: number) =>
     ? n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
     : "—";
 
-const KNOWN = ["subject", "cost", "sales", "income", "reconcile", "evidence", "certify", "review"];
+const KNOWN = ["subject", "cost", "sales", "income", "reconcile", "evidence", "certify", "review", "market"];
 
 interface ReviewSummary { total: number; blockers: number; warnings: number; info: number }
 const sevCls: Record<string, string> = {
@@ -53,6 +54,7 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
   const [reason, setReason] = useState("");
   const [confirm, setConfirm] = useState(false);
   const [review, setReview] = useState<{ findings: ReviewFinding[]; summary: ReviewSummary } | null>(null);
+  const [market, setMarket] = useState<MarketPulseResult | null>(null);
 
   const needsMeta = module === "evidence" || module === "reconcile" || module === "certify";
 
@@ -90,6 +92,24 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
   useEffect(() => {
     if (module === "review") runReview();
   }, [module, runReview]);
+
+  const runMarket = useCallback(async () => {
+    setBusy("market");
+    try {
+      const r = await fetch(`/api/tfpr/assignments/${id}/market-pulse`, { cache: "no-store" });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      setMarket(d);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(null);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (module === "market") runMarket();
+  }, [module, runMarket]);
 
   const rev = [...runHistory].reverse();
   const num = (v: unknown) => (typeof v === "number" ? v : undefined);
@@ -337,6 +357,82 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
               </li>
             )}
           </ul>
+        </div>
+      )}
+
+      {module === "market" && (
+        <div className="rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold">
+                MarketPulse <span className="text-[10px] uppercase tracking-wide text-cyan-400">Workfile-derived</span>
+              </h3>
+              <p className="text-[11px] text-muted-foreground">
+                Based on evidence currently in this workfile. No external market feed connected.
+              </p>
+            </div>
+            <button
+              onClick={runMarket}
+              disabled={busy === "market"}
+              className="h-9 rounded-md border border-cyan-500/50 px-4 text-sm font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
+            >
+              {busy === "market" ? "Reading…" : "Re-read workfile"}
+            </button>
+          </div>
+
+          {market && (
+            <>
+              <p className="mt-3 text-xs">
+                Market support:{" "}
+                <span
+                  className={
+                    market.support === "supported"
+                      ? "text-cyan-400"
+                      : market.support === "developing"
+                        ? "text-amber-400"
+                        : "text-muted-foreground"
+                  }
+                >
+                  {market.support}
+                </span>
+                {!market.sufficient && " · insufficient evidence for a full picture"}
+              </p>
+
+              {market.metrics.length > 0 && (
+                <dl className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {market.metrics.map((m) => (
+                    <div key={m.label} className="rounded-md border border-border p-3">
+                      <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">{m.label}</dt>
+                      <dd className="mt-0.5 font-mono text-sm">{m.value}</dd>
+                      {m.note && <dd className="text-[10px] text-muted-foreground">{m.note}</dd>}
+                    </div>
+                  ))}
+                </dl>
+              )}
+
+              {market.warnings.length > 0 && (
+                <div className="mt-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-400">Warnings</p>
+                  <ul className="mt-1 space-y-1">
+                    {market.warnings.map((w, i) => (
+                      <li key={i} className="text-xs text-amber-400">· {w}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {market.gaps.length > 0 && (
+                <div className="mt-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Evidence gaps</p>
+                  <ul className="mt-1 space-y-1">
+                    {market.gaps.map((g, i) => (
+                      <li key={i} className="text-xs text-muted-foreground">· {g}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
     </div>

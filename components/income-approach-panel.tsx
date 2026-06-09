@@ -222,6 +222,9 @@ export function IncomeApproachPanel() {
         outputSnapshot: {
           directCapValue: data.direct_cap?.indicatedValue ?? null,
           dcfValue: data.dcf?.indicatedValue ?? null,
+          // Workfile-derived income evidence (for MarketPulse R1).
+          capRate: data.direct_cap?.capRate ?? null,
+          noi: data.direct_cap?.noi ?? null,
         },
         narrativeReady: true,
       });

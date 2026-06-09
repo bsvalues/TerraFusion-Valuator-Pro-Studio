@@ -28,6 +28,8 @@ export interface TfpsModule {
   group: TfpsGroup;
   /** Where the work happens: the whole suite, or inside a single assignment. */
   scope: "suite" | "assignment";
+  /** Honest qualifier appended to the badge, e.g. "Workfile-derived". */
+  qualifier?: string;
 }
 
 export const TFPS_MODULES: TfpsModule[] = [
@@ -84,10 +86,11 @@ export const TFPS_MODULES: TfpsModule[] = [
   {
     id: "marketpulse",
     label: "MarketPulse",
-    description: "Market context — trends, rent/sale movement, neighborhood narrative (real data only).",
-    truthState: "queued",
+    description: "Market context derived from this workfile's evidence — no external feed connected.",
+    truthState: "live",
+    qualifier: "Workfile-derived",
     group: "tool",
-    scope: "suite",
+    scope: "assignment",
   },
   {
     id: "dossier",

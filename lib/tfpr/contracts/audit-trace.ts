@@ -27,6 +27,7 @@ export type TraceEventType =
   | "certified"
   | "report_assembled"
   | "review_run"
+  | "market_pulse_run"
   | "permission_denied";
 
 /** An immutable, append-only audit event. */

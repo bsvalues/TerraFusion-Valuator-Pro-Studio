@@ -481,11 +481,26 @@ export function SalesComparisonPanel() {
       fileNumber: vault.fileNumber,
     });
     if (pending) {
+      // Workfile-derived comp summary (for MarketPulse R1 — real data only).
+      const prices = vault.comps.map((c) => c.salePrice).filter((n) => n > 0);
+      const adjusted = vault.comps.map((c) => c.adjustedSalePrice).filter((n) => n > 0);
+      const dates = vault.comps.map((c) => c.saleDate).filter(Boolean).sort();
       addRunRecord({
         ...pending,
         status: "complete",
         completedAt: new Date().toISOString(),
-        outputSnapshot: { reconciledValue: rec.indicatedValue },
+        outputSnapshot: {
+          reconciledValue: rec.indicatedValue,
+          compSummary: {
+            count: vault.comps.length,
+            priceMin: prices.length ? Math.min(...prices) : null,
+            priceMax: prices.length ? Math.max(...prices) : null,
+            adjustedMin: adjusted.length ? Math.min(...adjusted) : null,
+            adjustedMax: adjusted.length ? Math.max(...adjusted) : null,
+            dateMin: dates[0] ?? null,
+            dateMax: dates[dates.length - 1] ?? null,
+          },
+        },
         narrativeReady: true,
       });
     }

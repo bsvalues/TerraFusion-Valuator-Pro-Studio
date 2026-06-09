@@ -44,7 +44,7 @@ function ModuleCard({ m }: { m: TfpsModule }) {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">{m.label}</h3>
         <span className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${truthClass(m.truthState)}`}>
-          {TRUTH_LABEL[m.truthState]}
+          {TRUTH_LABEL[m.truthState]}{m.qualifier ? ` · ${m.qualifier}` : ""}
         </span>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">{m.description}</p>
