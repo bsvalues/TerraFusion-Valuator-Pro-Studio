@@ -23,6 +23,7 @@ const MODULES: { seg: string; label: string }[] = [
   { seg: "reconcile", label: "Reconciliation" },
   { seg: "evidence", label: "Evidence" },
   { seg: "certify", label: "Certify" },
+  { seg: "review", label: "ReviewForge" },
 ];
 
 export default function AssignmentLayout({

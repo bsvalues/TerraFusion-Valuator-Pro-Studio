@@ -15,6 +15,7 @@ import { CostForgePanel } from "@/components/costforge-panel";
 import { SalesComparisonPanel } from "@/components/sales-comparison-panel";
 import { IncomeApproachPanel } from "@/components/income-approach-panel";
 import { ReconciliationPanel } from "@/components/reconciliation-panel";
+import type { ReviewFinding } from "@/lib/tfps/review";
 
 interface EvidenceItem { evidenceId: string; sourceType: string; sourceLabel: string }
 interface DraftArtifact { draftId: string; text: string; providerId: string }
@@ -30,7 +31,14 @@ const usd = (n?: number) =>
     ? n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
     : "—";
 
-const KNOWN = ["subject", "cost", "sales", "income", "reconcile", "evidence", "certify"];
+const KNOWN = ["subject", "cost", "sales", "income", "reconcile", "evidence", "certify", "review"];
+
+interface ReviewSummary { total: number; blockers: number; warnings: number; info: number }
+const sevCls: Record<string, string> = {
+  blocker: "border-red-500/50 text-red-400",
+  warning: "border-amber-500/50 text-amber-400",
+  info: "border-border text-muted-foreground",
+};
 
 export default function ModulePage({ params }: { params: Promise<{ id: string; module: string }> }) {
   const { id, module } = use(params);
@@ -44,6 +52,7 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
   const [finalInput, setFinalInput] = useState("");
   const [reason, setReason] = useState("");
   const [confirm, setConfirm] = useState(false);
+  const [review, setReview] = useState<{ findings: ReviewFinding[]; summary: ReviewSummary } | null>(null);
 
   const needsMeta = module === "evidence" || module === "reconcile" || module === "certify";
 
@@ -63,6 +72,24 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
   useEffect(() => {
     loadMeta();
   }, [loadMeta]);
+
+  const runReview = useCallback(async () => {
+    setBusy("review");
+    try {
+      const r = await fetch(`/api/tfpr/assignments/${id}/review`, { cache: "no-store" });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      setReview(d);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(null);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (module === "review") runReview();
+  }, [module, runReview]);
 
   const rev = [...runHistory].reverse();
   const num = (v: unknown) => (typeof v === "number" ? v : undefined);
@@ -262,6 +289,54 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {module === "review" && (
+        <div className="rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold">ReviewForge — pre-delivery review</h3>
+              <p className="text-[11px] text-muted-foreground">
+                USPAP-aware checks over this workfile. Flags issues — never auto-fixes; you remain the author.
+              </p>
+            </div>
+            <button
+              onClick={runReview}
+              disabled={busy === "review"}
+              className="h-9 rounded-md border border-cyan-500/50 px-4 text-sm font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
+            >
+              {busy === "review" ? "Reviewing…" : "Re-run review"}
+            </button>
+          </div>
+
+          {review && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {review.summary.total === 0
+                ? "No issues found — clean for delivery review."
+                : `${review.summary.total} finding(s): ${review.summary.blockers} blocker(s), ${review.summary.warnings} warning(s), ${review.summary.info} info.`}
+            </p>
+          )}
+
+          <ul className="mt-3 space-y-2">
+            {review?.findings.map((x) => (
+              <li key={x.id} className={`rounded-md border p-3 ${sevCls[x.severity] ?? sevCls.info}`}>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold">{x.title}</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide">{x.severity}</span>
+                </div>
+                <p className="mt-1 text-xs text-foreground/90">{x.detail}</p>
+                <Link href={`/assignments/${id}/${x.module}`} className="mt-1 inline-block text-[11px] text-cyan-400 hover:underline">
+                  Go to {x.module} →
+                </Link>
+              </li>
+            ))}
+            {review && review.findings.length === 0 && (
+              <li className="rounded-md border border-cyan-500/40 p-3 text-xs text-cyan-400">
+                All checks passed.
+              </li>
+            )}
+          </ul>
         </div>
       )}
     </div>

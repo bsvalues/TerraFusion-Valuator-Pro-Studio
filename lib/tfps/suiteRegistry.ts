@@ -77,7 +77,7 @@ export const TFPS_MODULES: TfpsModule[] = [
     id: "reviewforge",
     label: "ReviewForge",
     description: "Pre-delivery review — evidence gaps, weak support, USPAP-aware checks.",
-    truthState: "queued",
+    truthState: "live",
     group: "tool",
     scope: "assignment",
   },

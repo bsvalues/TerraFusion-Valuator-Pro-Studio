@@ -87,6 +87,7 @@ export default function CommandCenter({ params }: { params: Promise<{ id: string
     { label: "Reconciliation", status: reconFinal ? usd(reconFinal) : "Pending", tone: reconFinal ? "done" : "idle", href: `${base}/reconcile` },
     { label: "MUSE Review", status: `${drafts} draft${drafts === 1 ? "" : "s"}`, tone: drafts ? "done" : "idle", href: `${base}/reconcile` },
     { label: "Certify", status: certified ? usd(certified) : reconFinal ? "Ready" : "Pending", tone: certified ? "done" : reconFinal ? "attention" : "idle", href: `${base}/certify` },
+    { label: "ReviewForge", status: "Run review", tone: "idle", href: `${base}/review` },
     { label: "ReportForge", status: certified ? "Ready to export" : costValue || salesValue || incomeValue ? "Draft export" : "Not ready", tone: certified ? "done" : costValue || salesValue || incomeValue ? "attention" : "idle", href: `/api/tfpr/assignments/${id}/report`, external: true },
     { label: "Audit / Workfile", status: `${meta?.traceCount ?? 0} events`, tone: "idle", href: `${base}/audit` },
   ];
