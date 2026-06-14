@@ -19,7 +19,7 @@ import type { ReviewFinding } from "@/lib/tfps/review";
 import type { MarketPulseResult } from "@/lib/tfps/market-pulse";
 
 interface EvidenceItem { evidenceId: string; sourceType: string; sourceLabel: string }
-interface DraftArtifact { draftId: string; text: string; providerId: string }
+interface DraftArtifact { draftId: string; text: string; providerId: string; capabilityId: string }
 interface CertifiedValue { value: number; certifiedBy: string; reasonCode: string; certifiedAt: string }
 interface WorkfileMeta {
   evidence: EvidenceItem[];
@@ -33,6 +33,18 @@ const usd = (n?: number) =>
     : "—";
 
 const KNOWN = ["subject", "cost", "sales", "income", "reconcile", "evidence", "certify", "review", "market"];
+
+// Appraiser profile — no fake defaults; blank until the appraiser enters them (REC-006).
+const PROFILE_FIELDS: [string, string][] = [
+  ["appraiserName", "Appraiser name"],
+  ["licenseNumber", "License #"],
+  ["licenseState", "License state"],
+  ["licenseType", "License type"],
+  ["company", "Company"],
+  ["phone", "Phone"],
+  ["email", "Email"],
+];
+const EMPTY_PROFILE: Record<string, string> = Object.fromEntries(PROFILE_FIELDS.map(([k]) => [k, ""]));
 
 interface ReviewSummary { total: number; blockers: number; warnings: number; info: number }
 const sevCls: Record<string, string> = {
@@ -55,6 +67,8 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
   const [confirm, setConfirm] = useState(false);
   const [review, setReview] = useState<{ findings: ReviewFinding[]; summary: ReviewSummary } | null>(null);
   const [market, setMarket] = useState<MarketPulseResult | null>(null);
+  const [profile, setProfile] = useState<Record<string, string>>(EMPTY_PROFILE);
+  const [profileSaved, setProfileSaved] = useState(false);
 
   const needsMeta = module === "evidence" || module === "reconcile" || module === "certify";
 
@@ -74,6 +88,64 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
   useEffect(() => {
     loadMeta();
   }, [loadMeta]);
+
+  const loadProfile = useCallback(async () => {
+    if (module !== "certify") return;
+    try {
+      const r = await fetch(`/api/tfpr/assignments/${id}/module-state?key=appraiser_profile`, { cache: "no-store" });
+      const d = await r.json();
+      if (r.ok && d.state) setProfile({ ...EMPTY_PROFILE, ...d.state });
+    } catch {
+      /* non-fatal — profile is optional until certification */
+    }
+  }, [id, module]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  const saveProfile = async () => {
+    setBusy("profile");
+    try {
+      const r = await fetch(`/api/tfpr/assignments/${id}/module-state?key=appraiser_profile`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profile),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      setProfileSaved(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const runMuseCap = async (capabilityId: string) => {
+    setBusy(capabilityId);
+    try {
+      const r = await fetch(`/api/tfpr/assignments/${id}/muse`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          capabilityId,
+          context: {
+            subjectAddress: subject.address,
+            appraiserName: profile.appraiserName,
+            licenseNumber: profile.licenseNumber,
+          },
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      await loadMeta();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const runReview = useCallback(async () => {
     setBusy("review");
@@ -216,15 +288,19 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
               </button>
             </div>
             <ul className="mt-3 space-y-3">
-              {meta?.drafts.map((d) => (
-                <li key={d.draftId} className="rounded-md border border-border p-3">
-                  <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-400">
-                    Draft · non-final
-                  </span>
-                  <pre className="mt-2 whitespace-pre-wrap text-xs text-foreground/90">{d.text}</pre>
-                </li>
-              ))}
-              {(!meta || meta.drafts.length === 0) && <li className="text-xs text-muted-foreground">No drafts yet.</li>}
+              {meta?.drafts
+                .filter((d) => d.capabilityId === "draft_reconciliation_narrative")
+                .map((d) => (
+                  <li key={d.draftId} className="rounded-md border border-border p-3">
+                    <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-400">
+                      Draft · non-final
+                    </span>
+                    <pre className="mt-2 whitespace-pre-wrap text-xs text-foreground/90">{d.text}</pre>
+                  </li>
+                ))}
+              {(!meta || meta.drafts.filter((d) => d.capabilityId === "draft_reconciliation_narrative").length === 0) && (
+                <li className="text-xs text-muted-foreground">No drafts yet.</li>
+              )}
             </ul>
           </div>
         </div>
@@ -268,6 +344,37 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
       )}
 
       {module === "certify" && (
+        <div className="space-y-5">
+        <div className="rounded-xl border border-border p-5">
+          <h3 className="text-sm font-semibold">Appraiser Profile</h3>
+          <p className="text-[11px] text-muted-foreground">
+            Identifies the appraiser of record for the certification. No defaults — blank until you enter them.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {PROFILE_FIELDS.map(([k, label]) => (
+              <label key={k} className="text-xs text-muted-foreground">
+                {label}
+                <input
+                  value={profile[k] ?? ""}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setProfile((p) => ({ ...p, [k]: v }));
+                    setProfileSaved(false);
+                  }}
+                  className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+                />
+              </label>
+            ))}
+          </div>
+          <button
+            onClick={saveProfile}
+            disabled={busy === "profile"}
+            className="mt-3 h-9 rounded-md border border-border px-4 text-sm font-semibold hover:border-cyan-500/50 hover:text-cyan-400 disabled:opacity-50"
+          >
+            {busy === "profile" ? "Saving…" : profileSaved ? "Saved ✓" : "Save profile"}
+          </button>
+        </div>
+
         <div className="rounded-xl border border-border p-5">
           <h3 className="text-sm font-semibold">
             Certify Opinion of Value <span className="text-[10px] uppercase tracking-wide text-amber-400">write_high</span>
@@ -309,6 +416,50 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
               </button>
             </div>
           )}
+        </div>
+
+        <div className="rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold">MUSE — certification &amp; limiting conditions</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => runMuseCap("draft_certification")}
+                disabled={busy === "draft_certification"}
+                className="h-9 rounded-md border border-cyan-500/50 px-3 text-xs font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
+              >
+                {busy === "draft_certification" ? "Drafting…" : "Draft certification (write_low)"}
+              </button>
+              <button
+                onClick={() => runMuseCap("draft_assumptions_limiting_conditions")}
+                disabled={busy === "draft_assumptions_limiting_conditions"}
+                className="h-9 rounded-md border border-cyan-500/50 px-3 text-xs font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
+              >
+                {busy === "draft_assumptions_limiting_conditions" ? "Drafting…" : "Draft A&LC (write_low)"}
+              </button>
+            </div>
+          </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            MUSE drafts non-final starting language. You remain the author — edit and certify yourself. Not a USPAP compliance guarantee.
+          </p>
+          <ul className="mt-3 space-y-3">
+            {meta?.drafts
+              .filter((d) => d.capabilityId === "draft_certification" || d.capabilityId === "draft_assumptions_limiting_conditions")
+              .map((d) => (
+                <li key={d.draftId} className="rounded-md border border-border p-3">
+                  <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-400">
+                    {d.capabilityId === "draft_certification" ? "Certification · non-final" : "A&LC · non-final"}
+                  </span>
+                  <pre className="mt-2 whitespace-pre-wrap text-xs text-foreground/90">{d.text}</pre>
+                </li>
+              ))}
+            {(!meta ||
+              meta.drafts.filter(
+                (d) => d.capabilityId === "draft_certification" || d.capabilityId === "draft_assumptions_limiting_conditions",
+              ).length === 0) && (
+              <li className="text-xs text-muted-foreground">No certification or A&amp;LC drafts yet.</li>
+            )}
+          </ul>
+        </div>
         </div>
       )}
 

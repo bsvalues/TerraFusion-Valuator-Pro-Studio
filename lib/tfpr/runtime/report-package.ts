@@ -50,7 +50,7 @@ interface ReportCompVault {
   comps?: ReportComp[];
 }
 
-export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[], compVault?: ReportCompVault | null): string {
+export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[], compVault?: ReportCompVault | null, appraiserProfile?: Record<string, unknown> | null): string {
   const s = (wf.subject ?? {}) as Record<string, unknown>;
   const rev = [...wf.runs].reverse();
   const costValue = num(rev.find((r) => r.runType === "cost")?.outputSnapshot?.indicatedValue);
@@ -59,8 +59,12 @@ export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[], compVault
     rev.find((r) => r.runType === "income_direct_cap" || r.runType === "income_dcf")?.outputSnapshot?.directCapValue,
   );
   const reconFinal = num(rev.find((r) => r.runType === "reconciliation")?.outputSnapshot?.finalValue);
-  const latestDraft = wf.drafts.length ? wf.drafts[wf.drafts.length - 1] : null;
+  const draftBy = (cap: string) => [...wf.drafts].reverse().find((d) => d.capabilityId === cap) ?? null;
+  const reconDraft = draftBy("draft_reconciliation_narrative");
+  const certDraft = draftBy("draft_certification");
+  const alcDraft = draftBy("draft_assumptions_limiting_conditions");
   const certified = wf.certifiedValue;
+  const ap = (appraiserProfile ?? {}) as Record<string, unknown>;
 
   const comps = compVault?.comps ?? [];
   const compRows = comps.length
@@ -120,6 +124,10 @@ export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[], compVault
   need(comps.length >= 3, "At least 3 comparable sales");
   need(typeof reconFinal === "number", "Reconciliation final value");
   need(certified, "Certified opinion of value");
+  need(ap.appraiserName, "Appraiser name");
+  need(ap.licenseNumber, "Appraiser license #");
+  need(certDraft, "Certification statements");
+  need(alcDraft, "Assumptions & limiting conditions");
   const readinessBlock = warn.length
     ? `<div class="warn"><b>Report not delivery-ready</b> — missing or incomplete: ${warn.map(esc).join(" · ")}.</div>`
     : `<div class="ready"><b>Report is delivery-ready</b> — all required elements present and certified.</div>`;
@@ -214,7 +222,34 @@ export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[], compVault
 
   <h2>Reconciliation &amp; Final Opinion of Value</h2>
   ${certBlock}
-  ${latestDraft ? `<div class="muted">Reconciliation narrative (appraiser draft, MUSE-assisted — non-final):</div><pre>${esc(latestDraft.text)}</pre>` : ""}
+  ${reconDraft ? `<div class="muted">Reconciliation narrative (appraiser draft, MUSE-assisted — non-final):</div><pre>${esc(reconDraft.text)}</pre>` : ""}
+
+  <h2>Certification</h2>
+  ${
+    certified
+      ? `<div class="muted">Opinion of value certified at ${usd(certified.value)} by ${esc(certified.certifiedBy)} on ${esc(new Date(certified.certifiedAt).toLocaleString())}.</div>`
+      : `<div class="warn">Opinion of value not yet certified by the appraiser.</div>`
+  }
+  ${
+    certDraft
+      ? `<pre>${esc(certDraft.text)}</pre>`
+      : `<div class="muted">No certification statements drafted. [Appraiser to add — MUSE can draft a non-final starting point.]</div>`
+  }
+
+  <h2>Assumptions &amp; Limiting Conditions</h2>
+  ${
+    alcDraft
+      ? `<pre>${esc(alcDraft.text)}</pre>`
+      : `<div class="muted">No assumptions &amp; limiting conditions drafted. [Appraiser to add — MUSE can draft a non-final starting point.]</div>`
+  }
+
+  <h2>Appraiser</h2>
+  <div class="grid">
+    <div class="kv"><span>Appraiser</span><b>${esc(ap.appraiserName ?? "—")}</b></div>
+    <div class="kv"><span>License</span><b>${esc(ap.licenseNumber ?? "—")}${ap.licenseState ? ", " + esc(ap.licenseState) : ""}${ap.licenseType ? " (" + esc(ap.licenseType) + ")" : ""}</b></div>
+    <div class="kv"><span>Company</span><b>${esc(ap.company ?? "—")}</b></div>
+    <div class="kv"><span>Contact</span><b>${esc(ap.phone ?? "—")}${ap.email ? " · " + esc(ap.email) : ""}</b></div>
+  </div>
 
   <h2>Evidence Ledger</h2>
   <table><thead><tr><th>Type</th><th>Source</th><th>ID</th></tr></thead><tbody>${evidenceRows}</tbody></table>

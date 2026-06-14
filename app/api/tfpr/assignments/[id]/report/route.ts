@@ -26,8 +26,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     const compVault = (await store.getModuleState(ctx, id, "sales_comp_vault")) as
       | { comps?: unknown[] }
       | null;
+    const appraiserProfile = (await store.getModuleState(ctx, id, "appraiser_profile")) as
+      | Record<string, unknown>
+      | null;
     const packageId = randomUUID();
-    const html = renderWorkfileHtml(workfile, events, compVault as never);
+    const html = renderWorkfileHtml(workfile, events, compVault as never, appraiserProfile);
 
     await audit.emit(ctx, {
       workfileId: id,

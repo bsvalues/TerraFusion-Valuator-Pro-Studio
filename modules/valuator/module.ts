@@ -17,6 +17,16 @@ export const valuatorModule: ProductModule = {
       label: "Draft reconciliation narrative",
       lane: LANE,
     },
+    {
+      id: "draft_certification",
+      label: "Draft certification statements",
+      lane: LANE,
+    },
+    {
+      id: "draft_assumptions_limiting_conditions",
+      label: "Draft assumptions & limiting conditions",
+      lane: LANE,
+    },
   ],
   writeHighActions: [
     {

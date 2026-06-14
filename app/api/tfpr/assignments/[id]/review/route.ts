@@ -37,6 +37,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       ).length,
     };
 
+    // Appraiser profile + per-capability drafts (REC-006).
+    const profile = (await store.getModuleState(ctx, id, "appraiser_profile")) as Record<string, string> | null;
+    const draftsByCap = (cap: string) =>
+      wf.drafts.filter((d) => (d as { capabilityId?: string }).capabilityId === cap);
+
     const findings = reviewWorkfile({
       subjectReady: isSubjectReady(subject),
       missingFields: getMissingSubjectFields(subject),
@@ -48,7 +53,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       ),
       reconFinal: num(rev.find((r) => r.runType === "reconciliation")?.outputSnapshot?.finalValue),
       certifiedValue: wf.certifiedValue?.value ?? null,
-      draftCount: wf.drafts.length,
+      draftCount: draftsByCap("draft_reconciliation_narrative").length,
       assignment: {
         clientName: subject.clientName,
         lenderName: subject.lenderName,
@@ -66,6 +71,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         quality: subject.quality,
         occupancy: subject.occupancy,
         floodZone: subject.floodZone,
+      },
+      certification: {
+        appraiserName: profile?.appraiserName ?? null,
+        licenseNumber: profile?.licenseNumber ?? null,
+        hasCertDraft: draftsByCap("draft_certification").length > 0,
+        hasAlcDraft: draftsByCap("draft_assumptions_limiting_conditions").length > 0,
       },
       comps,
     });

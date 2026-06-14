@@ -49,6 +49,13 @@ export interface ReviewInput {
     occupancy?: string | null;
     floodZone?: string | null;
   };
+  /** Certification & appraiser-of-record completeness (REC-006). */
+  certification?: {
+    appraiserName?: string | null;
+    licenseNumber?: string | null;
+    hasCertDraft?: boolean;
+    hasAlcDraft?: boolean;
+  };
 }
 
 const usd = (n: number) =>
@@ -192,6 +199,15 @@ export function reviewWorkfile(i: ReviewInput): ReviewFinding[] {
         detail: `Certified ${usd(i.certifiedValue)} vs reconciliation ${usd(i.reconFinal)} (${diffPct.toFixed(0)}% apart) — confirm this is intended.`,
       });
     }
+  }
+
+  // 8. Certification / appraiser of record (REC-006) — USPAP SR 2-3.
+  const cert = i.certification;
+  if (cert) {
+    if (!cert.appraiserName) f.push({ id: "no-appraiser", severity: "warning", module: "certify", title: "Appraiser of record not identified", detail: "Enter the appraiser name in the Appraiser Profile before certifying." });
+    if (!cert.licenseNumber) f.push({ id: "no-license", severity: "warning", module: "certify", title: "Appraiser license number missing", detail: "Enter the appraiser license number in the Appraiser Profile." });
+    if (!cert.hasCertDraft) f.push({ id: "no-certification", severity: "warning", module: "certify", title: "Certification statements missing", detail: "USPAP SR 2-3: a signed certification is required. MUSE can draft a non-final starting point for the appraiser to complete." });
+    if (!cert.hasAlcDraft) f.push({ id: "no-alc", severity: "info", module: "certify", title: "Assumptions & limiting conditions missing", detail: "State the assumptions and limiting conditions. MUSE can draft a non-final starting point." });
   }
 
   return f;
