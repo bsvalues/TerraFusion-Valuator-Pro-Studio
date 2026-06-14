@@ -27,6 +27,17 @@ export interface ReviewInput {
   reconFinal?: number;
   certifiedValue?: number | null;
   draftCount: number;
+  /** Assignment-context completeness (REC-001). */
+  assignment?: {
+    clientName?: string | null;
+    lenderName?: string | null;
+    intendedUsersCount?: number;
+    reportDate?: string | null;
+    inspectionDate?: string | null;
+    reportType?: string | null;
+    scopeOfWork?: string | null;
+    fee?: number | null;
+  };
 }
 
 const usd = (n: number) =>
@@ -44,6 +55,18 @@ export function reviewWorkfile(i: ReviewInput): ReviewFinding[] {
       title: "Subject / scope incomplete",
       detail: `Required assignment fields are missing: ${i.missingFields.join(", ") || "unknown"}.`,
     });
+  }
+
+  // 1b. Assignment-context completeness (REC-001) — USPAP SR 1-2 / 2-2 elements.
+  const a = i.assignment;
+  if (a) {
+    if (!a.clientName) f.push({ id: "no-client", severity: "warning", module: "subject", title: "Client not identified", detail: "USPAP SR 2-2(a)(i): the client must be identified in the report." });
+    if (!a.intendedUsersCount) f.push({ id: "no-intended-users", severity: "warning", module: "subject", title: "Intended users not stated", detail: "USPAP SR 2-2(a)(ii): the intended users must be stated." });
+    if (!a.scopeOfWork || a.scopeOfWork.trim().length < 10) f.push({ id: "no-scope", severity: "warning", module: "subject", title: "Scope of work not stated", detail: "USPAP SR 2-2(a)(vii): a scope-of-work statement is required." });
+    if (!a.reportType) f.push({ id: "no-report-type", severity: "info", module: "subject", title: "Report type not selected", detail: "Select Appraisal Report or Restricted Appraisal Report." });
+    if (!a.inspectionDate) f.push({ id: "no-inspection-date", severity: "info", module: "subject", title: "Inspection date not recorded", detail: "Record the date of inspection." });
+    if (!a.reportDate) f.push({ id: "no-report-date", severity: "info", module: "subject", title: "Report date not recorded", detail: "Record the date of the report." });
+    if (a.fee === null || a.fee === undefined) f.push({ id: "no-fee", severity: "info", module: "subject", title: "Appraisal fee not recorded", detail: "Record the assignment fee for the workfile." });
   }
 
   // 2. Evidence support

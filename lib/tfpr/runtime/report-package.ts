@@ -109,11 +109,17 @@ export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[]): string {
   <h2>Assignment</h2>
   <div class="grid">
     <div class="kv"><span>Intended use</span><b>${esc(s.intendedUse ?? "—")}</b></div>
+    <div class="kv"><span>Intended users</span><b>${esc(Array.isArray(s.intendedUsers) && s.intendedUsers.length ? (s.intendedUsers as string[]).join(", ") : "—")}</b></div>
     <div class="kv"><span>Property rights</span><b>${esc(s.propertyRights ?? "—")}</b></div>
-    <div class="kv"><span>Effective date</span><b>${esc(s.effectiveDate ?? "—")}</b></div>
     <div class="kv"><span>Report type</span><b>${esc(s.reportType ?? "—")}</b></div>
+    <div class="kv"><span>Effective date</span><b>${esc(s.effectiveDate ?? "—")}</b></div>
+    <div class="kv"><span>Report date</span><b>${esc(s.reportDate ?? "—")}</b></div>
+    <div class="kv"><span>Inspection date</span><b>${esc(s.inspectionDate ?? "—")}</b></div>
+    <div class="kv"><span>Inspection type</span><b>${esc(s.inspectionType ?? "—")}</b></div>
     <div class="kv"><span>Client</span><b>${esc(s.clientName ?? "—")}</b></div>
-    <div class="kv"><span>Inspection</span><b>${esc(s.inspectionType ?? "—")}</b></div>
+    <div class="kv"><span>Lender</span><b>${esc(s.lenderName ?? "—")}</b></div>
+    <div class="kv"><span>Loan #</span><b>${esc(s.loanNumber ?? "—")}</b></div>
+    <div class="kv"><span>Appraisal fee</span><b>${typeof s.fee === "number" ? usd(s.fee) : "—"}</b></div>
   </div>
 
   <h2>Subject Property</h2>

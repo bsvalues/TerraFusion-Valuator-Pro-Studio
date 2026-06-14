@@ -63,7 +63,9 @@ export interface SubjectContext {
   loanNumber: string | null;
   effectiveDate: string | null;         // ISO date string YYYY-MM-DD
   reportDate: string | null;            // ISO date string YYYY-MM-DD
+  inspectionDate: string | null;        // ISO date string YYYY-MM-DD (legacy APPRDATE)
   dueDate: string | null;               // ISO date string YYYY-MM-DD
+  fee: number | null;                   // Appraisal fee (USD)
 
   // USPAP Assignment Conditions
   intendedUse: IntendedUse | null;
@@ -169,7 +171,9 @@ export const DEFAULT_SUBJECT_CONTEXT: SubjectContext = {
   loanNumber: null,
   effectiveDate: null,
   reportDate: null,
+  inspectionDate: null,
   dueDate: null,
+  fee: null,
   intendedUse: null,
   intendedUsers: [],
   propertyRights: null,
