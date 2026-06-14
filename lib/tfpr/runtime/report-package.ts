@@ -36,7 +36,21 @@ function num(v: unknown): number | undefined {
   return typeof v === "number" ? v : undefined;
 }
 
-export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[]): string {
+interface ReportComp {
+  address?: string;
+  salePrice?: number;
+  adjustedSalePrice?: number;
+  saleDate?: string;
+  netAdjustment?: number;
+  condition?: string;
+  quality?: string;
+  gla?: number;
+}
+interface ReportCompVault {
+  comps?: ReportComp[];
+}
+
+export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[], compVault?: ReportCompVault | null): string {
   const s = (wf.subject ?? {}) as Record<string, unknown>;
   const rev = [...wf.runs].reverse();
   const costValue = num(rev.find((r) => r.runType === "cost")?.outputSnapshot?.indicatedValue);
@@ -47,6 +61,16 @@ export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[]): string {
   const reconFinal = num(rev.find((r) => r.runType === "reconciliation")?.outputSnapshot?.finalValue);
   const latestDraft = wf.drafts.length ? wf.drafts[wf.drafts.length - 1] : null;
   const certified = wf.certifiedValue;
+
+  const comps = compVault?.comps ?? [];
+  const compRows = comps.length
+    ? comps
+        .map(
+          (c) =>
+            `<tr><td>${esc(c.address ?? "—")}</td><td>${typeof c.salePrice === "number" ? usd(c.salePrice) : "—"}</td><td>${typeof c.netAdjustment === "number" ? usd(c.netAdjustment) : "—"}</td><td>${typeof c.adjustedSalePrice === "number" ? usd(c.adjustedSalePrice) : "—"}</td><td>${esc(c.saleDate ?? "—")}</td><td>${esc(c.condition ?? "—")}/${esc(c.quality ?? "—")}</td><td>${esc(c.gla ?? "—")}</td></tr>`,
+        )
+        .join("")
+    : `<tr><td colspan="7" class="muted">No comparable sales recorded in the workfile.</td></tr>`;
 
   const evidenceRows = wf.evidence.length
     ? wf.evidence
@@ -139,6 +163,9 @@ export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[]): string {
     <div class="a"><div class="l">Income Approach</div><div class="v">${usd(incomeValue)}</div></div>
   </div>
   <div class="muted">Each figure is drawn from a persisted analytical run in this workfile.</div>
+
+  <h2>Sales Comparison Grid</h2>
+  <table><thead><tr><th>Comparable</th><th>Sale price</th><th>Net adj.</th><th>Adjusted</th><th>Sale date</th><th>Cond/Qual</th><th>GLA</th></tr></thead><tbody>${compRows}</tbody></table>
 
   <h2>Reconciliation &amp; Final Opinion of Value</h2>
   ${certBlock}

@@ -23,8 +23,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     if (!workfile) return NextResponse.json({ error: "Assignment not found." }, { status: 404 });
 
     const events = await audit.list(ctx, id);
+    const compVault = (await store.getModuleState(ctx, id, "sales_comp_vault")) as
+      | { comps?: unknown[] }
+      | null;
     const packageId = randomUUID();
-    const html = renderWorkfileHtml(workfile, events);
+    const html = renderWorkfileHtml(workfile, events, compVault as never);
 
     await audit.emit(ctx, {
       workfileId: id,

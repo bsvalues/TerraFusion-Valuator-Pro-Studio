@@ -40,4 +40,12 @@ export interface WorkfileStore {
   appendEvidence(ctx: RuntimeContext, id: WorkfileId, evidence: EvidenceRef): Promise<EvidenceItem>;
   appendDraft(ctx: RuntimeContext, id: WorkfileId, draft: DraftArtifact): Promise<void>;
   saveCertifiedValue(ctx: RuntimeContext, id: WorkfileId, value: CertifiedValue): Promise<void>;
+
+  /**
+   * Per-module JSON state (e.g. CompForge's comp vault). Lets a module persist
+   * its rich working document to the workfile so it survives reload and can feed
+   * report/review. Tenant-scoped; stamps tenantId from ctx.
+   */
+  saveModuleState(ctx: RuntimeContext, id: WorkfileId, moduleKey: string, state: unknown): Promise<void>;
+  getModuleState(ctx: RuntimeContext, id: WorkfileId, moduleKey: string): Promise<unknown | null>;
 }
