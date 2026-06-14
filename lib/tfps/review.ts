@@ -38,6 +38,8 @@ export interface ReviewInput {
     scopeOfWork?: string | null;
     fee?: number | null;
   };
+  /** Persisted comp grid signals (REC-002). */
+  comps?: { count: number; unsupportedCount: number };
 }
 
 const usd = (n: number) =>
@@ -67,6 +69,16 @@ export function reviewWorkfile(i: ReviewInput): ReviewFinding[] {
     if (!a.inspectionDate) f.push({ id: "no-inspection-date", severity: "info", module: "subject", title: "Inspection date not recorded", detail: "Record the date of inspection." });
     if (!a.reportDate) f.push({ id: "no-report-date", severity: "info", module: "subject", title: "Report date not recorded", detail: "Record the date of the report." });
     if (a.fee === null || a.fee === undefined) f.push({ id: "no-fee", severity: "info", module: "subject", title: "Appraisal fee not recorded", detail: "Record the assignment fee for the workfile." });
+  }
+
+  // 2b. Comp grid support (REC-002)
+  if (i.comps) {
+    if ((i.salesValue ?? 0) > 0 && i.comps.count < 3) {
+      f.push({ id: "few-comps", severity: "warning", module: "sales", title: "Fewer than 3 comparables", detail: `Only ${i.comps.count} comparable sale(s) in the grid; FNMA 1004 expects at least three.` });
+    }
+    if (i.comps.unsupportedCount > 0) {
+      f.push({ id: "unsupported-adjustments", severity: "info", module: "sales", title: "Unsupported adjustments", detail: `${i.comps.unsupportedCount} comp(s) carry adjustments without market support (no evidence or regression).` });
+    }
   }
 
   // 2. Evidence support

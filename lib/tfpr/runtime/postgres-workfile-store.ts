@@ -298,6 +298,24 @@ export class PostgresWorkfileStore implements WorkfileStore {
     await this.touch(ctx, id, "certified");
   }
 
+  async saveModuleState(ctx: RuntimeContext, id: WorkfileId, moduleKey: string, state: unknown): Promise<void> {
+    await q(
+      `INSERT INTO tfpr_workfile_module_state (workfile_id, tenant_id, module_key, state_json, updated_at)
+       VALUES ($1,$2,$3,$4,NOW())
+       ON CONFLICT (workfile_id, module_key) DO UPDATE SET state_json=EXCLUDED.state_json, updated_at=NOW()`,
+      [id, ctx.tenantId, moduleKey, JSON.stringify(state)],
+    );
+    await this.touch(ctx, id, "in_progress");
+  }
+
+  async getModuleState(ctx: RuntimeContext, id: WorkfileId, moduleKey: string): Promise<unknown | null> {
+    const rows = await q<{ state_json: unknown }>(
+      `SELECT state_json FROM tfpr_workfile_module_state WHERE workfile_id=$1 AND tenant_id=$2 AND module_key=$3`,
+      [id, ctx.tenantId, moduleKey],
+    );
+    return rows[0]?.state_json ?? null;
+  }
+
   private async touch(ctx: RuntimeContext, id: WorkfileId, status: string): Promise<void> {
     await q(
       `UPDATE tfpr_assignments SET updated_at=NOW(),

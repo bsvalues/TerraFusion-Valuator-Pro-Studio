@@ -25,6 +25,18 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     const subject = { ...DEFAULT_SUBJECT_CONTEXT, ...(wf.subject as Partial<SubjectContext> | null) } as SubjectContext;
     const rev = [...wf.runs].reverse();
 
+    // Persisted comp grid (REC-002) → comp completeness/support signals.
+    interface ReviewAdj { amount?: number; evidenceRef?: string; regressionExtracted?: boolean }
+    interface ReviewComp { adjustments?: ReviewAdj[] }
+    const vault = (await store.getModuleState(ctx, id, "sales_comp_vault")) as { comps?: ReviewComp[] } | null;
+    const compList = vault?.comps ?? [];
+    const comps = {
+      count: compList.length,
+      unsupportedCount: compList.filter((c) =>
+        (c.adjustments ?? []).some((a) => (a.amount ?? 0) !== 0 && !a.evidenceRef && !a.regressionExtracted),
+      ).length,
+    };
+
     const findings = reviewWorkfile({
       subjectReady: isSubjectReady(subject),
       missingFields: getMissingSubjectFields(subject),
@@ -47,6 +59,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         scopeOfWork: subject.scopeOfWork,
         fee: subject.fee,
       },
+      comps,
     });
 
     const summary = summarize(findings);
