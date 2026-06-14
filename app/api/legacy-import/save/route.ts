@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
     // Subject Property Identity
     propertyId: null,
     parcelNumber: parsed.subject.parcelId || null,
+    legalDescription: null,
     address: sc.address,
     city: sc.city,
     county: sc.county || null,
@@ -76,6 +77,15 @@ export async function POST(req: NextRequest) {
     quality: null,
     view: parsed.subject.view || null,
     location: null,
+    occupancy: null,
+    // Subject depth — REC-008
+    highestBestUse: null,
+    floodZone: null,
+    femaPanel: null,
+    easements: null,
+    taxAssessedValue: null,
+    taxYear: null,
+    annualTaxes: null,
     // Commercial-specific
     numberOfUnits: parsed.subject.livingUnits ?? null,
     numberOfFloors: parsed.subject.stories ?? null,

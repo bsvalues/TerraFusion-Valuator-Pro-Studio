@@ -59,6 +59,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         scopeOfWork: subject.scopeOfWork,
         fee: subject.fee,
       },
+      subjectDepth: {
+        legalDescription: subject.legalDescription,
+        highestBestUse: subject.highestBestUse,
+        condition: subject.condition,
+        quality: subject.quality,
+        occupancy: subject.occupancy,
+        floodZone: subject.floodZone,
+      },
       comps,
     });
 

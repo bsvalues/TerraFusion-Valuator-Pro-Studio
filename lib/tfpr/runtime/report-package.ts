@@ -151,9 +151,20 @@ export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[], compVault
     <div class="kv"><span>Address</span><b>${esc(s.address ?? "—")}</b></div>
     <div class="kv"><span>City / State / ZIP</span><b>${esc(s.city ?? "—")}, ${esc(s.state ?? "—")} ${esc(s.zip ?? "")}</b></div>
     <div class="kv"><span>Property type</span><b>${esc(s.propertyType ?? "—")}</b></div>
+    <div class="kv"><span>Occupancy</span><b>${esc(s.occupancy ?? "—")}</b></div>
     <div class="kv"><span>Year built</span><b>${esc(s.yearBuilt ?? "—")}</b></div>
     <div class="kv"><span>GLA / area (sqft)</span><b>${esc(s.gla ?? "—")}</b></div>
-    <div class="kv"><span>Parcel</span><b>${esc(s.parcelNumber ?? "—")}</b></div>
+    <div class="kv"><span>Condition / Quality</span><b>${esc(s.condition ?? "—")} / ${esc(s.quality ?? "—")}</b></div>
+    <div class="kv"><span>Zoning</span><b>${esc(s.zoning ?? "—")}</b></div>
+    <div class="kv"><span>Parcel (APN)</span><b>${esc(s.parcelNumber ?? "—")}</b></div>
+    <div class="kv"><span>Flood zone</span><b>${esc(s.floodZone ?? "—")}${s.femaPanel ? " (panel " + esc(s.femaPanel) + ")" : ""}</b></div>
+    <div class="kv"><span>Assessed value</span><b>${typeof s.taxAssessedValue === "number" ? usd(s.taxAssessedValue) : "—"}${s.taxYear ? " (" + esc(s.taxYear) + ")" : ""}</b></div>
+    <div class="kv"><span>Annual taxes</span><b>${typeof s.annualTaxes === "number" ? usd(s.annualTaxes) : "—"}</b></div>
+  </div>
+  <div style="margin-top:6px">
+    <div class="kv"><span>Legal description</span><b>${esc(s.legalDescription ?? "—")}</b></div>
+    <div class="kv"><span>Highest &amp; best use</span><b>${esc(s.highestBestUse ?? "—")}</b></div>
+    <div class="kv"><span>Easements / access</span><b>${esc(s.easements ?? "—")}</b></div>
   </div>
 
   <h2>Approaches to Value</h2>

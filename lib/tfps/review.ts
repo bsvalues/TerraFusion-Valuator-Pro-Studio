@@ -40,6 +40,15 @@ export interface ReviewInput {
   };
   /** Persisted comp grid signals (REC-002). */
   comps?: { count: number; unsupportedCount: number };
+  /** Subject-depth completeness (REC-008). */
+  subjectDepth?: {
+    legalDescription?: string | null;
+    highestBestUse?: string | null;
+    condition?: string | null;
+    quality?: string | null;
+    occupancy?: string | null;
+    floodZone?: string | null;
+  };
 }
 
 const usd = (n: number) =>
@@ -69,6 +78,17 @@ export function reviewWorkfile(i: ReviewInput): ReviewFinding[] {
     if (!a.inspectionDate) f.push({ id: "no-inspection-date", severity: "info", module: "subject", title: "Inspection date not recorded", detail: "Record the date of inspection." });
     if (!a.reportDate) f.push({ id: "no-report-date", severity: "info", module: "subject", title: "Report date not recorded", detail: "Record the date of the report." });
     if (a.fee === null || a.fee === undefined) f.push({ id: "no-fee", severity: "info", module: "subject", title: "Appraisal fee not recorded", detail: "Record the assignment fee for the workfile." });
+  }
+
+  // 1c. Subject-depth completeness (REC-008) — USPAP SR 1-2(e)/1-3(b)/2-2.
+  const sd = i.subjectDepth;
+  if (sd) {
+    if (!sd.legalDescription) f.push({ id: "no-legal", severity: "warning", module: "subject", title: "Legal description missing", detail: "A legal description (or APN reference) is required to identify the subject." });
+    if (!sd.highestBestUse) f.push({ id: "no-hbu", severity: "warning", module: "subject", title: "Highest & best use not stated", detail: "USPAP SR 1-3(b): the highest and best use must be analyzed and stated." });
+    if (!sd.condition) f.push({ id: "no-condition", severity: "warning", module: "subject", title: "Condition not rated", detail: "Rate the subject condition (C1–C6)." });
+    if (!sd.quality) f.push({ id: "no-quality", severity: "warning", module: "subject", title: "Quality not rated", detail: "Rate the subject quality (Q1–Q6)." });
+    if (!sd.occupancy) f.push({ id: "no-occupancy", severity: "info", module: "subject", title: "Occupancy not stated", detail: "State the occupancy (owner / tenant / vacant)." });
+    if (!sd.floodZone) f.push({ id: "no-flood", severity: "info", module: "subject", title: "Flood zone not recorded", detail: "Record the FEMA flood zone." });
   }
 
   // 2b. Comp grid support (REC-002)
