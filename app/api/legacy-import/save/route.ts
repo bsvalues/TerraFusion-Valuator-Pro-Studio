@@ -42,7 +42,9 @@ export async function POST(req: NextRequest) {
     loanNumber: parsed.report.additionalFileNumber || null,
     effectiveDate: sc.effectiveDate || null,
     reportDate: parsed.report.signedDate || null,
+    inspectionDate: null,
     dueDate: null,
+    fee: null,
     // USPAP Assignment Conditions
     intendedUse: sc.intendedUse,
     intendedUsers: ["Client", "Lender"],

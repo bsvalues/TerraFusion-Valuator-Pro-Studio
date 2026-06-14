@@ -184,6 +184,14 @@ export function SubjectPanel() {
             onChange={(e) => setSubject({ reportDate: e.target.value || null })}
           />
         </Field>
+        <Field label="Inspection Date" uadCode="INSPECTION_DATE">
+          <input
+            type="date"
+            className={inputCls}
+            value={s("inspectionDate")}
+            onChange={(e) => setSubject({ inspectionDate: e.target.value || null })}
+          />
+        </Field>
         <Field label="Due Date">
           <input
             type="date"
@@ -339,6 +347,15 @@ export function SubjectPanel() {
             placeholder="e.g. LN-2026-00123"
             value={s("loanNumber")}
             onChange={(e) => setSubject({ loanNumber: e.target.value || null })}
+          />
+        </Field>
+        <Field label="Appraisal Fee (USD)">
+          <input
+            type="number"
+            className={inputCls}
+            placeholder="e.g. 650"
+            value={subject.fee ?? ""}
+            onChange={(e) => setSubject({ fee: e.target.value ? Number(e.target.value) : null })}
           />
         </Field>
       </Section>

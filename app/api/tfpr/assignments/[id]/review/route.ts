@@ -37,6 +37,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       reconFinal: num(rev.find((r) => r.runType === "reconciliation")?.outputSnapshot?.finalValue),
       certifiedValue: wf.certifiedValue?.value ?? null,
       draftCount: wf.drafts.length,
+      assignment: {
+        clientName: subject.clientName,
+        lenderName: subject.lenderName,
+        intendedUsersCount: subject.intendedUsers?.length ?? 0,
+        reportDate: subject.reportDate,
+        inspectionDate: subject.inspectionDate,
+        reportType: subject.reportType,
+        scopeOfWork: subject.scopeOfWork,
+        fee: subject.fee,
+      },
     });
 
     const summary = summarize(findings);
