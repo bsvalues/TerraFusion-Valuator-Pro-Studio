@@ -97,6 +97,33 @@ export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[], compVault
          <div class="muted">Indicated reconciliation value (not a certified opinion).</div>
        </div>`;
 
+  // Approach detail (read only from persisted runs; honest "—" if absent).
+  const costRun = rev.find((r) => r.runType === "cost");
+  const incomeRun = rev.find((r) => r.runType === "income_direct_cap" || r.runType === "income_dcf");
+  const co = (costRun?.outputSnapshot ?? {}) as Record<string, unknown>;
+  const io = (incomeRun?.outputSnapshot ?? {}) as Record<string, unknown>;
+
+  // Report readiness — honest warnings for missing required elements (never faked).
+  const warn: string[] = [];
+  const need = (ok: unknown, label: string) => {
+    if (!ok) warn.push(label);
+  };
+  need(s.fileNumber, "File number");
+  need(s.address && s.city && s.state, "Subject address (city/state)");
+  need(s.effectiveDate, "Effective date");
+  need(s.intendedUse, "Intended use");
+  need(s.propertyRights, "Property rights");
+  need(s.legalDescription, "Legal description");
+  need(s.highestBestUse, "Highest & best use");
+  need(s.condition && s.quality, "Condition/Quality rating");
+  need(costValue || salesValue || incomeValue, "At least one approach value");
+  need(comps.length >= 3, "At least 3 comparable sales");
+  need(typeof reconFinal === "number", "Reconciliation final value");
+  need(certified, "Certified opinion of value");
+  const readinessBlock = warn.length
+    ? `<div class="warn"><b>Report not delivery-ready</b> — missing or incomplete: ${warn.map(esc).join(" · ")}.</div>`
+    : `<div class="ready"><b>Report is delivery-ready</b> — all required elements present and certified.</div>`;
+
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"/>
 <title>Appraisal Report — ${esc(s.fileNumber ?? wf.assignment.title)}</title>
@@ -124,11 +151,16 @@ export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[], compVault
   .muted { color: #888; font-size: 12px; }
   pre { white-space: pre-wrap; font: inherit; background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 10px; }
   footer { margin-top: 36px; padding-top: 12px; border-top: 1px solid #ddd; color: #999; font-size: 11px; }
-  @media print { body { margin: 0; } h2 { break-after: avoid; } }
+  .warn { border:1px solid #c90; background:#fff8e6; color:#7a5b00; border-radius:8px; padding:10px 12px; margin:10px 0; font-size:12px; }
+  .ready { border:1px solid #1a6; background:#eefaf3; color:#0a7a4a; border-radius:8px; padding:10px 12px; margin:10px 0; font-size:12px; }
+  .pdfbtn { border:1px solid #1a6; background:#1a6; color:#fff; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; }
+  @media print { body { margin: 0; } h2 { break-after: avoid; } .noprint { display: none !important; } }
 </style></head>
 <body>
   <h1>Appraisal Report</h1>
   <div class="sub">File ${esc(s.fileNumber ?? "—")} · ${esc(wf.assignment.title)} · status: ${esc(wf.assignment.status)}</div>
+  <div class="noprint" style="margin:10px 0"><button class="pdfbtn" onclick="window.print()">Save as PDF / Print</button></div>
+  ${readinessBlock}
 
   <h2>Assignment</h2>
   <div class="grid">
@@ -174,6 +206,8 @@ export function renderWorkfileHtml(wf: Workfile, events: TraceEvent[], compVault
     <div class="a"><div class="l">Income Approach</div><div class="v">${usd(incomeValue)}</div></div>
   </div>
   <div class="muted">Each figure is drawn from a persisted analytical run in this workfile.</div>
+  ${costValue ? `<div class="muted">Cost approach: RCN ${usd(co.cst_rcn)} − depreciation ${usd(co.cst_total_depreciation)} + site ${usd(co.cst_site_value)} → ${usd(costValue)}</div>` : ""}
+  ${incomeValue ? `<div class="muted">Income approach: NOI ${usd(io.noi)} @ cap ${typeof io.capRate === "number" ? (io.capRate * 100).toFixed(2) + "%" : "—"} → ${usd(incomeValue)}${typeof io.dcfValue === "number" ? "; DCF " + usd(io.dcfValue) : ""}</div>` : ""}
 
   <h2>Sales Comparison Grid</h2>
   <table><thead><tr><th>Comparable</th><th>Sale price</th><th>Net adj.</th><th>Adjusted</th><th>Sale date</th><th>Cond/Qual</th><th>GLA</th></tr></thead><tbody>${compRows}</tbody></table>
