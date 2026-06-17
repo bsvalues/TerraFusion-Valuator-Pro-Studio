@@ -1,24 +1,8 @@
 "use client";
 
-/**
- * TerraFusion Professional OS — Launch Pad (product entry, `/`).
- *
- * The authoritative first screen: an OS-style launch pad, not a Valuator landing
- * page and not a workbench. It answers "what am I working on, what needs my
- * attention, what tools are available" — and Valuator is just one module.
- *
- * Honesty rule: every count/queue here is DERIVED FROM PERSISTED WORKFILES via
- * /api/tfpr/launchpad (ReviewForge engine). No fabricated data, no theater.
- */
-
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  PRODUCT_NAME,
-  TFPS_MODULES,
-  TRUTH_LABEL,
-  type TfpsModule,
-} from "@/lib/tfps/suiteRegistry";
+import { TFPS_MODULES, TRUTH_LABEL, type TfpsModule } from "@/lib/tfps/suiteRegistry";
 
 interface QueueRef { id: string; title: string }
 interface Queues {
@@ -34,7 +18,6 @@ interface AssignmentSignal {
   title: string;
   status: string;
   updatedAt: string;
-  evidenceCount: number;
   certified: boolean;
   draftCount: number;
   blockers: number;
@@ -51,126 +34,112 @@ interface LaunchpadData {
   errors: { id: string; error: string }[];
 }
 
-const truthClass = (t: TfpsModule["truthState"]) =>
-  t === "live"
-    ? "border-cyan-500/50 text-cyan-400"
-    : t === "candidate-live"
-      ? "border-blue-500/40 text-blue-300"
-      : t === "queued"
-        ? "border-border text-muted-foreground"
-        : "border-red-500/40 text-red-400";
+const s = {
+  page: {
+    padding: "24px 20px",
+    maxWidth: 1100,
+    margin: "0 auto",
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: 24,
+  },
+  sectionLabel: {
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase" as const,
+    color: "var(--tf-sub)",
+    marginBottom: 10,
+  },
+  bentoGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: 10,
+  },
+  bentoCard: (hasItems: boolean) => ({
+    background: "var(--tf-glass)",
+    border: `1px solid ${hasItems ? "var(--tf-chip-warn)" : "var(--tf-border)"}`,
+    borderRadius: 8,
+    padding: "12px 14px",
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: 4,
+    minHeight: 80,
+  }),
+  bentoCount: (hasItems: boolean) => ({
+    fontSize: hasItems ? 26 : 18,
+    fontWeight: 700,
+    color: hasItems ? "var(--tf-chip-warn)" : "var(--tf-sub)",
+    lineHeight: 1,
+  }),
+  bentoLabel: { fontSize: 10, color: "var(--tf-sub)" },
+  bentoAction: { fontSize: 10, color: "var(--tf-accent)", fontWeight: 600, marginTop: 4 },
+  assignRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    background: "var(--tf-glass)",
+    border: "1px solid var(--tf-border)",
+    borderRadius: 8,
+    padding: "10px 14px",
+    textDecoration: "none",
+    color: "var(--tf-text)",
+  },
+  chip: (warn: boolean) => ({
+    fontSize: 9,
+    padding: "2px 7px",
+    borderRadius: 10,
+    fontWeight: 700,
+    letterSpacing: "0.04em",
+    border: `1px solid ${warn ? "var(--tf-chip-warn)" : "var(--tf-border)"}`,
+    color: warn ? "var(--tf-chip-warn)" : "var(--tf-sub)",
+    background: warn ? "rgba(184,144,58,0.08)" : "transparent",
+    whiteSpace: "nowrap" as const,
+  }),
+  tileRow: { display: "flex", gap: 8, flexWrap: "wrap" as const },
+  tile: (state: TfpsModule["truthState"]) => ({
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "8px 12px",
+    borderRadius: 8,
+    border: "1px solid var(--tf-border)",
+    background: "var(--tf-glass)",
+    textDecoration: "none",
+    color: "var(--tf-text)",
+    cursor: "pointer",
+  }),
+  tileDot: (state: TfpsModule["truthState"]) => ({
+    width: 7,
+    height: 7,
+    borderRadius: "50%",
+    background: state === "live" ? "var(--tf-chip-live)" : "var(--tf-sub)",
+    flexShrink: 0,
+  }),
+  tileLabel: { fontSize: 11, fontWeight: 600 },
+  tileState: { fontSize: 9, color: "var(--tf-sub)" },
+};
 
-function ModuleCard({ m }: { m: TfpsModule }) {
-  const previewLocked = m.truthState !== "live";
-  return (
-    <div className={`rounded-xl border p-4 ${previewLocked ? "border-border opacity-80" : "border-cyan-500/30"}`}>
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">{m.label}</h3>
-        <span className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${truthClass(m.truthState)}`}>
-          {TRUTH_LABEL[m.truthState]}{m.qualifier ? ` · ${m.qualifier}` : ""}
-        </span>
-      </div>
-      <p className="mt-2 text-xs text-muted-foreground">{m.description}</p>
-      <p className="mt-3 text-[10px] uppercase tracking-wide text-muted-foreground">
-        {m.truthState === "queued"
-          ? "Preview — not yet available"
-          : m.scope === "assignment"
-            ? "Opens inside an assignment"
-            : "Suite tool"}
-      </p>
-    </div>
-  );
-}
-
-/** One attention queue. Honest empty state; links straight to the work. */
-function QueueCard({
-  label,
-  hint,
-  refs,
-  count,
-  countSuffix,
-  tone,
-}: {
-  label: string;
-  hint: string;
-  refs: QueueRef[];
-  count: number;
-  countSuffix?: string;
-  tone: "amber" | "red" | "cyan";
-}) {
-  const clear = count === 0;
-  const toneCls = clear
-    ? "border-border"
-    : tone === "red"
-      ? "border-red-500/40"
-      : tone === "amber"
-        ? "border-amber-500/40"
-        : "border-cyan-500/40";
-  const countCls = clear
-    ? "text-muted-foreground"
-    : tone === "red"
-      ? "text-red-400"
-      : tone === "amber"
-        ? "text-amber-400"
-        : "text-cyan-400";
-  return (
-    <div className={`rounded-xl border p-4 ${toneCls}`}>
-      <div className="flex items-baseline justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</h3>
-        <span className={`font-mono text-2xl font-bold ${countCls}`}>
-          {count}{countSuffix ?? ""}
-        </span>
-      </div>
-      <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>
-      <ul className="mt-2 space-y-1">
-        {clear ? (
-          <li className="text-[11px] text-muted-foreground">All clear.</li>
-        ) : (
-          refs.slice(0, 3).map((r) => (
-            <li key={r.id}>
-              <Link href={`/assignments/${r.id}`} className="text-[11px] text-cyan-400 hover:underline">
-                {r.title} →
-              </Link>
-            </li>
-          ))
-        )}
-        {refs.length > 3 && <li className="text-[10px] text-muted-foreground">+{refs.length - 3} more</li>}
-      </ul>
-    </div>
-  );
-}
-
-function StatusChips({ a }: { a: AssignmentSignal }) {
-  const chips: { label: string; cls: string }[] = [];
-  if (a.certified) chips.push({ label: "Certified", cls: "border-cyan-500/40 text-cyan-400" });
-  if (a.reportReady && !a.certified) chips.push({ label: "Report ready", cls: "border-cyan-500/40 text-cyan-400" });
-  if (a.certificationPending) chips.push({ label: "Cert pending", cls: "border-amber-500/40 text-amber-400" });
-  if (a.evidenceGap) chips.push({ label: "Evidence gap", cls: "border-amber-500/40 text-amber-400" });
-  if (a.blockers > 0) chips.push({ label: `${a.blockers} blocker${a.blockers > 1 ? "s" : ""}`, cls: "border-red-500/40 text-red-400" });
-  if (a.museDraftsPending) chips.push({ label: `${a.draftCount} MUSE draft${a.draftCount > 1 ? "s" : ""}`, cls: "border-border text-muted-foreground" });
-  return (
-    <div className="mt-1 flex flex-wrap gap-1">
-      {chips.map((c, i) => (
-        <span key={i} className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold ${c.cls}`}>{c.label}</span>
-      ))}
-    </div>
-  );
-}
+// Map module id to dock segment for navigation
+const MODULE_ROUTE: Record<string, string> = {
+  valuator: "reconcile", costforge: "cost", compforge: "sales",
+  incomeforge: "income", reportforge: "report", reviewforge: "review",
+  marketpulse: "market", dossier: "subject", muse: "muse",
+};
 
 export default function LaunchPad() {
   const [data, setData] = useState<LaunchpadData | null>(null);
-  const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [title, setTitle] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const r = await fetch("/api/tfpr/launchpad", { cache: "no-store" });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Failed to load launch pad");
+      if (!r.ok) throw new Error(d.error ?? "Launchpad unavailable");
       setData(d);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -179,21 +148,19 @@ export default function LaunchPad() {
     }
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useEffect(() => { load(); }, [load]);
 
-  const create = async () => {
+  const createAssignment = async () => {
+    if (!title.trim()) return;
     setCreating(true);
-    setError(null);
     try {
       const r = await fetch("/api/tfpr/assignments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ title: title.trim() }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Failed to create");
+      if (!r.ok) throw new Error(d.error);
       setTitle("");
       await load();
     } catch (e) {
@@ -203,130 +170,170 @@ export default function LaunchPad() {
     }
   };
 
-  const items = data?.assignments ?? [];
   const q = data?.queues;
-  const mostRecent = items[0];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-sm font-semibold tracking-tight">
-            TerraFusion <span className="text-cyan-400">Professional OS</span>
-          </span>
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Commercial Appraisal Suite · on TerraFusion Professional Runtime
-          </span>
+    <div style={s.page}>
+      {error && (
+        <div style={{ fontSize: 12, color: "var(--tf-chip-block)", background: "rgba(180,50,50,0.08)", border: "1px solid var(--tf-chip-block)", borderRadius: 6, padding: "8px 12px" }}>
+          {error}
         </div>
-      </header>
+      )}
 
-      <main className="mx-auto max-w-6xl space-y-8 px-6 py-8">
-        <div className="flex items-end justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-cyan-400">{PRODUCT_NAME}</p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight">Your appraisal operating environment</h1>
+      {/* NEEDS YOUR ATTENTION */}
+      <section>
+        <div style={s.sectionLabel}>Needs your attention</div>
+        {loading ? (
+          <div style={{ fontSize: 12, color: "var(--tf-sub)" }}>Loading…</div>
+        ) : (
+          <div style={s.bentoGrid}>
+            <div style={s.bentoCard((q?.evidenceGaps.length ?? 0) > 0)}>
+              <div style={s.bentoCount((q?.evidenceGaps.length ?? 0) > 0)}>
+                {q?.evidenceGaps.length ?? 0}
+              </div>
+              <div style={s.bentoLabel}>Evidence gaps</div>
+              {(q?.evidenceGaps.length ?? 0) > 0 && (
+                <Link href={`/assignments/${q!.evidenceGaps[0].id}/modules/evidence`} style={{ ...s.bentoAction, textDecoration: "none" }}>
+                  → Add evidence
+                </Link>
+              )}
+            </div>
+
+            <div style={s.bentoCard((q?.reviewRequired.length ?? 0) > 0)}>
+              <div style={s.bentoCount((q?.reviewRequired.length ?? 0) > 0)}>
+                {q?.reviewRequired.length ?? 0}
+              </div>
+              <div style={s.bentoLabel}>Review required</div>
+              {(q?.reviewRequired.length ?? 0) > 0 && (
+                <Link href={`/assignments/${q!.reviewRequired[0].id}/modules/review`} style={{ ...s.bentoAction, textDecoration: "none" }}>
+                  → Open ReviewForge
+                </Link>
+              )}
+            </div>
+
+            <div style={s.bentoCard((q?.certificationPending.length ?? 0) > 0)}>
+              <div style={s.bentoCount((q?.certificationPending.length ?? 0) > 0)}>
+                {q?.certificationPending.length ?? 0}
+              </div>
+              <div style={s.bentoLabel}>Certification pending</div>
+              {(q?.certificationPending.length ?? 0) > 0 && (
+                <Link href={`/assignments/${q!.certificationPending[0].id}/modules/certify`} style={{ ...s.bentoAction, textDecoration: "none" }}>
+                  → Certify
+                </Link>
+              )}
+            </div>
+
+            <div style={{ ...s.bentoCard((q?.museDraftsPending.length ?? 0) > 0), gridColumn: "span 2" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ ...s.bentoCount((q?.museDraftsPending.length ?? 0) > 0), fontSize: 18 }}>
+                    {q?.museDraftsPending.length ?? 0} draft{(q?.museDraftsPending.length ?? 0) !== 1 ? "s" : ""}
+                  </div>
+                  <div style={s.bentoLabel}>MUSE drafts pending review</div>
+                </div>
+                {(q?.museDraftsPending.length ?? 0) > 0 && (
+                  <Link href={`/assignments/${q!.museDraftsPending[0].id}/modules/muse`} style={{ ...s.bentoAction, textDecoration: "none", fontSize: 11 }}>
+                    → Open MUSE
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            <div style={s.bentoCard((q?.reportsReady.length ?? 0) > 0)}>
+              <div style={{ ...s.bentoCount((q?.reportsReady.length ?? 0) > 0), color: (q?.reportsReady.length ?? 0) > 0 ? "var(--tf-chip-live)" : "var(--tf-sub)" }}>
+                {q?.reportsReady.length ?? 0} / {q?.reportsTotal ?? 0}
+              </div>
+              <div style={s.bentoLabel}>Reports ready</div>
+              {(q?.reportsReady.length ?? 0) > 0 && (
+                <Link href={`/assignments/${q!.reportsReady[0].id}/modules/report`} style={{ ...s.bentoAction, textDecoration: "none" }}>
+                  → Export
+                </Link>
+              )}
+            </div>
           </div>
-          {data?.tier && (
-            <span className="rounded-md border border-cyan-500/50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-400">
-              {data.tier}
-            </span>
-          )}
-        </div>
-
-        {error && (
-          <div className="rounded-md border border-red-500/50 bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</div>
         )}
+      </section>
 
-        {/* Needs your attention — queues derived live from persisted workfiles */}
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold">Needs your attention</h2>
-            <span className="text-[11px] text-muted-foreground">
-              {loading ? "Reading workfiles…" : "Derived live from your workfiles · ReviewForge"}
-            </span>
-          </div>
-          {q && (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-              <QueueCard label="Evidence gaps" hint="No evidence recorded" refs={q.evidenceGaps} count={q.evidenceGaps.length} tone="amber" />
-              <QueueCard label="Review required" hint="Open blockers or warnings" refs={q.reviewRequired} count={q.reviewRequired.length} tone="red" />
-              <QueueCard label="Report readiness" hint="Ready to assemble" refs={q.reportsReady} count={q.reportsReady.length} countSuffix={`/${q.reportsTotal}`} tone="cyan" />
-              <QueueCard label="Certification pending" hint="Reconciled, not certified" refs={q.certificationPending} count={q.certificationPending.length} tone="amber" />
-              <QueueCard label="MUSE drafts pending" hint="Non-final, awaiting you" refs={q.museDraftsPending} count={q.museDraftsPending.length} tone="cyan" />
+      {/* ACTIVE ASSIGNMENTS */}
+      <section>
+        <div style={s.sectionLabel}>Active assignments</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {data?.assignments.map((a) => (
+            <Link key={a.id} href={`/assignments/${a.id}`} style={s.assignRow}>
+              <span style={{ fontSize: 12, color: "var(--tf-accent)" }}>↗</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 600 }}>{a.title}</div>
+                <div style={{ fontSize: 10, color: "var(--tf-sub)" }}>
+                  Updated {new Date(a.updatedAt).toLocaleDateString()}
+                  {a.certified ? " · Certified" : ""}
+                </div>
+              </div>
+              {a.blockers > 0 && <span style={s.chip(true)}>{a.blockers} blocker{a.blockers !== 1 ? "s" : ""}</span>}
+              {a.certificationPending && !a.blockers && <span style={s.chip(true)}>Cert Pending</span>}
+              {a.evidenceGap && !a.certificationPending && !a.blockers && <span style={s.chip(true)}>Evidence Gap</span>}
+              {a.reportReady && <span style={{ ...s.chip(false), color: "var(--tf-chip-live)", borderColor: "var(--tf-chip-live)" }}>Ready</span>}
+              {a.certified && <span style={{ ...s.chip(false), color: "var(--tf-chip-live)", borderColor: "var(--tf-chip-live)" }}>Certified</span>}
+            </Link>
+          ))}
+
+          {!loading && (!data?.assignments.length) && (
+            <div style={{ fontSize: 12, color: "var(--tf-sub)", padding: "12px 0" }}>
+              No active assignments.
             </div>
           )}
-        </section>
 
-        {/* Active Assignments — recent-first; the actionable work list */}
-        <section className="rounded-xl border border-border">
-          <div className="flex items-center justify-between border-b border-border px-5 py-3">
-            <h2 className="text-sm font-semibold">
-              Active Assignments {loading ? "(loading…)" : `(${items.length})`}
-              <span className="ml-2 text-[10px] font-normal uppercase tracking-wide text-muted-foreground">recent first</span>
-            </h2>
-            {mostRecent && (
-              <Link href={`/assignments/${mostRecent.id}`} className="text-xs text-cyan-400 hover:underline">
-                Continue: {mostRecent.title} →
-              </Link>
-            )}
-          </div>
-
-          <div className="flex gap-2 px-5 py-3">
+          {/* Create new */}
+          <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Start a new assignment (e.g. 1420 Jadwin Ave — retail)"
-              className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
+              onKeyDown={(e) => e.key === "Enter" && createAssignment()}
+              placeholder="New assignment title…"
+              style={{
+                flex: 1, height: 36, borderRadius: 8,
+                border: "1px solid var(--tf-border)",
+                background: "var(--tf-glass)",
+                color: "var(--tf-text)",
+                padding: "0 12px", fontSize: 13,
+              }}
             />
             <button
-              onClick={create}
-              disabled={creating}
-              className="h-9 rounded-md bg-cyan-500 px-4 text-sm font-semibold text-background hover:bg-cyan-400 disabled:opacity-50"
+              onClick={createAssignment}
+              disabled={creating || !title.trim()}
+              style={{
+                height: 36, padding: "0 16px", borderRadius: 8, fontSize: 12,
+                fontWeight: 600, border: "1px solid var(--tf-border)",
+                background: "var(--tf-glass)", color: "var(--tf-accent)",
+                cursor: "pointer", whiteSpace: "nowrap",
+              }}
             >
-              {creating ? "Creating…" : "Start New"}
+              {creating ? "Creating…" : "+ New"}
             </button>
           </div>
+        </div>
+      </section>
 
-          {items.length === 0 && !loading ? (
-            <div className="px-5 py-8 text-center text-sm text-muted-foreground">
-              No active assignments yet — start your first.
-            </div>
-          ) : (
-            <ul className="divide-y divide-border">
-              {items.map((a) => (
-                <li key={a.id} className="flex items-start justify-between px-5 py-3">
-                  <div>
-                    <Link href={`/assignments/${a.id}`} className="text-sm font-medium hover:text-cyan-400">
-                      {a.title}
-                    </Link>
-                    <p className="text-[11px] text-muted-foreground">
-                      {a.status} · updated {new Date(a.updatedAt).toLocaleString()}
-                    </p>
-                    <StatusChips a={a} />
-                  </div>
-                  <div className="flex shrink-0 gap-3 pt-1 text-xs">
-                    <Link href={`/assignments/${a.id}`} className="text-cyan-400 hover:underline">Open</Link>
-                    <a href={`/api/tfpr/assignments/${a.id}/report`} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground">Export</a>
-                    <Link href={`/assignments/${a.id}/audit`} className="text-muted-foreground hover:text-foreground">Audit</Link>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        {/* Suite Modules — Valuator is one module among the suite */}
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold">Suite Modules</h2>
-            <span className="text-[11px] text-muted-foreground">Tools open inside an assignment · preview tools are not yet available</span>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {TFPS_MODULES.map((m) => (
-              <ModuleCard key={m.id} m={m} />
-            ))}
-          </div>
-        </section>
-      </main>
+      {/* SUITE MODULES — quick launch */}
+      <section>
+        <div style={s.sectionLabel}>Suite modules</div>
+        <div style={s.tileRow}>
+          {TFPS_MODULES.map((m) => (
+            <Link
+              key={m.id}
+              href={data?.assignments[0] ? `/assignments/${data.assignments[0].id}/modules/${MODULE_ROUTE[m.id] ?? m.id}` : "/assignments"}
+              style={s.tile(m.truthState)}
+            >
+              <div style={s.tileDot(m.truthState)} />
+              <div>
+                <div style={s.tileLabel}>{m.label}</div>
+                <div style={s.tileState}>
+                  {TRUTH_LABEL[m.truthState]}{m.qualifier ? ` · ${m.qualifier}` : ""}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
