@@ -1,12 +1,5 @@
 "use client";
 
-/**
- * First-class module route — /assignments/[id]/[module].
- * Renders one appraisal module's surface inside the layout's persistence-bound
- * provider. Each module (cost/sales/income/reconcile/subject/evidence/certify)
- * is now directly addressable, navigable, and persistence-proven.
- */
-
 import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSubjectWorkbench } from "@/lib/subject-workbench-context";
@@ -32,9 +25,8 @@ const usd = (n?: number) =>
     ? n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
     : "—";
 
-const KNOWN = ["subject", "cost", "sales", "income", "reconcile", "evidence", "certify", "review", "market"];
+const KNOWN = ["subject", "cost", "sales", "income", "reconcile", "evidence", "certify", "review", "market", "muse"];
 
-// Appraiser profile — no fake defaults; blank until the appraiser enters them (REC-006).
 const PROFILE_FIELDS: [string, string][] = [
   ["appraiserName", "Appraiser name"],
   ["licenseNumber", "License #"],
@@ -70,7 +62,7 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
   const [profile, setProfile] = useState<Record<string, string>>(EMPTY_PROFILE);
   const [profileSaved, setProfileSaved] = useState(false);
 
-  const needsMeta = module === "evidence" || module === "reconcile" || module === "certify";
+  const needsMeta = module === "evidence" || module === "reconcile" || module === "certify" || module === "muse";
 
   const loadMeta = useCallback(async () => {
     if (!needsMeta) return;
@@ -85,9 +77,7 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
     }
   }, [id, needsMeta]);
 
-  useEffect(() => {
-    loadMeta();
-  }, [loadMeta]);
+  useEffect(() => { loadMeta(); }, [loadMeta]);
 
   const loadProfile = useCallback(async () => {
     if (module !== "certify") return;
@@ -95,14 +85,10 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
       const r = await fetch(`/api/tfpr/assignments/${id}/module-state?key=appraiser_profile`, { cache: "no-store" });
       const d = await r.json();
       if (r.ok && d.state) setProfile({ ...EMPTY_PROFILE, ...d.state });
-    } catch {
-      /* non-fatal — profile is optional until certification */
-    }
+    } catch { /* non-fatal */ }
   }, [id, module]);
 
-  useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
+  useEffect(() => { loadProfile(); }, [loadProfile]);
 
   const saveProfile = async () => {
     setBusy("profile");
@@ -161,9 +147,7 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
     }
   }, [id]);
 
-  useEffect(() => {
-    if (module === "review") runReview();
-  }, [module, runReview]);
+  useEffect(() => { if (module === "review") runReview(); }, [module, runReview]);
 
   const runMarket = useCallback(async () => {
     setBusy("market");
@@ -179,9 +163,7 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
     }
   }, [id]);
 
-  useEffect(() => {
-    if (module === "market") runMarket();
-  }, [module, runMarket]);
+  useEffect(() => { if (module === "market") runMarket(); }, [module, runMarket]);
 
   const rev = [...runHistory].reverse();
   const num = (v: unknown) => (typeof v === "number" ? v : undefined);
@@ -257,7 +239,7 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
   if (!KNOWN.includes(module)) {
     return (
       <div className="rounded-md border border-border p-5 text-sm text-muted-foreground">
-        Unknown module “{module}”. <Link href={`/assignments/${id}`} className="text-cyan-400">Back to Command Center</Link>
+        Unknown module "{module}". <Link href={`/assignments/${id}`} className="text-cyan-400">Back to Command Center</Link>
       </div>
     );
   }
@@ -306,6 +288,57 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
         </div>
       )}
 
+      {module === "muse" && (
+        <div className="space-y-5">
+          <div className="rounded-xl border border-border p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold">TerraPilot / MUSE</h3>
+                <p className="text-[11px] text-muted-foreground">
+                  Draft, explain, summarize. write_low — non-final until you certify. You remain the author.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => runMuseCap("draft_reconciliation_narrative")}
+                  disabled={!!busy}
+                  className="h-9 rounded-md border border-cyan-500/50 px-3 text-xs font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
+                >
+                  {busy === "draft_reconciliation_narrative" ? "Drafting…" : "Reconciliation narrative"}
+                </button>
+                <button
+                  onClick={() => runMuseCap("draft_certification")}
+                  disabled={!!busy}
+                  className="h-9 rounded-md border border-cyan-500/50 px-3 text-xs font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
+                >
+                  {busy === "draft_certification" ? "Drafting…" : "Certification draft"}
+                </button>
+                <button
+                  onClick={() => runMuseCap("draft_assumptions_limiting_conditions")}
+                  disabled={!!busy}
+                  className="h-9 rounded-md border border-cyan-500/50 px-3 text-xs font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
+                >
+                  {busy === "draft_assumptions_limiting_conditions" ? "Drafting…" : "A&LC draft"}
+                </button>
+              </div>
+            </div>
+            <ul className="mt-4 space-y-3">
+              {meta?.drafts.map((d) => (
+                <li key={d.draftId} className="rounded-md border border-border p-3">
+                  <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-400">
+                    {d.capabilityId.replace(/_/g, " ")} · non-final
+                  </span>
+                  <pre className="mt-2 whitespace-pre-wrap text-xs text-foreground/90">{d.text}</pre>
+                </li>
+              ))}
+              {(!meta || meta.drafts.length === 0) && (
+                <li className="text-xs text-muted-foreground">No MUSE drafts yet for this assignment.</li>
+              )}
+            </ul>
+          </div>
+        </div>
+      )}
+
       {module === "evidence" && (
         <div className="rounded-xl border border-border p-5">
           <h3 className="text-sm font-semibold">Evidence Ledger ({meta?.evidence.length ?? 0})</h3>
@@ -345,121 +378,106 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
 
       {module === "certify" && (
         <div className="space-y-5">
-        <div className="rounded-xl border border-border p-5">
-          <h3 className="text-sm font-semibold">Appraiser Profile</h3>
-          <p className="text-[11px] text-muted-foreground">
-            Identifies the appraiser of record for the certification. No defaults — blank until you enter them.
-          </p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            {PROFILE_FIELDS.map(([k, label]) => (
-              <label key={k} className="text-xs text-muted-foreground">
-                {label}
-                <input
-                  value={profile[k] ?? ""}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setProfile((p) => ({ ...p, [k]: v }));
-                    setProfileSaved(false);
-                  }}
-                  className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
-                />
-              </label>
-            ))}
-          </div>
-          <button
-            onClick={saveProfile}
-            disabled={busy === "profile"}
-            className="mt-3 h-9 rounded-md border border-border px-4 text-sm font-semibold hover:border-cyan-500/50 hover:text-cyan-400 disabled:opacity-50"
-          >
-            {busy === "profile" ? "Saving…" : profileSaved ? "Saved ✓" : "Save profile"}
-          </button>
-        </div>
-
-        <div className="rounded-xl border border-border p-5">
-          <h3 className="text-sm font-semibold">
-            Certify Opinion of Value <span className="text-[10px] uppercase tracking-wide text-amber-400">write_high</span>
-          </h3>
-          {meta?.certifiedValue ? (
-            <div className="mt-3 rounded-md border-2 border-cyan-500/40 bg-cyan-500/10 p-4">
-              <p className="text-[10px] uppercase tracking-wider text-cyan-400">Certified opinion of value</p>
-              <p className="mt-1 font-mono text-2xl font-bold text-cyan-400">{usd(meta.certifiedValue.value)}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                by {meta.certifiedValue.certifiedBy} · “{meta.certifiedValue.reasonCode}” ·{" "}
-                {new Date(meta.certifiedValue.certifiedAt).toLocaleString()}
-              </p>
-            </div>
-          ) : (
-            <div className="mt-3 space-y-2">
-              <p className="text-[11px] text-muted-foreground">
-                Certify target = reconciliation final value ({usd(reconFinal)}). Finalize Reconciliation first.
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                <label className="text-xs text-muted-foreground">
-                  Final value
-                  <input type="number" value={finalInput} onChange={(e) => setFinalInput(e.target.value)} className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm font-mono" />
+          <div className="rounded-xl border border-border p-5">
+            <h3 className="text-sm font-semibold">Appraiser Profile</h3>
+            <p className="text-[11px] text-muted-foreground">
+              Identifies the appraiser of record for the certification. No defaults — blank until you enter them.
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {PROFILE_FIELDS.map(([k, label]) => (
+                <label key={k} className="text-xs text-muted-foreground">
+                  {label}
+                  <input
+                    value={profile[k] ?? ""}
+                    onChange={(e) => { const v = e.target.value; setProfile((p) => ({ ...p, [k]: v })); setProfileSaved(false); }}
+                    className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+                  />
                 </label>
-                <label className="text-xs text-muted-foreground">
-                  Reason code (required)
-                  <input value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm" />
-                </label>
-              </div>
-              <label className="flex items-center gap-2 text-xs text-foreground">
-                <input type="checkbox" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} />
-                I confirm this is my final certified opinion of value.
-              </label>
-              <button
-                onClick={certify}
-                disabled={busy === "certify"}
-                className="h-9 rounded-md bg-cyan-500 px-4 text-sm font-semibold text-background hover:bg-cyan-400 disabled:opacity-50"
-              >
-                {busy === "certify" ? "Certifying…" : "Certify Opinion of Value"}
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-xl border border-border p-5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">MUSE — certification &amp; limiting conditions</h3>
-            <div className="flex gap-2">
-              <button
-                onClick={() => runMuseCap("draft_certification")}
-                disabled={busy === "draft_certification"}
-                className="h-9 rounded-md border border-cyan-500/50 px-3 text-xs font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
-              >
-                {busy === "draft_certification" ? "Drafting…" : "Draft certification (write_low)"}
-              </button>
-              <button
-                onClick={() => runMuseCap("draft_assumptions_limiting_conditions")}
-                disabled={busy === "draft_assumptions_limiting_conditions"}
-                className="h-9 rounded-md border border-cyan-500/50 px-3 text-xs font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
-              >
-                {busy === "draft_assumptions_limiting_conditions" ? "Drafting…" : "Draft A&LC (write_low)"}
-              </button>
-            </div>
-          </div>
-          <p className="mt-2 text-[11px] text-muted-foreground">
-            MUSE drafts non-final starting language. You remain the author — edit and certify yourself. Not a USPAP compliance guarantee.
-          </p>
-          <ul className="mt-3 space-y-3">
-            {meta?.drafts
-              .filter((d) => d.capabilityId === "draft_certification" || d.capabilityId === "draft_assumptions_limiting_conditions")
-              .map((d) => (
-                <li key={d.draftId} className="rounded-md border border-border p-3">
-                  <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-400">
-                    {d.capabilityId === "draft_certification" ? "Certification · non-final" : "A&LC · non-final"}
-                  </span>
-                  <pre className="mt-2 whitespace-pre-wrap text-xs text-foreground/90">{d.text}</pre>
-                </li>
               ))}
-            {(!meta ||
-              meta.drafts.filter(
-                (d) => d.capabilityId === "draft_certification" || d.capabilityId === "draft_assumptions_limiting_conditions",
-              ).length === 0) && (
-              <li className="text-xs text-muted-foreground">No certification or A&amp;LC drafts yet.</li>
+            </div>
+            <button
+              onClick={saveProfile}
+              disabled={busy === "profile"}
+              className="mt-3 h-9 rounded-md border border-border px-4 text-sm font-semibold hover:border-cyan-500/50 hover:text-cyan-400 disabled:opacity-50"
+            >
+              {busy === "profile" ? "Saving…" : profileSaved ? "Saved ✓" : "Save profile"}
+            </button>
+          </div>
+
+          <div className="rounded-xl border border-border p-5">
+            <h3 className="text-sm font-semibold">
+              Certify Opinion of Value <span className="text-[10px] uppercase tracking-wide text-amber-400">write_high</span>
+            </h3>
+            {meta?.certifiedValue ? (
+              <div className="mt-3 rounded-md border-2 border-cyan-500/40 bg-cyan-500/10 p-4">
+                <p className="text-[10px] uppercase tracking-wider text-cyan-400">Certified opinion of value</p>
+                <p className="mt-1 font-mono text-2xl font-bold text-cyan-400">{usd(meta.certifiedValue.value)}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  by {meta.certifiedValue.certifiedBy} · "{meta.certifiedValue.reasonCode}" ·{" "}
+                  {new Date(meta.certifiedValue.certifiedAt).toLocaleString()}
+                </p>
+              </div>
+            ) : (
+              <div className="mt-3 space-y-2">
+                <p className="text-[11px] text-muted-foreground">
+                  Certify target = reconciliation final value ({usd(reconFinal)}). Finalize Reconciliation first.
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="text-xs text-muted-foreground">
+                    Final value
+                    <input type="number" value={finalInput} onChange={(e) => setFinalInput(e.target.value)} className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm font-mono" />
+                  </label>
+                  <label className="text-xs text-muted-foreground">
+                    Reason code (required)
+                    <input value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm" />
+                  </label>
+                </div>
+                <label className="flex items-center gap-2 text-xs text-foreground">
+                  <input type="checkbox" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} />
+                  I confirm this is my final certified opinion of value.
+                </label>
+                <button
+                  onClick={certify}
+                  disabled={busy === "certify"}
+                  className="h-9 rounded-md bg-cyan-500 px-4 text-sm font-semibold text-background hover:bg-cyan-400 disabled:opacity-50"
+                >
+                  {busy === "certify" ? "Certifying…" : "Certify Opinion of Value"}
+                </button>
+              </div>
             )}
-          </ul>
-        </div>
+          </div>
+
+          <div className="rounded-xl border border-border p-5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold">MUSE — certification &amp; limiting conditions</h3>
+              <div className="flex gap-2">
+                <button onClick={() => runMuseCap("draft_certification")} disabled={busy === "draft_certification"} className="h-9 rounded-md border border-cyan-500/50 px-3 text-xs font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50">
+                  {busy === "draft_certification" ? "Drafting…" : "Draft certification (write_low)"}
+                </button>
+                <button onClick={() => runMuseCap("draft_assumptions_limiting_conditions")} disabled={busy === "draft_assumptions_limiting_conditions"} className="h-9 rounded-md border border-cyan-500/50 px-3 text-xs font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50">
+                  {busy === "draft_assumptions_limiting_conditions" ? "Drafting…" : "Draft A&LC (write_low)"}
+                </button>
+              </div>
+            </div>
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              MUSE drafts non-final starting language. You remain the author — edit and certify yourself. Not a USPAP compliance guarantee.
+            </p>
+            <ul className="mt-3 space-y-3">
+              {meta?.drafts
+                .filter((d) => d.capabilityId === "draft_certification" || d.capabilityId === "draft_assumptions_limiting_conditions")
+                .map((d) => (
+                  <li key={d.draftId} className="rounded-md border border-border p-3">
+                    <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-400">
+                      {d.capabilityId === "draft_certification" ? "Certification · non-final" : "A&LC · non-final"}
+                    </span>
+                    <pre className="mt-2 whitespace-pre-wrap text-xs text-foreground/90">{d.text}</pre>
+                  </li>
+                ))}
+              {(!meta || meta.drafts.filter((d) => d.capabilityId === "draft_certification" || d.capabilityId === "draft_assumptions_limiting_conditions").length === 0) && (
+                <li className="text-xs text-muted-foreground">No certification or A&amp;LC drafts yet.</li>
+              )}
+            </ul>
+          </div>
         </div>
       )}
 
@@ -472,15 +490,10 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
                 USPAP-aware checks over this workfile. Flags issues — never auto-fixes; you remain the author.
               </p>
             </div>
-            <button
-              onClick={runReview}
-              disabled={busy === "review"}
-              className="h-9 rounded-md border border-cyan-500/50 px-4 text-sm font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
-            >
+            <button onClick={runReview} disabled={busy === "review"} className="h-9 rounded-md border border-cyan-500/50 px-4 text-sm font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50">
               {busy === "review" ? "Reviewing…" : "Re-run review"}
             </button>
           </div>
-
           {review && (
             <p className="mt-3 text-xs text-muted-foreground">
               {review.summary.total === 0
@@ -488,7 +501,6 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
                 : `${review.summary.total} finding(s): ${review.summary.blockers} blocker(s), ${review.summary.warnings} warning(s), ${review.summary.info} info.`}
             </p>
           )}
-
           <ul className="mt-3 space-y-2">
             {review?.findings.map((x) => (
               <li key={x.id} className={`rounded-md border p-3 ${sevCls[x.severity] ?? sevCls.info}`}>
@@ -497,15 +509,13 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
                   <span className="text-[10px] font-semibold uppercase tracking-wide">{x.severity}</span>
                 </div>
                 <p className="mt-1 text-xs text-foreground/90">{x.detail}</p>
-                <Link href={`/assignments/${id}/${x.module}`} className="mt-1 inline-block text-[11px] text-cyan-400 hover:underline">
+                <Link href={`/assignments/${id}/modules/${x.module}`} className="mt-1 inline-block text-[11px] text-cyan-400 hover:underline">
                   Go to {x.module} →
                 </Link>
               </li>
             ))}
             {review && review.findings.length === 0 && (
-              <li className="rounded-md border border-cyan-500/40 p-3 text-xs text-cyan-400">
-                All checks passed.
-              </li>
+              <li className="rounded-md border border-cyan-500/40 p-3 text-xs text-cyan-400">All checks passed.</li>
             )}
           </ul>
         </div>
@@ -522,33 +532,19 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
                 Based on evidence currently in this workfile. No external market feed connected.
               </p>
             </div>
-            <button
-              onClick={runMarket}
-              disabled={busy === "market"}
-              className="h-9 rounded-md border border-cyan-500/50 px-4 text-sm font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50"
-            >
+            <button onClick={runMarket} disabled={busy === "market"} className="h-9 rounded-md border border-cyan-500/50 px-4 text-sm font-semibold text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-50">
               {busy === "market" ? "Reading…" : "Re-read workfile"}
             </button>
           </div>
-
           {market && (
             <>
               <p className="mt-3 text-xs">
                 Market support:{" "}
-                <span
-                  className={
-                    market.support === "supported"
-                      ? "text-cyan-400"
-                      : market.support === "developing"
-                        ? "text-amber-400"
-                        : "text-muted-foreground"
-                  }
-                >
+                <span className={market.support === "supported" ? "text-cyan-400" : market.support === "developing" ? "text-amber-400" : "text-muted-foreground"}>
                   {market.support}
                 </span>
                 {!market.sufficient && " · insufficient evidence for a full picture"}
               </p>
-
               {market.metrics.length > 0 && (
                 <dl className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {market.metrics.map((m) => (
@@ -560,26 +556,16 @@ export default function ModulePage({ params }: { params: Promise<{ id: string; m
                   ))}
                 </dl>
               )}
-
               {market.warnings.length > 0 && (
                 <div className="mt-3">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-400">Warnings</p>
-                  <ul className="mt-1 space-y-1">
-                    {market.warnings.map((w, i) => (
-                      <li key={i} className="text-xs text-amber-400">· {w}</li>
-                    ))}
-                  </ul>
+                  <ul className="mt-1 space-y-1">{market.warnings.map((w, i) => <li key={i} className="text-xs text-amber-400">· {w}</li>)}</ul>
                 </div>
               )}
-
               {market.gaps.length > 0 && (
                 <div className="mt-3">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Evidence gaps</p>
-                  <ul className="mt-1 space-y-1">
-                    {market.gaps.map((g, i) => (
-                      <li key={i} className="text-xs text-muted-foreground">· {g}</li>
-                    ))}
-                  </ul>
+                  <ul className="mt-1 space-y-1">{market.gaps.map((g, i) => <li key={i} className="text-xs text-muted-foreground">· {g}</li>)}</ul>
                 </div>
               )}
             </>
