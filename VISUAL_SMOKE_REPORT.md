@@ -6,7 +6,7 @@ route, visually reviewed. "Build passed" is not "it sells" — so we looked.
 ## Critical defect found AND fixed
 **Every route rendered as a Next.js build-error overlay in dev** —
 `Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'` (from
-`app/layout.tsx`, Geist font). Cause: a stray `pnpm-lock.yaml` in a parent dir (`C:\Users\bsval`) made
+`app/layout.tsx`, Geist font). Cause: a stray `pnpm-lock.yaml` in a parent directory made
 Turbopack infer the **wrong workspace root**, breaking `next/font/google` resolution. `next build` was
 unaffected (dev-only). **Fix:** pinned `turbopack.root` in `next.config.ts`. Re-ran — all routes now
 render. *(This is exactly the kind of thing "it compiles" hides.)*
