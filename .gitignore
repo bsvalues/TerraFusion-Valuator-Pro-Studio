@@ -1,18 +1,36 @@
-# Rust build artifacts
+# Rust
 /target
+target/
 **/target/
+Cargo.lock
 
-# Cargo lock files for library crates (keep root lock if workspace)
-# (Adjust if you introduce a workspace-level Cargo.toml later)
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# Node / Frontend
-node_modules/
-.next/
-dist/
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+*.profraw
+*.profdata
+coverage/
 .coverage/
+
+# Build artifacts
+**/*.rs.bk
+.next/
+node_modules/
+dist/
+
+# Environment variables
+.env.local
+.env.*.local
+.vercel
 
 # Logs
 *.log
-
-# Editor
-.vscode/
