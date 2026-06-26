@@ -35,7 +35,7 @@ Commercial fee appraisers in your network and state CG-appraiser circles / appra
 - do **commercial** work (not just residential forms),
 - feel **time pressure** per assignment, and
 - worry about **review/litigation defensibility.**
-Get them on a demo assignment first; the hours-saved + evidence trail is the conversion.
+Get them on a demo assignment first; the hours saved plus evidence trail is the conversion.
 
 ## Why this converts
 Appraisers buy tools with clear ROI. One assignment's time savings ≥ a month of Solo. The pitch is the
