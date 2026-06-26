@@ -1,0 +1,26 @@
+{
+  "build": {
+    "beforeBuildCommand": "",
+    "beforeDevCommand": "",
+    "devPath": "../",
+    "distDir": "../.next",
+    "withGlobalTauri": false
+  },
+  "package": {
+    "productName": "Valuator Studio",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "windows": [
+      {
+        "title": "Valuator Studio",
+        "width": 1200,
+        "height": 800
+      }
+    ],
+    "bundle": {
+      "active": false,
+      "identifier": "com.valuator.studio"
+    }
+  }
+}

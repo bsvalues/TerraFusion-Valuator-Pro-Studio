@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "valuator-core",
+    "valuator-api",
+    "auth-service",
+    "ai-engine",
+    "data-engine",
+]
+resolver = "2"

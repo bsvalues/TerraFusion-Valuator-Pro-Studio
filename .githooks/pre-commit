@@ -1,0 +1,16 @@
+#!/bin/sh
+# DEV-AGENT pre-commit hook (POSIX shell)
+# This hook prints a short checklist reminder for developers working with agents.
+
+echo "\n=== DEV-AGENT Checklist Reminder ===\n"
+echo "- Branching: Use feature/<ticket>-short-desc"
+echo "- Provide a clear Task Title, Context, Objective, Constraints, Acceptance Criteria"
+echo "- Ensure tests pass locally: run 'cargo test' and/or 'npm run build'"
+echo "- Reference PROMPT-TEMPLATE.md in PR description when delegating to agents"
+echo "- Keep secrets out of prompts and commits"
+
+echo "\nSee DEV-AGENT.md and PROMPT-TEMPLATE.md for details.\n"
+
+echo "If you want to skip this reminder, commit with --no-verify."
+
+exit 0

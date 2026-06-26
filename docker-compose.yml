@@ -1,0 +1,96 @@
+version: "3.8"
+
+services:
+  valuator-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: valuator-api
+    ports:
+      - "8080:8080"
+    environment:
+      - API_PORT=8080
+      - CORS_ORIGIN=http://localhost:3000
+      - RUST_LOG=debug
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - AUTH_SERVICE_PORT=8081
+      - RUST_LOG=debug
+    restart: unless-stopped
+
+  ai-engine:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: ai-engine
+    ports:
+      - "8082:8082"
+    environment:
+      - AI_ENGINE_PORT=8082
+      - RUST_LOG=debug
+    restart: unless-stopped
+
+  data-engine:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: data-engine
+    ports:
+      - "8083:8083"
+    environment:
+      - DATA_ENGINE_PORT=8083
+      - RUST_LOG=debug
+    restart: unless-stopped
+
+  cost-engine:
+    build:
+      context: ./backend/ai-engine/cost
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      - COST_ENGINE_PORT=8084
+      - CORS_ORIGIN=http://localhost:3000
+    restart: unless-stopped
+
+  gis-service:
+    build:
+      context: ./backend/gis-service
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      - GIS_PORT=8085
+      - CORS_ORIGIN=http://localhost:3000
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend/valuator-studio
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_COST_ENGINE_URL=http://localhost:8084
+      - NEXT_PUBLIC_GIS_URL=http://localhost:8085
+    depends_on:
+      - valuator-api
+      - auth-service
+      - ai-engine
+      - data-engine
+      - cost-engine
+      - gis-service
+    restart: unless-stopped

@@ -1,5 +1,7 @@
 # Rust
+/target
 target/
+**/target/
 Cargo.lock
 
 # IDE
@@ -17,13 +19,21 @@ Thumbs.db
 *.profraw
 *.profdata
 coverage/
+.coverage/
 
 # Build artifacts
 **/*.rs.bk
 .next/
 node_modules/
+dist/
+__pycache__/
+*.pyc
+.merge_file_*
 
 # Environment variables
 .env.local
 .env.*.local
 .vercel
+
+# Logs
+*.log
