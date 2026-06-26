@@ -190,10 +190,10 @@ export function AppraiserProfilePanel() {
 
       {/* Preview */}
       {isComplete && (
-        <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 p-4">
+        <div className="rounded-md border border-cyan-500/20 bg-cyan-500/5 p-4">
           <div className="flex items-center gap-1.5 mb-2">
-            <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-xs font-semibold text-emerald-400">USPAP Certification Preview</span>
+            <CheckCircle className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-xs font-semibold text-cyan-400">USPAP Certification Preview</span>
           </div>
           <div className="font-mono text-xs text-foreground/80 space-y-0.5">
             <p>{profile.appraiserName}</p>

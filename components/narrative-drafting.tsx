@@ -127,7 +127,7 @@ export function NarrativeDrafting({ property, market, approaches, risk }: Narrat
           <h3 className="font-mono text-xs font-semibold tracking-wider text-foreground">
             AI NARRATIVE DRAFTING AGENT
           </h3>
-          <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-[10px] text-primary">GPT-4.1</span>
+          <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-[10px] text-primary">AI-assisted</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="font-mono text-[10px] text-muted-foreground">
@@ -183,7 +183,7 @@ export function NarrativeDrafting({ property, market, approaches, risk }: Narrat
                       onClick={() => copyToClipboard(n.type)}
                       className="flex items-center gap-1.5 rounded border border-border px-2.5 py-1.5 font-mono text-[10px] text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {copied === n.type ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                      {copied === n.type ? <Check className="h-3 w-3 text-cyan-400" /> : <Copy className="h-3 w-3" />}
                       {copied === n.type ? "COPIED" : "COPY"}
                     </button>
                   )}
@@ -223,8 +223,8 @@ export function NarrativeDrafting({ property, market, approaches, risk }: Narrat
               {narratives[n.type] && loading !== n.type && (
                 <div className="rounded border border-border/50 bg-background/50 p-4">
                   <div className="mb-2 flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    <span className="font-mono text-[9px] tracking-wider text-emerald-400">USPAP-COMPLIANT DRAFT</span>
+                    <div className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                    <span className="font-mono text-[9px] tracking-wider text-cyan-400">USPAP-AWARE DRAFT</span>
                   </div>
                   <textarea
                     value={narratives[n.type]}
@@ -242,7 +242,7 @@ export function NarrativeDrafting({ property, market, approaches, risk }: Narrat
                 <div className="rounded border border-dashed border-border/40 bg-background/20 p-6 text-center">
                   <FileText className="h-6 w-6 text-muted-foreground/40 mx-auto mb-2" />
                   <p className="font-mono text-[10px] text-muted-foreground">
-                    Click &quot;Draft with AI&quot; to generate a USPAP-compliant {n.label.toLowerCase()} narrative
+                    Click &quot;Draft with AI&quot; to generate a USPAP-aware {n.label.toLowerCase()} narrative
                   </p>
                   <p className="font-mono text-[9px] text-muted-foreground/60 mt-1">
                     Uses property data, market conditions, and valuation results

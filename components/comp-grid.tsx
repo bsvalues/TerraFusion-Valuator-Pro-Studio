@@ -21,7 +21,7 @@ function fmt(n: number) {
 }
 
 function adjColor(amt: number) {
-  if (amt > 0) return "text-emerald-400";
+  if (amt > 0) return "text-cyan-400";
   if (amt < 0) return "text-red-400";
   return "text-muted-foreground";
 }
@@ -29,7 +29,7 @@ function adjColor(amt: number) {
 function grossAdjColor(pct: number) {
   if (pct > 25) return "text-red-400";
   if (pct > 15) return "text-yellow-400";
-  return "text-emerald-400";
+  return "text-cyan-400";
 }
 
 export function CompGrid({ comps, subjectValue }: CompGridProps) {
@@ -179,7 +179,7 @@ export function CompGrid({ comps, subjectValue }: CompGridProps) {
                     </div>
                     <div className="flex items-center gap-1">
                       {netAdjOk && grossAdjOk
-                        ? <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
+                        ? <CheckCircle className="h-3.5 w-3.5 text-cyan-400" />
                         : <AlertCircle className="h-3.5 w-3.5 text-yellow-400" />
                       }
                       {isExpanded
@@ -274,10 +274,10 @@ export function CompGrid({ comps, subjectValue }: CompGridProps) {
                           {fmt(comp.salePrice)} + ({fmt(totalAdj)}) = Adjusted Price
                         </p>
                         <div className="flex gap-4 mt-0.5">
-                          <p className={`font-mono text-[9px] ${netAdjOk ? "text-emerald-400" : "text-yellow-400"}`}>
+                          <p className={`font-mono text-[9px] ${netAdjOk ? "text-cyan-400" : "text-yellow-400"}`}>
                             Net: {comp.netAdjustmentPct.toFixed(1)}% {netAdjOk ? "✓" : "⚠"}
                           </p>
-                          <p className={`font-mono text-[9px] ${grossAdjOk ? "text-emerald-400" : "text-yellow-400"}`}>
+                          <p className={`font-mono text-[9px] ${grossAdjOk ? "text-cyan-400" : "text-yellow-400"}`}>
                             Gross: {comp.grossAdjustmentPct.toFixed(1)}% {grossAdjOk ? "✓" : "⚠"}
                           </p>
                         </div>

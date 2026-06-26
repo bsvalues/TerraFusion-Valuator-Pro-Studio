@@ -189,7 +189,7 @@ export function ReconciliationPanel() {
 
   const approaches = [
     { key: "costApproach" as const, label: "Cost Approach", uad: "REC_COST_VALUE", color: "text-blue-400" },
-    { key: "salesComparison" as const, label: "Sales Comparison Approach", uad: "REC_SALES_VALUE", color: "text-emerald-400" },
+    { key: "salesComparison" as const, label: "Sales Comparison Approach", uad: "REC_SALES_VALUE", color: "text-cyan-400" },
     { key: "incomeApproach" as const, label: "Income Approach", uad: "REC_INCOME_VALUE", color: "text-amber-400" },
   ];
 
@@ -458,7 +458,7 @@ export function ReconciliationPanel() {
             ].map(({ label, ok }) => (
               <div key={label} className="flex items-center gap-2 text-xs">
                 {ok ? (
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <CheckCircle className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                 ) : (
                   <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                 )}
@@ -491,12 +491,12 @@ export function ReconciliationPanel() {
               <p className="text-[10px] font-mono text-muted-foreground">Corr: {evidence.correlationId.slice(-12)}</p>
               <div className="flex items-center gap-1.5 mt-1">
                 {evidence.uspapCompliant ? (
-                  <CheckCircle className="w-3 h-3 text-emerald-400" />
+                  <CheckCircle className="w-3 h-3 text-cyan-400" />
                 ) : (
                   <AlertCircle className="w-3 h-3 text-amber-400" />
                 )}
                 <span className="text-[10px] text-muted-foreground">
-                  {evidence.uspapCompliant ? "USPAP Compliant" : "Review Required"}
+                  {evidence.uspapCompliant ? "Reconciliation complete" : "Review required"}
                 </span>
               </div>
             </div>

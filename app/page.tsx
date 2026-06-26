@@ -1,339 +1,131 @@
-"use client";
-
-import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { TFPS_MODULES, TRUTH_LABEL, type TfpsModule } from "@/lib/tfps/suiteRegistry";
 
-interface QueueRef { id: string; title: string }
-interface Queues {
-  evidenceGaps: QueueRef[];
-  reviewRequired: QueueRef[];
-  certificationPending: QueueRef[];
-  museDraftsPending: QueueRef[];
-  reportsReady: QueueRef[];
-  reportsTotal: number;
-}
-interface AssignmentSignal {
-  id: string;
-  title: string;
-  status: string;
-  updatedAt: string;
-  certified: boolean;
-  draftCount: number;
-  blockers: number;
-  warnings: number;
-  reportReady: boolean;
-  evidenceGap: boolean;
-  certificationPending: boolean;
-  museDraftsPending: boolean;
-}
-interface LaunchpadData {
-  tier: string;
-  assignments: AssignmentSignal[];
-  queues: Queues;
-  errors: { id: string; error: string }[];
-}
+/**
+ * Public marketing landing for TerraFusion Valuator Pro.
+ * Re-skinned to the TerraFusion brand (deep navy ground + electric-cyan accent, uppercase
+ * micro-label grammar, bold headline + structured label/value block) — echoing
+ * terrafusionmarket.com. Uses semantic tokens (bg-background/text-foreground/primary/...) which
+ * now resolve to the TerraFusion palette in globals.css. NOT v0 emerald-on-zinc.
+ *
+ * Careful language: "USPAP-aware", "evidence and workfile discipline" — not a compliance guarantee.
+ */
 
-const s = {
-  page: {
-    padding: "24px 20px",
-    maxWidth: 1100,
-    margin: "0 auto",
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: 24,
-  },
-  sectionLabel: {
-    fontSize: 10,
-    fontWeight: 700,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase" as const,
-    color: "var(--tf-sub)",
-    marginBottom: 10,
-  },
-  bentoGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 10,
-  },
-  bentoCard: (hasItems: boolean) => ({
-    background: "var(--tf-glass)",
-    border: `1px solid ${hasItems ? "var(--tf-chip-warn)" : "var(--tf-border)"}`,
-    borderRadius: 8,
-    padding: "12px 14px",
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: 4,
-    minHeight: 80,
-  }),
-  bentoCount: (hasItems: boolean) => ({
-    fontSize: hasItems ? 26 : 18,
-    fontWeight: 700,
-    color: hasItems ? "var(--tf-chip-warn)" : "var(--tf-sub)",
-    lineHeight: 1,
-  }),
-  bentoLabel: { fontSize: 10, color: "var(--tf-sub)" },
-  bentoAction: { fontSize: 10, color: "var(--tf-accent)", fontWeight: 600, marginTop: 4 },
-  assignRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    background: "var(--tf-glass)",
-    border: "1px solid var(--tf-border)",
-    borderRadius: 8,
-    padding: "10px 14px",
-    textDecoration: "none",
-    color: "var(--tf-text)",
-  },
-  chip: (warn: boolean) => ({
-    fontSize: 9,
-    padding: "2px 7px",
-    borderRadius: 10,
-    fontWeight: 700,
-    letterSpacing: "0.04em",
-    border: `1px solid ${warn ? "var(--tf-chip-warn)" : "var(--tf-border)"}`,
-    color: warn ? "var(--tf-chip-warn)" : "var(--tf-sub)",
-    background: warn ? "rgba(184,144,58,0.08)" : "transparent",
-    whiteSpace: "nowrap" as const,
-  }),
-  tileRow: { display: "flex", gap: 8, flexWrap: "wrap" as const },
-  tile: (state: TfpsModule["truthState"]) => ({
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    padding: "8px 12px",
-    borderRadius: 8,
-    border: "1px solid var(--tf-border)",
-    background: "var(--tf-glass)",
-    textDecoration: "none",
-    color: "var(--tf-text)",
-    cursor: "pointer",
-  }),
-  tileDot: (state: TfpsModule["truthState"]) => ({
-    width: 7,
-    height: 7,
-    borderRadius: "50%",
-    background: state === "live" ? "var(--tf-chip-live)" : "var(--tf-sub)",
-    flexShrink: 0,
-  }),
-  tileLabel: { fontSize: 11, fontWeight: 600 },
-  tileState: { fontSize: 9, color: "var(--tf-sub)" },
+export const metadata = {
+  title: "TerraFusion Valuator Pro — Commercial Fee Appraisal Workbench",
+  description:
+    "Finish commercial appraisal analysis faster, with a stronger evidence trail. Three approaches to value, AI-assisted narrative drafting, and PDF report export — for fee appraisers.",
 };
 
-// Map module id to dock segment for navigation
-const MODULE_ROUTE: Record<string, string> = {
-  valuator: "reconcile", costforge: "cost", compforge: "sales",
-  incomeforge: "income", reportforge: "report", reviewforge: "review",
-  marketpulse: "market", dossier: "subject", muse: "muse",
-};
+const FACTS: [string, string][] = [
+  ["Approaches", "Cost · Sales · Income"],
+  ["Narrative", "AI-assisted drafting"],
+  ["Discipline", "Evidence + workfile trail"],
+  ["Output", "PDF report export"],
+];
 
-export default function LaunchPad() {
-  const [data, setData] = useState<LaunchpadData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [title, setTitle] = useState("");
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const r = await fetch("/api/tfpr/launchpad", { cache: "no-store" });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error ?? "Launchpad unavailable");
-      setData(d);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  const createAssignment = async () => {
-    if (!title.trim()) return;
-    setCreating(true);
-    try {
-      const r = await fetch("/api/tfpr/assignments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim() }),
-      });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
-      setTitle("");
-      await load();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const q = data?.queues;
-
+export default function Landing() {
   return (
-    <div style={s.page}>
-      {error && (
-        <div style={{ fontSize: 12, color: "var(--tf-chip-block)", background: "rgba(180,50,50,0.08)", border: "1px solid var(--tf-chip-block)", borderRadius: 6, padding: "8px 12px" }}>
-          {error}
-        </div>
-      )}
+    <main
+      className="min-h-screen text-foreground"
+      style={{ background: "radial-gradient(120% 90% at 80% -10%, hsl(215 40% 14%) 0%, hsl(var(--background)) 55%)" }}
+    >
+      <div className="mx-auto max-w-5xl px-6">
+        {/* Nav */}
+        <header className="flex items-center justify-between py-6">
+          <span className="text-sm font-semibold tracking-tight">
+            TerraFusion <span style={{ color: "hsl(var(--primary))" }}>Valuator Pro</span>
+          </span>
+          <nav className="flex items-center gap-6 text-sm text-muted-foreground">
+            <Link href="/pricing" className="hover:text-foreground">Pricing</Link>
+            <Link href="/sample-report" className="hover:text-foreground">Sample report</Link>
+            <Link href="/workbench" className="hover:text-foreground">Open workbench</Link>
+          </nav>
+        </header>
 
-      {/* NEEDS YOUR ATTENTION */}
-      <section>
-        <div style={s.sectionLabel}>Needs your attention</div>
-        {loading ? (
-          <div style={{ fontSize: 12, color: "var(--tf-sub)" }}>Loading…</div>
-        ) : (
-          <div style={s.bentoGrid}>
-            <div style={s.bentoCard((q?.evidenceGaps.length ?? 0) > 0)}>
-              <div style={s.bentoCount((q?.evidenceGaps.length ?? 0) > 0)}>
-                {q?.evidenceGaps.length ?? 0}
-              </div>
-              <div style={s.bentoLabel}>Evidence gaps</div>
-              {(q?.evidenceGaps.length ?? 0) > 0 && (
-                <Link href={`/assignments/${q!.evidenceGaps[0].id}/modules/evidence`} style={{ ...s.bentoAction, textDecoration: "none" }}>
-                  → Add evidence
-                </Link>
-              )}
-            </div>
+        {/* Hero */}
+        <section className="py-16 sm:py-24">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--primary))" }}>
+            For commercial fee appraisers
+          </p>
+          <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
+            Finish commercial appraisal analysis faster, with a stronger evidence trail.
+          </h1>
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            A USPAP-aware appraisal workbench built around <span className="text-foreground">evidence and workfile
+            discipline</span>. It supports all three approaches to value, drafts the narrative with AI assistance,
+            and exports a PDF report — so every number can point back to where it came from.
+          </p>
 
-            <div style={s.bentoCard((q?.reviewRequired.length ?? 0) > 0)}>
-              <div style={s.bentoCount((q?.reviewRequired.length ?? 0) > 0)}>
-                {q?.reviewRequired.length ?? 0}
-              </div>
-              <div style={s.bentoLabel}>Review required</div>
-              {(q?.reviewRequired.length ?? 0) > 0 && (
-                <Link href={`/assignments/${q!.reviewRequired[0].id}/modules/review`} style={{ ...s.bentoAction, textDecoration: "none" }}>
-                  → Open ReviewForge
-                </Link>
-              )}
-            </div>
-
-            <div style={s.bentoCard((q?.certificationPending.length ?? 0) > 0)}>
-              <div style={s.bentoCount((q?.certificationPending.length ?? 0) > 0)}>
-                {q?.certificationPending.length ?? 0}
-              </div>
-              <div style={s.bentoLabel}>Certification pending</div>
-              {(q?.certificationPending.length ?? 0) > 0 && (
-                <Link href={`/assignments/${q!.certificationPending[0].id}/modules/certify`} style={{ ...s.bentoAction, textDecoration: "none" }}>
-                  → Certify
-                </Link>
-              )}
-            </div>
-
-            <div style={{ ...s.bentoCard((q?.museDraftsPending.length ?? 0) > 0), gridColumn: "span 2" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ ...s.bentoCount((q?.museDraftsPending.length ?? 0) > 0), fontSize: 18 }}>
-                    {q?.museDraftsPending.length ?? 0} draft{(q?.museDraftsPending.length ?? 0) !== 1 ? "s" : ""}
-                  </div>
-                  <div style={s.bentoLabel}>MUSE drafts pending review</div>
-                </div>
-                {(q?.museDraftsPending.length ?? 0) > 0 && (
-                  <Link href={`/assignments/${q!.museDraftsPending[0].id}/modules/muse`} style={{ ...s.bentoAction, textDecoration: "none", fontSize: 11 }}>
-                    → Open MUSE
-                  </Link>
-                )}
-              </div>
-            </div>
-
-            <div style={s.bentoCard((q?.reportsReady.length ?? 0) > 0)}>
-              <div style={{ ...s.bentoCount((q?.reportsReady.length ?? 0) > 0), color: (q?.reportsReady.length ?? 0) > 0 ? "var(--tf-chip-live)" : "var(--tf-sub)" }}>
-                {q?.reportsReady.length ?? 0} / {q?.reportsTotal ?? 0}
-              </div>
-              <div style={s.bentoLabel}>Reports ready</div>
-              {(q?.reportsReady.length ?? 0) > 0 && (
-                <Link href={`/assignments/${q!.reportsReady[0].id}/modules/report`} style={{ ...s.bentoAction, textDecoration: "none" }}>
-                  → Export
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* ACTIVE ASSIGNMENTS */}
-      <section>
-        <div style={s.sectionLabel}>Active assignments</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {data?.assignments.map((a) => (
-            <Link key={a.id} href={`/assignments/${a.id}`} style={s.assignRow}>
-              <span style={{ fontSize: 12, color: "var(--tf-accent)" }}>↗</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 600 }}>{a.title}</div>
-                <div style={{ fontSize: 10, color: "var(--tf-sub)" }}>
-                  Updated {new Date(a.updatedAt).toLocaleDateString()}
-                  {a.certified ? " · Certified" : ""}
-                </div>
-              </div>
-              {a.blockers > 0 && <span style={s.chip(true)}>{a.blockers} blocker{a.blockers !== 1 ? "s" : ""}</span>}
-              {a.certificationPending && !a.blockers && <span style={s.chip(true)}>Cert Pending</span>}
-              {a.evidenceGap && !a.certificationPending && !a.blockers && <span style={s.chip(true)}>Evidence Gap</span>}
-              {a.reportReady && <span style={{ ...s.chip(false), color: "var(--tf-chip-live)", borderColor: "var(--tf-chip-live)" }}>Ready</span>}
-              {a.certified && <span style={{ ...s.chip(false), color: "var(--tf-chip-live)", borderColor: "var(--tf-chip-live)" }}>Certified</span>}
-            </Link>
-          ))}
-
-          {!loading && (!data?.assignments.length) && (
-            <div style={{ fontSize: 12, color: "var(--tf-sub)", padding: "12px 0" }}>
-              No active assignments.
-            </div>
-          )}
-
-          {/* Create new */}
-          <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && createAssignment()}
-              placeholder="New assignment title…"
-              style={{
-                flex: 1, height: 36, borderRadius: 8,
-                border: "1px solid var(--tf-border)",
-                background: "var(--tf-glass)",
-                color: "var(--tf-text)",
-                padding: "0 12px", fontSize: 13,
-              }}
-            />
-            <button
-              onClick={createAssignment}
-              disabled={creating || !title.trim()}
-              style={{
-                height: 36, padding: "0 16px", borderRadius: 8, fontSize: 12,
-                fontWeight: 600, border: "1px solid var(--tf-border)",
-                background: "var(--tf-glass)", color: "var(--tf-accent)",
-                cursor: "pointer", whiteSpace: "nowrap",
-              }}
-            >
-              {creating ? "Creating…" : "+ New"}
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* SUITE MODULES — quick launch */}
-      <section>
-        <div style={s.sectionLabel}>Suite modules</div>
-        <div style={s.tileRow}>
-          {TFPS_MODULES.map((m) => (
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              key={m.id}
-              href={data?.assignments[0] ? `/assignments/${data.assignments[0].id}/modules/${MODULE_ROUTE[m.id] ?? m.id}` : "/assignments"}
-              style={s.tile(m.truthState)}
+              href="/workbench"
+              className="inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
+              style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
             >
-              <div style={s.tileDot(m.truthState)} />
-              <div>
-                <div style={s.tileLabel}>{m.label}</div>
-                <div style={s.tileState}>
-                  {TRUTH_LABEL[m.truthState]}{m.qualifier ? ` · ${m.qualifier}` : ""}
-                </div>
-              </div>
+              Open the workbench →
             </Link>
+            <Link href="/sample-report" className="inline-flex items-center justify-center rounded-md border border-border px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary">
+              See a sample report
+            </Link>
+            <Link href="/pricing" className="inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+              Pricing
+            </Link>
+          </div>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Try it on a demo assignment — no card required.{" "}
+            <Link href="/demo" className="text-foreground underline-offset-4 hover:underline" style={{ textDecorationColor: "hsl(var(--primary))" }}>Start the demo →</Link>
+          </p>
+
+          {/* Structured label/value block — TerraFusion grammar (echoes the .com) */}
+          <dl className="mt-14 grid grid-cols-2 gap-x-10 gap-y-6 border-t border-border pt-8 sm:grid-cols-4">
+            {FACTS.map(([k, v]) => (
+              <div key={k}>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{k}</dt>
+                <dd className="mt-1 text-sm font-medium text-foreground">{v}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        {/* What it does */}
+        <section className="grid gap-6 border-t border-border py-14 sm:grid-cols-3">
+          {[
+            ["Three approaches to value", "Cost, sales comparison (with regression support), and income — in one governed workspace."],
+            ["AI-assisted narrative drafting", "Draft the report narrative from your own analysis, then edit. You stay the author of record."],
+            ["Evidence + workfile discipline", "Runs are logged and outputs cite their sources, so your workfile holds up to review."],
+          ].map(([h, b]) => (
+            <div key={h} className="rounded-lg border border-border bg-card p-5">
+              <h3 className="text-base font-semibold text-foreground">{h}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b}</p>
+            </div>
           ))}
-        </div>
-      </section>
-    </div>
+        </section>
+
+        {/* Who / why */}
+        <section className="border-t border-border py-14">
+          <h2 className="text-2xl font-bold tracking-tight">Built for the appraiser doing the work</h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground">
+            Form software handles residential forms. This is for the <span className="text-foreground">commercial</span>{" "}
+            analysis underneath — the three approaches, the regression, the narrative, and the report — with an
+            evidence trail that saves you time and stands up when the work is reviewed.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/workbench" className="inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold transition-opacity hover:opacity-90" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
+              Open the workbench →
+            </Link>
+            <Link href="/pricing" className="inline-flex items-center justify-center rounded-md border border-border px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary">
+              See pricing
+            </Link>
+          </div>
+        </section>
+
+        <footer className="border-t border-border py-8 text-sm text-muted-foreground">
+          TerraFusion Valuator Pro · an evidence-anchored appraisal workbench for fee appraisers.
+          <span className="mt-1 block text-muted-foreground/70">
+            USPAP-aware analytical tooling. You remain the appraiser of record; this software supports your judgment, it does not replace it.
+          </span>
+        </footer>
+      </div>
+    </main>
   );
 }

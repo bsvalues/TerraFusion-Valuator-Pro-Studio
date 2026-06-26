@@ -110,7 +110,7 @@ function Field({
       <label className="block text-xs text-zinc-400 mb-1">
         {label}
         {uadCode && (
-          <span className="ml-1 text-[10px] text-emerald-500/70 font-mono">[{uadCode}]</span>
+          <span className="ml-1 text-[10px] text-cyan-500/70 font-mono">[{uadCode}]</span>
         )}
         {required && <span className="ml-1 text-red-400">*</span>}
       </label>
@@ -120,10 +120,10 @@ function Field({
 }
 
 const inputCls =
-  "w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30";
+  "w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30";
 
 const selectCls =
-  "w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30";
+  "w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30";
 
 export function SubjectPanel() {
   const { subject, setSubject, subjectReady, missingFields } = useSubjectWorkbench();
@@ -137,7 +137,7 @@ export function SubjectPanel() {
       <div
         className={`flex items-start gap-3 p-3 rounded-lg border text-sm ${
           subjectReady
-            ? "bg-emerald-950/30 border-emerald-700/40 text-emerald-300"
+            ? "bg-cyan-950/30 border-cyan-700/40 text-cyan-300"
             : "bg-amber-950/30 border-amber-700/40 text-amber-300"
         }`}
       >
@@ -162,7 +162,7 @@ export function SubjectPanel() {
       </div>
 
       {/* Section 1 — Appraisal Order */}
-      <Section title="Appraisal Order" icon={<ClipboardList className="w-4 h-4 text-emerald-400" />}>
+      <Section title="Appraisal Order" icon={<ClipboardList className="w-4 h-4 text-cyan-400" />}>
         <Field label="File Number" required>
           <input
             className={inputCls}

@@ -63,20 +63,20 @@ export function USPAPCertification() {
   const labelCls = "font-mono text-[10px] tracking-wider text-muted-foreground";
 
   return (
-    <div className={`rounded-lg border bg-card p-5 transition-colors ${allRequiredComplete && hasAppraiserInfo ? "border-emerald-400/30" : "border-border"}`}>
+    <div className={`rounded-lg border bg-card p-5 transition-colors ${allRequiredComplete && hasAppraiserInfo ? "border-cyan-400/30" : "border-border"}`}>
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center gap-2">
-          <Shield className={`h-4 w-4 ${allRequiredComplete ? "text-emerald-400" : "text-primary"}`} />
+          <Shield className={`h-4 w-4 ${allRequiredComplete ? "text-cyan-400" : "text-primary"}`} />
           <h3 className="font-mono text-xs font-semibold tracking-wider text-foreground">
             USPAP COMPLIANCE & CERTIFICATION
           </h3>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className={`h-2 w-2 rounded-full ${allRequiredComplete ? "bg-emerald-400" : "bg-yellow-400"} animate-pulse`} />
+            <div className={`h-2 w-2 rounded-full ${allRequiredComplete ? "bg-cyan-400" : "bg-yellow-400"} animate-pulse`} />
             <span className="font-mono text-[10px] text-muted-foreground">
               {requiredChecked}/{requiredTotal} cert · {scopeRequiredChecked}/{scopeRequiredTotal} scope
             </span>
@@ -129,7 +129,7 @@ export function USPAPCertification() {
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {scopeItems.map((item) => (
                 <label key={item.id} className={`flex items-start gap-2 rounded border p-2.5 cursor-pointer transition-colors ${
-                  item.checked ? "border-emerald-400/30 bg-emerald-400/5" : "border-border/40 bg-background/30 hover:border-border"
+                  item.checked ? "border-cyan-400/30 bg-cyan-400/5" : "border-border/40 bg-background/30 hover:border-border"
                 }`}>
                   <input
                     type="checkbox"
@@ -138,7 +138,7 @@ export function USPAPCertification() {
                     className="mt-0.5 accent-primary flex-shrink-0"
                   />
                   <div>
-                    <p className={`font-mono text-[10px] font-semibold ${item.checked ? "text-emerald-400" : "text-foreground"}`}>
+                    <p className={`font-mono text-[10px] font-semibold ${item.checked ? "text-cyan-400" : "text-foreground"}`}>
                       {item.label}
                       {item.required && <span className="text-red-400 ml-1">*</span>}
                     </p>
@@ -157,7 +157,7 @@ export function USPAPCertification() {
             <div className="space-y-2">
               {items.map((item, idx) => (
                 <label key={item.id} className={`flex items-start gap-3 rounded border p-3 cursor-pointer transition-colors ${
-                  item.checked ? "border-emerald-400/30 bg-emerald-400/5" : "border-border/40 bg-background/30 hover:border-border"
+                  item.checked ? "border-cyan-400/30 bg-cyan-400/5" : "border-border/40 bg-background/30 hover:border-border"
                 }`}>
                   <input
                     type="checkbox"
@@ -169,7 +169,7 @@ export function USPAPCertification() {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-mono text-[9px] text-muted-foreground/60">{idx + 1}.</span>
                       {item.required && <span className="rounded bg-primary/10 px-1 font-mono text-[8px] text-primary">REQUIRED</span>}
-                      {item.checked && <CheckCircle className="h-3 w-3 text-emerald-400" />}
+                      {item.checked && <CheckCircle className="h-3 w-3 text-cyan-400" />}
                     </div>
                     <p className="font-mono text-[10px] text-foreground/80 leading-relaxed">{item.text}</p>
                   </div>
@@ -181,15 +181,15 @@ export function USPAPCertification() {
           {/* Compliance Status */}
           <div className={`rounded-lg border-2 p-4 ${
             allRequiredComplete && hasAppraiserInfo
-              ? "border-emerald-400/40 bg-emerald-400/5"
+              ? "border-cyan-400/40 bg-cyan-400/5"
               : "border-yellow-400/30 bg-yellow-400/5"
           }`}>
             <div className="flex items-center gap-2 mb-2">
               {allRequiredComplete && hasAppraiserInfo
-                ? <CheckCircle className="h-4 w-4 text-emerald-400" />
+                ? <CheckCircle className="h-4 w-4 text-cyan-400" />
                 : <AlertCircle className="h-4 w-4 text-yellow-400" />
               }
-              <p className={`font-mono text-xs font-bold ${allRequiredComplete && hasAppraiserInfo ? "text-emerald-400" : "text-yellow-400"}`}>
+              <p className={`font-mono text-xs font-bold ${allRequiredComplete && hasAppraiserInfo ? "text-cyan-400" : "text-yellow-400"}`}>
                 {allRequiredComplete && hasAppraiserInfo
                   ? "USPAP CERTIFICATION COMPLETE — READY FOR REPORT"
                   : "CERTIFICATION INCOMPLETE — REVIEW REQUIRED ITEMS"
@@ -214,7 +214,7 @@ export function USPAPCertification() {
               </ul>
             )}
             {allRequiredComplete && hasAppraiserInfo && (
-              <p className="font-mono text-[10px] text-emerald-400/80">
+              <p className="font-mono text-[10px] text-cyan-400/80">
                 Certified by: {appraiserName} · License: {licenseState}-{licenseNumber} · Effective: {effectiveDate}
               </p>
             )}

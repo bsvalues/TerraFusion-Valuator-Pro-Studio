@@ -369,7 +369,7 @@ function generatePdfHtml(data: ReportData): string {
   <div class="cover-header">
     <div>
       <div class="firm-name">${data.firmName || "TerraFusion Valuator Pro"}</div>
-      <div class="firm-sub">Commercial Fee Appraisal Platform · USPAP Compliant</div>
+      <div class="firm-sub">Commercial Fee Appraisal Platform · USPAP-aware</div>
       ${data.firmAddress ? `<div class="firm-sub">${data.firmAddress}</div>` : ""}
       ${data.firmPhone ? `<div class="firm-sub">${data.firmPhone} · ${data.firmEmail}</div>` : ""}
     </div>
@@ -448,7 +448,7 @@ function generatePdfHtml(data: ReportData): string {
   </div>
 
   <div style="margin-top:24px;display:flex;gap:8px;">
-    <span class="badge badge-green">USPAP Compliant</span>
+    <span class="badge badge-green">USPAP-aware</span>
     <span class="badge badge-blue">FIRREA</span>
     <span class="badge badge-blue">FNMA</span>
     <span class="badge badge-gray">UAD</span>
@@ -475,7 +475,7 @@ function generatePdfHtml(data: ReportData): string {
   </div>
   ${data.narratives?.description
     ? `<div class="narrative">${data.narratives.description ?? data.narratives.property_description}</div>`
-    : `<div class="narrative-placeholder">AI-drafted narrative not yet generated. Click "AI Draft" in the report editor to generate USPAP-compliant language for this section.</div>`
+    : `<div class="narrative-placeholder">AI-drafted narrative not yet generated. Click "AI Draft" in the report editor to generate USPAP-aware language for this section.</div>`
   }
 
   <div class="section-header" style="margin-top:24px;">
@@ -708,7 +708,7 @@ function generatePdfHtml(data: ReportData): string {
   </ol>
 
   <div style="margin-top:24px;padding-top:12px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:7.5pt;color:#999;">
-    <span>TerraFusion Valuator Pro Studio · Commercial Fee Appraisal Platform · USPAP Compliant</span>
+    <span>TerraFusion Valuator Pro Studio · Commercial Fee Appraisal Platform · USPAP-aware</span>
     <span>File No. ${data.fileNumber} · Generated ${today}</span>
   </div>
 </div>

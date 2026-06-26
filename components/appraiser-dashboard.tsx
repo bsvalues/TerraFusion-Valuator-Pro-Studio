@@ -38,8 +38,8 @@ const SAMPLE_ORDERS: RecentOrder[] = [
 
 const METRICS: DashboardMetric[] = [
   { label: "Active Orders", value: "12", sub: "4 due this week", trend: "up", trendPct: "+3", color: "text-primary" },
-  { label: "MTD Revenue", value: "$38,450", sub: "vs $31,200 last month", trend: "up", trendPct: "+23%", color: "text-emerald-400" },
-  { label: "Avg Turnaround", value: "6.2 days", sub: "Target: 7 days", trend: "down", trendPct: "-0.8d", color: "text-emerald-400" },
+  { label: "MTD Revenue", value: "$38,450", sub: "vs $31,200 last month", trend: "up", trendPct: "+23%", color: "text-cyan-400" },
+  { label: "Avg Turnaround", value: "6.2 days", sub: "Target: 7 days", trend: "down", trendPct: "-0.8d", color: "text-cyan-400" },
   { label: "Completed (YTD)", value: "47", sub: "vs 38 same period LY", trend: "up", trendPct: "+24%", color: "text-primary" },
 ];
 
@@ -47,7 +47,7 @@ const PROPERTY_MIX = [
   { type: "Office", count: 8, pct: 32, icon: Building2, color: "bg-blue-500" },
   { type: "Retail", count: 5, pct: 20, icon: ShoppingBag, color: "bg-purple-500" },
   { type: "Industrial", count: 4, pct: 16, icon: Factory, color: "bg-orange-500" },
-  { type: "Single Family", count: 6, pct: 24, icon: Home, color: "bg-emerald-500" },
+  { type: "Single Family", count: 6, pct: 24, icon: Home, color: "bg-cyan-500" },
   { type: "Other", count: 2, pct: 8, icon: Building2, color: "bg-yellow-500" },
 ];
 
@@ -63,14 +63,14 @@ function statusBadge(status: RecentOrder["status"]) {
   const map: Record<RecentOrder["status"], string> = {
     "In Progress": "bg-blue-500/10 text-blue-400 border-blue-500/20",
     "Review": "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-    "Completed": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    "Completed": "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
     "Overdue": "bg-red-500/10 text-red-400 border-red-500/20",
   };
   return map[status];
 }
 
 function daysLeftColor(days: number, status: RecentOrder["status"]) {
-  if (status === "Completed") return "text-emerald-400";
+  if (status === "Completed") return "text-cyan-400";
   if (status === "Overdue") return "text-red-400";
   if (days <= 2) return "text-red-400";
   if (days <= 5) return "text-yellow-400";
@@ -107,8 +107,8 @@ export function AppraiserDashboard() {
                 <p className="font-mono text-[9px] tracking-widest text-muted-foreground mb-1">{m.label}</p>
                 <p className={`font-mono text-2xl font-bold ${m.color}`}>{m.value}</p>
                 <div className="mt-1 flex items-center gap-1.5">
-                  {m.trend === "up" && <TrendingUp className="h-3 w-3 text-emerald-400" />}
-                  {m.trend === "down" && <TrendingUp className="h-3 w-3 text-emerald-400 rotate-180" />}
+                  {m.trend === "up" && <TrendingUp className="h-3 w-3 text-cyan-400" />}
+                  {m.trend === "down" && <TrendingUp className="h-3 w-3 text-cyan-400 rotate-180" />}
                   <span className="font-mono text-[10px] text-muted-foreground">{m.sub}</span>
                 </div>
               </div>
@@ -181,20 +181,20 @@ export function AppraiserDashboard() {
                   { label: "On-Time Delivery Rate", value: "94%", target: "95%", pct: 94, good: true },
                   { label: "Revision Request Rate", value: "4.2%", target: "< 5%", pct: 84, good: true },
                   { label: "Client Satisfaction", value: "4.8/5.0", target: "4.5+", pct: 96, good: true },
-                  { label: "USPAP Compliance Score", value: "100%", target: "100%", pct: 100, good: true },
+                  { label: "Workfile completeness", value: "98%", target: "100%", pct: 98, good: true },
                   { label: "Avg Fee / Report", value: "$2,847", target: "$2,500+", pct: 88, good: true },
                 ].map((kpi) => (
                   <div key={kpi.label} className="flex items-center gap-3">
                     <div className="flex-1">
                       <div className="mb-1 flex justify-between">
                         <span className="font-mono text-[10px] text-foreground">{kpi.label}</span>
-                        <span className={`font-mono text-[10px] font-bold ${kpi.good ? "text-emerald-400" : "text-yellow-400"}`}>
+                        <span className={`font-mono text-[10px] font-bold ${kpi.good ? "text-cyan-400" : "text-yellow-400"}`}>
                           {kpi.value}
                         </span>
                       </div>
                       <div className="h-1.5 w-full rounded-full bg-border/40">
                         <div
-                          className={`h-1.5 rounded-full ${kpi.good ? "bg-emerald-500" : "bg-yellow-500"}`}
+                          className={`h-1.5 rounded-full ${kpi.good ? "bg-cyan-500" : "bg-yellow-500"}`}
                           style={{ width: `${kpi.pct}%` }}
                         />
                       </div>
@@ -254,7 +254,7 @@ export function AppraiserDashboard() {
                         <span className="font-mono text-[10px] text-foreground">{order.client}</span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <span className="font-mono text-[10px] font-semibold text-emerald-400">
+                        <span className="font-mono text-[10px] font-semibold text-cyan-400">
                           ${order.fee.toLocaleString()}
                         </span>
                       </td>
@@ -282,7 +282,7 @@ export function AppraiserDashboard() {
             <div className="border-t border-border/30 px-5 py-3 flex items-center justify-between bg-background/30">
               <span className="font-mono text-[10px] text-muted-foreground">
                 Showing {SAMPLE_ORDERS.length} orders · Total pipeline value:{" "}
-                <span className="text-emerald-400 font-semibold">
+                <span className="text-cyan-400 font-semibold">
                   ${SAMPLE_ORDERS.filter(o => o.status !== "Completed").reduce((s, o) => s + o.fee, 0).toLocaleString()}
                 </span>
               </span>
@@ -311,7 +311,7 @@ export function AppraiserDashboard() {
                       ? <AlertCircle className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
                       : order.daysLeft <= 5
                       ? <AlertCircle className="h-3.5 w-3.5 text-yellow-400 flex-shrink-0" />
-                      : <CheckCircle className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
+                      : <CheckCircle className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
                     }
                     <div>
                       <p className="font-mono text-[10px] font-semibold text-foreground">{order.id} — {order.address}</p>
@@ -341,7 +341,7 @@ export function AppraiserDashboard() {
                 <h3 className="font-mono text-xs font-semibold tracking-wider text-foreground">CLIENT BOOK — YTD 2026</h3>
               </div>
               <span className="font-mono text-[10px] text-muted-foreground">
-                Total YTD: <span className="text-emerald-400 font-semibold">$184,800</span>
+                Total YTD: <span className="text-cyan-400 font-semibold">$184,800</span>
               </span>
             </div>
             <div className="overflow-x-auto">
@@ -373,7 +373,7 @@ export function AppraiserDashboard() {
                           <span className="font-mono text-[10px] text-muted-foreground">{client.orders}</span>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <span className="font-mono text-[10px] font-semibold text-emerald-400">
+                          <span className="font-mono text-[10px] font-semibold text-cyan-400">
                             ${client.revenue.toLocaleString()}
                           </span>
                         </td>
@@ -447,7 +447,7 @@ export function AppraiserDashboard() {
                       <td className="py-2.5 text-right font-mono text-[10px] text-muted-foreground">${row.typ.toLocaleString()}</td>
                       <td className="py-2.5 text-right font-mono text-[10px] text-muted-foreground">${row.complex.toLocaleString()}</td>
                       <td className="py-2.5 text-right">
-                        <span className={`font-mono text-[10px] font-semibold ${row.avg >= row.typ ? "text-emerald-400" : "text-yellow-400"}`}>
+                        <span className={`font-mono text-[10px] font-semibold ${row.avg >= row.typ ? "text-cyan-400" : "text-yellow-400"}`}>
                           ${row.avg.toLocaleString()}
                         </span>
                       </td>

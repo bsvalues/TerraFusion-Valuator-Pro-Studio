@@ -25,8 +25,18 @@ export async function GET() {
           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
         ),
       },
-      openai: {
-        configured: !!process.env.OPENAI_API_KEY,
+      ai: {
+        provider: (process.env.AI_PROVIDER || "template").toLowerCase(),
+        externalConfigured:
+          (process.env.AI_PROVIDER || "template").toLowerCase() === "openai"
+            ? !!process.env.OPENAI_API_KEY
+            : (process.env.AI_PROVIDER || "").toLowerCase() === "terrafusion"
+              ? !!process.env.TERRAFUSION_AI_ENDPOINT
+              : false,
+        // sovereign = the app is not reaching an external model by default
+        sovereign: ["template", "terrafusion", "disabled"].includes(
+          (process.env.AI_PROVIDER || "template").toLowerCase()
+        ),
       },
     },
   });
