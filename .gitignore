@@ -26,6 +26,9 @@ coverage/
 .next/
 node_modules/
 dist/
+__pycache__/
+*.pyc
+.merge_file_*
 
 # Environment variables
 .env.local
