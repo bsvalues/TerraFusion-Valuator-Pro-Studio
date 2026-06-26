@@ -1,0 +1,53 @@
+name: Agent PR Comment
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+on:
+  pull_request:
+
+jobs:
+  comment:
+    name: Comment on bot PRs missing agent prompts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post guidance comment if bot PR lacks prompt
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              console.log('No pull_request payload');
+              return;
+            }
+            const login = pr.user && pr.user.login ? pr.user.login.toLowerCase() : '';
+            const body = pr.body || '';
+            const isBot = login.endsWith('-bot') || login.endsWith('[bot]') || login.includes('github-actions') || login.includes('dependabot');
+            const hasPrompt = /Agent Prompt|PROMPT-TEMPLATE.md|Agent Prompt \(if used\)/i.test(body);
+            if (isBot && !hasPrompt) {
+              const comment = `Thanks for the PR! It looks like this PR was opened by a bot account (\`${pr.user.login}\`). For transparency and reviewability please include an **Agent Prompt** section or a link to the repository prompt guide: [PROMPT-TEMPLATE.md](./PROMPT-TEMPLATE.md) in the PR body.
+
+Example:
+\n``\nAgent Prompt:\n<PASTE PROMPT HERE>\n``\n
+This helps reviewers understand the agent's intent and the expected verification steps.`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: comment,
+              });
+              try {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  labels: ['needs-agent-prompt'],
+                });
+              } catch (e) {
+                console.log('Label add failed:', e.message);
+              }
+            } else {
+              console.log('No action needed');
+            }

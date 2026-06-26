@@ -40,7 +40,6 @@ import {
   computeDCF,
   emitIncomeEvidence,
 } from "@/lib/income-vault";
-import { newRunId, newCorrelationId } from "@/lib/subject-context";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -115,7 +114,7 @@ const CAP_RATE_SOURCES: CapRateSource[] = [
 ];
 
 export function IncomeApproachPanel() {
-  const { subject, dispatchRun } = useSubjectWorkbench();
+  const { subject, dispatchRun, addRunRecord } = useSubjectWorkbench();
   const [activeTab, setActiveTab] = useState<PanelTab>("rentroll");
   const [vault, setVault] = useState<IncomeVault>(() =>
     createIncomeVault(subject?.fileNumber ?? "DRAFT", subject?.propertyType ?? "Commercial", 5000)
@@ -168,11 +167,19 @@ export function IncomeApproachPanel() {
       return;
     }
 
+    // Governance dispatch — anchors the run to the subject + reason code.
+    // Must succeed (subject ready + valid reason) before we hit the engine.
+    const pendingRecord = dispatchRun("income_direct_cap", reasonCode, {
+      fileNumber: subject.fileNumber,
+      propertyType: subject.propertyType,
+    });
+    if (!pendingRecord) {
+      // governanceError is set by dispatchRun (e.g. subject not ready)
+      return;
+    }
+
     setIsRunning(true);
     setRunError(null);
-
-    const runId = newRunId();
-    const correlationId = newCorrelationId();
 
     try {
       const resp = await fetch("/api/income-approach/calculate", {
@@ -181,8 +188,8 @@ export function IncomeApproachPanel() {
         body: JSON.stringify({
           vault,
           reason_code: reasonCode,
-          correlation_id: correlationId,
-          run_id: runId,
+          correlation_id: pendingRecord.correlationId,
+          run_id: pendingRecord.runId,
           include_dcf: true,
         }),
       });
@@ -192,6 +199,12 @@ export function IncomeApproachPanel() {
       if (!resp.ok) {
         setRunError(data.error ?? "Calculation failed.");
         setRunWarnings(data.warnings ?? []);
+        addRunRecord({
+          ...pendingRecord,
+          status: "failed",
+          completedAt: new Date().toISOString(),
+          outputSnapshot: { error: data.error },
+        });
         return;
       }
 
@@ -200,12 +213,21 @@ export function IncomeApproachPanel() {
       setEvidence(data.evidence);
       setRunWarnings(data.warnings ?? []);
 
-      // Register in governance spine
-      dispatchRun(
-        "income_direct_cap",
-        reasonCode,
-        data.evidence.inputSnapshot as Record<string, unknown>
-      );
+      // Record the completed run in the governance spine. `directCapValue` is
+      // the canonical key the Reconciliation and Report panels read.
+      addRunRecord({
+        ...pendingRecord,
+        status: "complete",
+        completedAt: new Date().toISOString(),
+        outputSnapshot: {
+          directCapValue: data.direct_cap?.indicatedValue ?? null,
+          dcfValue: data.dcf?.indicatedValue ?? null,
+          // Workfile-derived income evidence (for MarketPulse R1).
+          capRate: data.direct_cap?.capRate ?? null,
+          noi: data.direct_cap?.noi ?? null,
+        },
+        narrativeReady: true,
+      });
 
       setActiveTab("directcap");
     } catch (err) {
@@ -213,7 +235,7 @@ export function IncomeApproachPanel() {
     } finally {
       setIsRunning(false);
     }
-  }, [vault, reasonCode, dispatchRun]);
+  }, [vault, reasonCode, subject, dispatchRun, addRunRecord]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
 

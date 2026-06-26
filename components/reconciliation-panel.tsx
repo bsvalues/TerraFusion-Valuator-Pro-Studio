@@ -42,7 +42,7 @@ const APPLICABILITY_OPTIONS: ApproachApplicability[] = [
 ];
 
 export function ReconciliationPanel() {
-  const { subject, runHistory, dispatchRun } = useSubjectWorkbench();
+  const { subject, runHistory, dispatchRun, addRunRecord } = useSubjectWorkbench();
 
   // Extract latest approach values from run history
   const latestCostRun = [...runHistory].reverse().find((r) => r.runType === "cost");
@@ -151,13 +151,36 @@ export function ReconciliationPanel() {
       }
       setResult(data.result);
       setEvidence(data.evidence);
-      dispatchRun("sales_comparison", reasonCode, data.evidence.inputSnapshot as Record<string, unknown>);
+
+      // Record the finalized reconciliation as its own run in the governance
+      // spine (NOT a sales_comparison run — that bug let the reconciliation
+      // overwrite the sales approach value). `finalValue` carries the opinion.
+      const pending = dispatchRun(
+        "reconciliation",
+        reasonCode,
+        data.evidence.inputSnapshot as Record<string, unknown>
+      );
+      if (pending) {
+        addRunRecord({
+          ...pending,
+          status: "complete",
+          completedAt: new Date().toISOString(),
+          outputSnapshot: {
+            finalValue:
+              data.result?.finalValueRounded ??
+              data.result?.weightedValue ??
+              vault.finalValue ??
+              null,
+          },
+          narrativeReady: true,
+        });
+      }
     } catch (err) {
       setRunError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setIsRunning(false);
     }
-  }, [vault, reasonCode, dispatchRun]);
+  }, [vault, reasonCode, dispatchRun, addRunRecord]);
 
   const totalWeight = (vault.costApproach.developed ? vault.costApproach.weight : 0)
     + (vault.salesComparison.developed ? vault.salesComparison.weight : 0)

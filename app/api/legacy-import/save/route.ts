@@ -42,7 +42,9 @@ export async function POST(req: NextRequest) {
     loanNumber: parsed.report.additionalFileNumber || null,
     effectiveDate: sc.effectiveDate || null,
     reportDate: parsed.report.signedDate || null,
+    inspectionDate: null,
     dueDate: null,
+    fee: null,
     // USPAP Assignment Conditions
     intendedUse: sc.intendedUse,
     intendedUsers: ["Client", "Lender"],
@@ -53,6 +55,7 @@ export async function POST(req: NextRequest) {
     // Subject Property Identity
     propertyId: null,
     parcelNumber: parsed.subject.parcelId || null,
+    legalDescription: null,
     address: sc.address,
     city: sc.city,
     county: sc.county || null,
@@ -74,6 +77,15 @@ export async function POST(req: NextRequest) {
     quality: null,
     view: parsed.subject.view || null,
     location: null,
+    occupancy: null,
+    // Subject depth — REC-008
+    highestBestUse: null,
+    floodZone: null,
+    femaPanel: null,
+    easements: null,
+    taxAssessedValue: null,
+    taxYear: null,
+    annualTaxes: null,
     // Commercial-specific
     numberOfUnits: parsed.subject.livingUnits ?? null,
     numberOfFloors: parsed.subject.stories ?? null,

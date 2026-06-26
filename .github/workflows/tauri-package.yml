@@ -1,0 +1,45 @@
+name: Tauri Package
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tauri-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install frontend deps
+        run: |
+          cd frontend/valuator-studio
+          npm ci --no-audit --no-fund
+
+      - name: Run Tauri build (if supported)
+        run: |
+          cd frontend/valuator-studio
+          if npm run | grep -q "tauri:build"; then
+            npm run tauri:build
+          else
+            echo "npm script tauri:build not found; attempting cargo build in src-tauri"
+            cd ../src-tauri
+            cargo build --release
+          fi
+        shell: bash
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauri-artifacts
+          path: |
+            frontend/src-tauri/target/release/**
+            frontend/valuator-studio/dist/**

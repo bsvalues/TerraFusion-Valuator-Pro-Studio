@@ -18,6 +18,9 @@ import {
   IntendedUse,
   ReportType,
   InspectionType,
+  Condition,
+  Quality,
+  Occupancy,
 } from "@/lib/subject-context";
 import {
   CheckCircle,
@@ -184,6 +187,14 @@ export function SubjectPanel() {
             onChange={(e) => setSubject({ reportDate: e.target.value || null })}
           />
         </Field>
+        <Field label="Inspection Date" uadCode="INSPECTION_DATE">
+          <input
+            type="date"
+            className={inputCls}
+            value={s("inspectionDate")}
+            onChange={(e) => setSubject({ inspectionDate: e.target.value || null })}
+          />
+        </Field>
         <Field label="Due Date">
           <input
             type="date"
@@ -341,6 +352,15 @@ export function SubjectPanel() {
             onChange={(e) => setSubject({ loanNumber: e.target.value || null })}
           />
         </Field>
+        <Field label="Appraisal Fee (USD)">
+          <input
+            type="number"
+            className={inputCls}
+            placeholder="e.g. 650"
+            value={subject.fee ?? ""}
+            onChange={(e) => setSubject({ fee: e.target.value ? Number(e.target.value) : null })}
+          />
+        </Field>
       </Section>
 
       {/* Section 4 — Subject Property Location */}
@@ -402,6 +422,14 @@ export function SubjectPanel() {
             onChange={(e) => setSubject({ parcelNumber: e.target.value || null })}
           />
         </Field>
+        <Field label="Legal Description" fullWidth>
+          <textarea
+            className={`${inputCls} h-16 resize-none`}
+            placeholder="Lot/Block/Subdivision or metes-and-bounds per public record."
+            value={s("legalDescription")}
+            onChange={(e) => setSubject({ legalDescription: e.target.value || null })}
+          />
+        </Field>
       </Section>
 
       {/* Section 5 — Subject Property Characteristics */}
@@ -460,7 +488,7 @@ export function SubjectPanel() {
           <select
             className={selectCls}
             value={s("condition")}
-            onChange={(e) => setSubject({ condition: e.target.value || null })}
+            onChange={(e) => setSubject({ condition: (e.target.value as Condition) || null })}
           >
             <option value="">— Select —</option>
             {UAD_CONDITIONS.map((c) => (
@@ -474,7 +502,7 @@ export function SubjectPanel() {
           <select
             className={selectCls}
             value={s("quality")}
-            onChange={(e) => setSubject({ quality: e.target.value || null })}
+            onChange={(e) => setSubject({ quality: (e.target.value as Quality) || null })}
           >
             <option value="">— Select —</option>
             {UAD_QUALITIES.map((q) => (
@@ -545,6 +573,89 @@ export function SubjectPanel() {
             <option value="Beneficial">Beneficial</option>
             <option value="Adverse">Adverse</option>
           </select>
+        </Field>
+        <Field label="Occupancy" uadCode="OCCUPANCY">
+          <select
+            className={selectCls}
+            value={s("occupancy")}
+            onChange={(e) => setSubject({ occupancy: (e.target.value as Occupancy) || null })}
+          >
+            <option value="">— Select —</option>
+            <option value="Owner-occupied">Owner-occupied</option>
+            <option value="Tenant-occupied">Tenant-occupied</option>
+            <option value="Vacant">Vacant</option>
+            <option value="Unknown">Unknown</option>
+          </select>
+        </Field>
+      </Section>
+
+      {/* Section 6 — Highest & Best Use · Flood · Tax (REC-008) */}
+      <Section
+        title="Highest & Best Use · Flood · Tax"
+        icon={<FileText className="w-4 h-4 text-emerald-400" />}
+      >
+        <Field label="Highest & Best Use" fullWidth>
+          <textarea
+            className={`${inputCls} h-16 resize-none`}
+            placeholder="e.g. Continued use as a single-family residence (as improved)."
+            value={s("highestBestUse")}
+            onChange={(e) => setSubject({ highestBestUse: e.target.value || null })}
+          />
+        </Field>
+        <Field label="FEMA Flood Zone">
+          <input
+            className={inputCls}
+            placeholder="e.g. X, AE"
+            value={s("floodZone")}
+            onChange={(e) => setSubject({ floodZone: e.target.value || null })}
+          />
+        </Field>
+        <Field label="FEMA Map Panel">
+          <input
+            className={inputCls}
+            placeholder="e.g. 53005C0310F"
+            value={s("femaPanel")}
+            onChange={(e) => setSubject({ femaPanel: e.target.value || null })}
+          />
+        </Field>
+        <Field label="Easements / Access" fullWidth>
+          <input
+            className={inputCls}
+            placeholder="e.g. Utility easement along rear; paved public access."
+            value={s("easements")}
+            onChange={(e) => setSubject({ easements: e.target.value || null })}
+          />
+        </Field>
+        <Field label="Tax Assessed Value (USD)">
+          <input
+            type="number"
+            className={inputCls}
+            placeholder="e.g. 285000"
+            value={n("taxAssessedValue")}
+            onChange={(e) =>
+              setSubject({ taxAssessedValue: e.target.value ? parseFloat(e.target.value) : null })
+            }
+          />
+        </Field>
+        <Field label="Assessment Year">
+          <input
+            type="number"
+            className={inputCls}
+            placeholder="e.g. 2026"
+            value={n("taxYear")}
+            onChange={(e) => setSubject({ taxYear: e.target.value ? parseInt(e.target.value) : null })}
+          />
+        </Field>
+        <Field label="Annual Taxes (USD)">
+          <input
+            type="number"
+            className={inputCls}
+            placeholder="e.g. 3200"
+            value={n("annualTaxes")}
+            onChange={(e) =>
+              setSubject({ annualTaxes: e.target.value ? parseFloat(e.target.value) : null })
+            }
+          />
         </Field>
       </Section>
     </div>

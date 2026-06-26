@@ -183,7 +183,12 @@ export function CostForgePanel() {
         ...pendingRecord,
         status: "complete",
         completedAt: new Date().toISOString(),
-        outputSnapshot: data,
+        // `indicatedValue` is the canonical key the Reconciliation and Report
+        // panels read; the raw engine output is preserved alongside it.
+        outputSnapshot: {
+          ...data,
+          indicatedValue: (data as CostRunOutput).cst_indicated_value,
+        },
         evidenceRefs: (data as CostRunOutput).evidence_refs.map((r) => ({
           sourceType: r.source_type as "cost_manual" | "appraiser_judgment",
           sourceId: r.source_id,

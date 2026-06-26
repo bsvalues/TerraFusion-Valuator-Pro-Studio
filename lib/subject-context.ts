@@ -52,6 +52,13 @@ export type InspectionType =
   | "Desktop (No Inspection)";
 
 // ---------------------------------------------------------------------------
+// UAD enums (REC-008) — formalized; no fake defaults (null until set).
+// ---------------------------------------------------------------------------
+export type Condition = "C1" | "C2" | "C3" | "C4" | "C5" | "C6";
+export type Quality = "Q1" | "Q2" | "Q3" | "Q4" | "Q5" | "Q6";
+export type Occupancy = "Owner-occupied" | "Tenant-occupied" | "Vacant" | "Unknown";
+
+// ---------------------------------------------------------------------------
 // Subject Context — the anchor for all analytical runs
 // ---------------------------------------------------------------------------
 export interface SubjectContext {
@@ -63,7 +70,9 @@ export interface SubjectContext {
   loanNumber: string | null;
   effectiveDate: string | null;         // ISO date string YYYY-MM-DD
   reportDate: string | null;            // ISO date string YYYY-MM-DD
+  inspectionDate: string | null;        // ISO date string YYYY-MM-DD (legacy APPRDATE)
   dueDate: string | null;               // ISO date string YYYY-MM-DD
+  fee: number | null;                   // Appraisal fee (USD)
 
   // USPAP Assignment Conditions
   intendedUse: IntendedUse | null;
@@ -76,6 +85,7 @@ export interface SubjectContext {
   // Subject Property Identity
   propertyId: string | null;            // Internal UUID
   parcelNumber: string | null;          // APN / Parcel ID
+  legalDescription: string | null;      // Legal description (REC-008)
   address: string | null;
   city: string | null;
   county: string | null;
@@ -92,10 +102,20 @@ export interface SubjectContext {
   bedrooms: number | null;
   bathrooms: number | null;
   garageSpaces: number | null;
-  condition: string | null;             // UAD C1-C6
-  quality: string | null;               // UAD Q1-Q6
+  condition: Condition | null;          // UAD C1-C6 (REC-008 enum)
+  quality: Quality | null;              // UAD Q1-Q6 (REC-008 enum)
   view: string | null;                  // UAD Bn/Nt/Pstrl/Wtr/WtrFr/etc.
   location: string | null;              // UAD Neutral/Beneficial/Adverse
+  occupancy: Occupancy | null;          // UAD occupancy (REC-008 enum)
+
+  // Subject depth — REC-008 (HBU, flood/environmental, tax)
+  highestBestUse: string | null;        // Highest & best use conclusion
+  floodZone: string | null;             // FEMA flood zone (e.g. X, AE)
+  femaPanel: string | null;             // FEMA map panel #
+  easements: string | null;             // Easements / access notes
+  taxAssessedValue: number | null;      // Assessed value
+  taxYear: number | null;               // Assessment year
+  annualTaxes: number | null;           // Annual real-estate taxes
 
   // Commercial-specific
   numberOfUnits: number | null;
@@ -115,6 +135,7 @@ export type RunType =
   | "income_direct_cap"
   | "income_dcf"
   | "sales_comparison"
+  | "reconciliation"
   | "regression"
   | "spatial";
 
@@ -168,7 +189,9 @@ export const DEFAULT_SUBJECT_CONTEXT: SubjectContext = {
   loanNumber: null,
   effectiveDate: null,
   reportDate: null,
+  inspectionDate: null,
   dueDate: null,
+  fee: null,
   intendedUse: null,
   intendedUsers: [],
   propertyRights: null,
@@ -177,6 +200,7 @@ export const DEFAULT_SUBJECT_CONTEXT: SubjectContext = {
   scopeOfWork: null,
   propertyId: null,
   parcelNumber: null,
+  legalDescription: null,
   address: null,
   city: null,
   county: null,
@@ -195,6 +219,14 @@ export const DEFAULT_SUBJECT_CONTEXT: SubjectContext = {
   quality: null,
   view: null,
   location: null,
+  occupancy: null,
+  highestBestUse: null,
+  floodZone: null,
+  femaPanel: null,
+  easements: null,
+  taxAssessedValue: null,
+  taxYear: null,
+  annualTaxes: null,
   numberOfUnits: null,
   numberOfFloors: null,
   occupancyRate: null,

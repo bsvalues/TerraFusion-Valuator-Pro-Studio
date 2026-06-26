@@ -2,6 +2,40 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* TerraFusion OS shell tokens — light (Professional Light) */
+:root:not(.dark) {
+  --tf-bg: hsl(35 28% 95%);
+  --tf-bg2: hsl(35 20% 90%);
+  --tf-border: hsl(35 15% 82%);
+  --tf-text: hsl(30 30% 15%);
+  --tf-sub: hsl(30 15% 45%);
+  --tf-accent: hsl(16 55% 46%);
+  --tf-accent2: hsl(140 18% 45%);
+  --tf-glass: rgba(255, 255, 255, 0.72);
+  --tf-dock: hsl(35 20% 88%);
+  --tf-bar: hsl(35 22% 90%);
+  --tf-chip-live: hsl(140 18% 45%);
+  --tf-chip-warn: hsl(30 70% 48%);
+  --tf-chip-block: hsl(0 55% 50%);
+}
+
+/* TerraFusion OS shell tokens — night (TerraFusion Night) */
+:root.dark {
+  --tf-bg: hsl(222 24% 7%);
+  --tf-bg2: hsl(220 22% 10%);
+  --tf-border: hsl(218 20% 16%);
+  --tf-text: hsl(210 30% 92%);
+  --tf-sub: hsl(205 20% 55%);
+  --tf-accent: hsl(192 58% 60%);
+  --tf-accent2: hsl(140 20% 48%);
+  --tf-glass: rgba(14, 22, 36, 0.82);
+  --tf-dock: hsl(222 26% 5%);
+  --tf-bar: hsl(222 24% 8%);
+  --tf-chip-live: hsl(192 58% 60%);
+  --tf-chip-warn: hsl(38 80% 55%);
+  --tf-chip-block: hsl(0 65% 55%);
+}
+
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));

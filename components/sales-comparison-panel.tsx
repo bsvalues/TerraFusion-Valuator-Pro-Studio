@@ -21,7 +21,7 @@
  *  - Appraiser can override any adjustment — override is tracked
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   Calculator,
   TrendingUp,
@@ -320,7 +320,7 @@ function RegressionPanel({ vault, extraction, isRunning, onRun, onApply }: Regre
 // ---------------------------------------------------------------------------
 
 export function SalesComparisonPanel() {
-  const { subject, dispatchRun } = useSubjectWorkbench();
+  const { subject, dispatchRun, addRunRecord, assignmentId } = useSubjectWorkbench();
   const [vault, setVault] = useState<CompVault>(buildInitialVault);
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
   const [isRunningRegression, setIsRunningRegression] = useState(false);
@@ -332,6 +332,56 @@ export function SalesComparisonPanel() {
   const [newCompGLA, setNewCompGLA] = useState("");
   const [newCompDate, setNewCompDate] = useState("");
   const [activeTab, setActiveTab] = useState<"grid" | "regression" | "reconcile">("grid");
+
+  // REC-002 — persist the full comp vault to the TFPR workfile (survives reload).
+  // When bound to an assignment, hydrate the saved vault (or start empty — no demo
+  // comps in a real workfile); when standalone (/workbench) keep the demo vault.
+  const [hydrated, setHydrated] = useState(false);
+  const vaultRef = useRef(vault);
+  vaultRef.current = vault;
+  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!assignmentId) {
+      setHydrated(true);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch(`/api/tfpr/assignments/${assignmentId}/module-state?key=sales_comp_vault`, { cache: "no-store" });
+        const d = await r.json();
+        if (cancelled) return;
+        const saved = d?.state as CompVault | undefined;
+        if (r.ok && saved && Array.isArray(saved.comps)) {
+          setVault(saved);
+        } else {
+          setVault(createCompVault(subject.fileNumber ?? "DRAFT", subject.gla ?? 1850));
+        }
+      } catch {
+        /* keep current vault on error */
+      } finally {
+        if (!cancelled) setHydrated(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // hydrate once per assignment
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assignmentId]);
+
+  useEffect(() => {
+    if (!assignmentId || !hydrated) return;
+    if (persistTimer.current) clearTimeout(persistTimer.current);
+    persistTimer.current = setTimeout(() => {
+      fetch(`/api/tfpr/assignments/${assignmentId}/module-state?key=sales_comp_vault`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(vaultRef.current),
+      }).catch(() => {});
+    }, 700);
+  }, [vault, assignmentId, hydrated]);
 
   // --- Run regression extraction ---
   const handleRunRegression = useCallback(
@@ -471,7 +521,40 @@ export function SalesComparisonPanel() {
     const flags = checkFNMAGuidelines(vault);
     setFnmaFlags(flags);
     setActiveTab("reconcile");
-  }, [vault]);
+
+    // Record the reconciled sales-comparison value in the governance spine so
+    // the Reconciliation and Report panels can read it. `reconciledValue` is the
+    // canonical key they read. Best-effort: if the subject isn't ready yet,
+    // dispatchRun returns null and we simply skip the spine write.
+    const pending = dispatchRun("sales_comparison", "Sales comparison grid reconciled", {
+      compCount: vault.comps.length,
+      fileNumber: vault.fileNumber,
+    });
+    if (pending) {
+      // Workfile-derived comp summary (for MarketPulse R1 — real data only).
+      const prices = vault.comps.map((c) => c.salePrice).filter((n) => n > 0);
+      const adjusted = vault.comps.map((c) => c.adjustedSalePrice).filter((n) => n > 0);
+      const dates = vault.comps.map((c) => c.saleDate).filter(Boolean).sort();
+      addRunRecord({
+        ...pending,
+        status: "complete",
+        completedAt: new Date().toISOString(),
+        outputSnapshot: {
+          reconciledValue: rec.indicatedValue,
+          compSummary: {
+            count: vault.comps.length,
+            priceMin: prices.length ? Math.min(...prices) : null,
+            priceMax: prices.length ? Math.max(...prices) : null,
+            adjustedMin: adjusted.length ? Math.min(...adjusted) : null,
+            adjustedMax: adjusted.length ? Math.max(...adjusted) : null,
+            dateMin: dates[0] ?? null,
+            dateMax: dates[dates.length - 1] ?? null,
+          },
+        },
+        narrativeReady: true,
+      });
+    }
+  }, [vault, dispatchRun, addRunRecord]);
 
   // --- Add comp ---
   const handleAddComp = useCallback(() => {
